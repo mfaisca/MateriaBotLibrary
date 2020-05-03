@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 import com.materiabot.GameElements.Ability;
 import com.materiabot.GameElements.Artifact;
-import com.materiabot.GameElements.Crystal;
 import com.materiabot.GameElements.Equipment;
 import com.materiabot.GameElements.Passive;
 import com.materiabot.GameElements.Sphere;
@@ -13,7 +12,6 @@ import com.materiabot.GameElements.Sphere.SphereType;
 import com.materiabot.GameElements.Unit;
 import com.materiabot.GameElements.Datamining.Ailment;
 import com.materiabot.GameElements.Datamining.Ailment.Target;
-import com.materiabot.GameElements.Equipment.Type;
 import com.materiabot.IO.JSON.JSONParser.MyJSONObject;
 import com.materiabot.IO.JSON.Unit.PassiveParser;
 
@@ -58,8 +56,8 @@ public class UnitParser {
 //				Crystal.find(obj.getObject("status").getString("color")), 
 //				Equipment.Type.valueOf(obj.getObject("status").getString("weapon")));
 		Unit u = getUnit(f.getName().substring(f.getName().indexOf("_")+1, f.getName().indexOf(".")).replace("_", " "));
-		u.setCrystal(Crystal.Red); //TODO
-		u.setEquipmentType(Type.Other); //TODO
+//		u.setCrystal(Crystal.Red); //TODO Waiting on Rem
+//		u.setEquipmentType(Type.Other); //TODO Waiting on Rem
 		//int[] baseSkillIds = ArrayUtils.toPrimitive(obj.getIntArray("defaultAbilities"));
 		parseCompleteListAbilities(u, obj);
 		parseOptionalAbilities(u, obj);

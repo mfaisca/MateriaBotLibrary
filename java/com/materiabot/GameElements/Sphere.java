@@ -13,6 +13,14 @@ public class Sphere{
 		public String getEmoteSphere() { return "sphere_" + this.name(); }
 		public String getEmoteSphereLetter() { return "sphereLetter_" + this.name(); }
 		public String getEmoteSlot(int slot) { return "slot_" + this.name() + slot; }
+		
+		public static SphereType get(String c) {
+			switch(c.toUpperCase()) {
+				case "A": return A; case "B": return B;
+				case "C": return C; case "D": return D;
+				case "E": return E; }
+			return null;
+		}
 	}
 	private int id;
 	private SphereType type;

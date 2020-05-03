@@ -25,7 +25,8 @@ public class Unit {
 
 	public Unit(String name, String... nicknames) {
 		this.name = name;
-		this.nicknames.addAll(Arrays.asList(nicknames));
+		this.nicknames.add(name.toLowerCase());
+		this.nicknames.addAll(Arrays.asList(nicknames).stream().map(s -> s.toLowerCase()).collect(Collectors.toList()));
 	}
 	
 	public String getName() { return name; }

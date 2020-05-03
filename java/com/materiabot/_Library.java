@@ -1,6 +1,5 @@
-package com.materiabot.GameElements;
+package com.materiabot;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -8,9 +7,11 @@ import java.util.concurrent.TimeUnit;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.materiabot.GameElements.Element;
+import com.materiabot.GameElements.Summon;
+import com.materiabot.GameElements.Unit;
 import com.materiabot.GameElements.Summon.SummonPassive;
 import com.materiabot.IO.JSON.UnitParser;
-
 import Shared.BotException;
 
 public class _Library {
@@ -29,7 +30,6 @@ public class _Library {
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	public LoadingCache<String, Unit> UNIT_CACHE;
-	public static HashMap<String, String> NICKNAMES = new HashMap<String, String>();
 	public static List<Summon> SUMMON_LIST = new LinkedList<Summon>();
 
 	static { //Temporary???
@@ -119,7 +119,7 @@ public class _Library {
 					new SummonPassive("Diabolos Protect Up", "Lowers HP damage taken by 5% when Max BRV < 50%", "HP dmg taken -5% if BRV<50%")));
 			SUMMON_LIST.add(new Summon(Arrays.asList("Odin"), 30, null, "Zantetsuken", "Decreases DEF of all enemies by 15%" + System.lineSeparator() + "After HP drops below 80%, permanently increases ATK by 30%.", 
 					"4000 Melee BRV Melee damage with a low BREAK chance" + System.lineSeparator() + "Raises Attack of Swords and Greatswords users by 25%", 
-					"8|6|10|12|14", "Noctis|Paladin Cecil|Fang|Irvine|Seven|Fran", 6, 6000, "Moderately Fast", 
+					"8|6|10|12|14", "Noctis|Cecil Paladin|Fang|Irvine|Seven|Fran", 6, 6000, "Moderately Fast", 
 					new SummonPassive("Physical Resist Up", "Lowers Physical damage taken by 10%.", "Physical dmg taken -10%"),
 					new SummonPassive("Physical Resist All", "Lowers Party Physical damage taken by 3%.", "Physical party dmg taken -3%"), 
 					new SummonPassive("Physical Power Up", "Raises Physical BRV damage dealt by 10%.", "Physical dmg dealt +10%"),
@@ -140,7 +140,6 @@ public class _Library {
 			SUMMON_LIST.add(new Summon(Arrays.asList("Spirit Moogle", "Spirit Mog", "Moogle", "Mog"), 20, null, "Don't fluff me, kupo~", "Increases Terra's Affection by 10", 
 					"Removes Terra's debuffs" + System.lineSeparator() + 
 					"Raises Terra's ATK by 10%", 1, 6000, "Very Fast"));
-			loadNicknames();
 	}
 
 	public Unit getUnit(String u) {
@@ -151,19 +150,12 @@ public class _Library {
 		}
 		return null;
 	}
-
 	public static Summon getSummon(String summonName) {
 		return SUMMON_LIST.stream().filter(s -> s.getNicknames().contains(summonName.toLowerCase())).findFirst().orElse(null);
-	}
-	
-	private static void loadNicknames() {
-		//TODO
 	}
 
 	public static void reset() {
 		GL.UNIT_CACHE.invalidateAll();
 		JP.UNIT_CACHE.invalidateAll();
-		NICKNAMES.clear();
-		loadNicknames();
 	}
 }

@@ -1,10 +1,25 @@
 package com.materiabot.GameElements;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 public class Ability {
 	public static enum Type{
-		BRV, HP, S1, S2, EX, AA, LD, BT;
+		BRV("brv"), HP("hp"), 
+		S1("s1", "1"), S2("s2", "2"), EX("ex", "exclusive"), AA("aa", "additional"), 
+		LD("ld", "limited"), BT("bt", "burst"), CA("ca", "call");
+		private List<String> names = new LinkedList<String>();
+		
+		private Type(String... skillNames) { 
+			names = Arrays.asList(skillNames);
+		}
+		
+		public static Type getByTags(String s) {
+			for(Type t : values())
+				if(t.names.contains(s.replaceAll("\\+", "").toLowerCase()))
+					return t;
+			return null;
+		}
 	}
 	public static class UpgradedAbility{
 		public int id;

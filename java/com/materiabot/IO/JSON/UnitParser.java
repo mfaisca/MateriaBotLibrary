@@ -27,37 +27,27 @@ public class UnitParser {
 	
 	public UnitParser(String r) { region = r.toLowerCase(); }
 	
-	public List<Unit> parseAllUnits(){
-		List<Unit> ll = new LinkedList<Unit>();
-		File f = new File("./resources/" + region.toLowerCase());
-		for(File u : f.listFiles())
-			ll.add(parseUnit(u));
-		return ll;
-	}
 	public Unit parseUnit(String name) {
 		try {
-			return parseUnit(new File("./resources/" + region.toLowerCase() + "/tl_" + Methods.urlize(name).toLowerCase() + ".json"));
+			return createUnit(name);
 		} catch(Exception e) {
-			new BotException("Error loading unit" + name, e).printStackTrace();;
+			new BotException("Error loading unit " + name, e).printStackTrace();;
 		}
 		return null;
 	}
 	private static Unit getUnit(String name) {
 		for(OverrideManager m : overrideManagerCollection) {
 			Unit u = m.getUnit(name);
-			if(u != null) return u;
+			if(u != null) 
+				return u;
 		}
 		return new Unit(name);
 	}
 	
-	private Unit parseUnit(File f) {
+	private Unit createUnit(String name) {
+		Unit u = getUnit(name.replace("_", " "));
+		File f = new File("./resources/" + region.toLowerCase() + "/tl_" + Methods.urlize(u.getName()).toLowerCase() + ".json");
 		MyJSONObject obj = JSONParser.loadContent(f.getAbsolutePath(), false);		
-//		Unit u = new Unit(	obj.getObject("status").getString("name"), 
-//				Crystal.find(obj.getObject("status").getString("color")), 
-//				Equipment.Type.valueOf(obj.getObject("status").getString("weapon")));
-		Unit u = getUnit(f.getName().substring(f.getName().indexOf("_")+1, f.getName().indexOf(".")).replace("_", " "));
-//		u.setCrystal(Crystal.Red); //TODO Waiting on Rem
-//		u.setEquipmentType(Type.Other); //TODO Waiting on Rem
 		//int[] baseSkillIds = ArrayUtils.toPrimitive(obj.getIntArray("defaultAbilities"));
 		parseCompleteListAbilities(u, obj);
 		parseOptionalAbilities(u, obj);

@@ -31,16 +31,16 @@ public class Equipment{
 		}
 	}
 	public static enum Rarity{
-		W_4S(4, "silverWeapon", "4w", "rarity4", "4", "4w", "4*"), 
+		W_4S(4, "silverWeapon", "4w", "10cp", "4", "4w", "4*"), 
 		W_15(5, "baseWeapon", "15", "15cp", "15", "15cp"), 
 		W_35(5, "uniqueWeapon", "35", "35cp", "35", "35cp"), 
 		W_WoI(5, "summonWeapon", "woi", "15cp", "woi", "summon"), 
 		W_NT(5, "ntWeapon", "NT", "35cp", "nt"), 
 		W_MW(5, "manikinWeapon", "dark", "15cp", "manikin", "mw", "dark", "shadow"), 
-		W_EX(5, "exWeapon", "ex", "70cpSquare", "ex", "70", "70cp", "ex3", "ex2", "ex1"), 
-		W_EXP(7, "realizedWeapon", "ex+", "100cpSquare", "ex+", "exp", "100", "100cp", "ex+3", "ex+2", "ex+1", "ex+0"), 
-		W_LD(5, "limitedWeapon", "ld", "90cpSquare", "ld", "limited", "90", "90cp", "ld3", "ld2", "ld1"), 
-		W_BT(10, "burstWeapon", "bt", "140cpSquare", "bt", "burst", "130", "130cp"),
+		W_EX(5, "exWeapon", "ex", "70cp", "ex", "70", "70cp", "ex3", "ex2", "ex1"), 
+		W_EXP(7, "realizedWeapon", "ex+", "100cp", "ex+", "exp", "100", "100cp", "ex+3", "ex+2", "ex+1", "ex+0"), 
+		W_LD(5, "limitedWeapon", "ld", "90cp", "ld", "limited", "90", "90cp", "ld3", "ld2", "ld1"), 
+		W_BT(10, "burstWeapon", "bt", "140cp", "bt", "burst", "130", "130cp"),
 		A_4S(4, "silverArmor", "4a", "rarity4", "4a"), A_35(5, "uniqueArmor", "35a", "15cp", "35a"), 
 		A_90(5, "exArmor", "hg", "35cp", "90a"), A_90P(7, "realizedArmor", "hg+", "35cp", "90a+", "130a"), 
 		A_7S(7, "highArmor", "7a", "haToken", "ha", "210a"),
@@ -59,6 +59,8 @@ public class Equipment{
 		public String getName() { return name; }
 		public String getImageName() { return imageName; }
 		public String getEmojiName() { return emojiName; }
+		public String getEmojiNameC() { return emojiName + "Circle"; }
+		public String getEmojiNameS() { return emojiName + "Square"; }
 		public List<String> getNames() { return names; }
 
 		public static Rarity getByName(String s) {

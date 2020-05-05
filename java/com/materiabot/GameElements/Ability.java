@@ -6,7 +6,7 @@ import java.util.List;
 public class Ability {
 	public static enum Type{
 		BRV("brv"), HP("hp"), 
-		S1("s1", "1"), S2("s2", "2"), EX("ex", "exclusive"), AA("aa", "additional"), 
+		S1("s1", "1"), S2("s2", "2"), AA("aa", "additional"), EX("ex", "exclusive"), 
 		LD("ld", "limited"), BT("bt", "burst"), CA("ca", "call");
 		private List<String> names = new LinkedList<String>();
 		

@@ -106,4 +106,17 @@ public class Unit {
 		}
 		return null;
 	}
+
+	public String toString() {
+		return this.getName();
+	}
+	public Unit clone() { //Shallow copy since this is all its required for the Managers
+		Unit clone = new Unit(name, nicknames.toArray(new String[0]));
+		clone.setCrystal(this.getCrystal());
+		clone.setEquipmentType(this.getEquipmentType());
+		clone.sphereSlots[0] = this.sphereSlots[0];
+		clone.sphereSlots[1] = this.sphereSlots[1];
+		clone.sphereSlots[2] = this.sphereSlots[2];
+		return clone;
+	}
 }

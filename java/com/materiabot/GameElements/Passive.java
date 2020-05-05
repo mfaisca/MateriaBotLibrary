@@ -3,6 +3,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.materiabot.GameElements.Datamining.Ailment;
 import com.materiabot.IO.JSON.JSONParser;
 
 import Shared.BotException;
@@ -131,6 +133,7 @@ public class Passive{
 		E89(89, "Raises ATK, DEF, Int BRV, Max BRV by {0}%"), //Another one of these
 		E90(90, "Raises {3}ATK, DEF, Int BRV, Max BRV by {0}%{1}"), //The second parameter is usually -1 to represent infinite turns, but I'll leave it to be changeable through "fix"
 		E102(102, "Ignores resistances against ghost-type enemies"), //Unique to Sabin
+		E107(107, "Raises recast speed of 「**{1}**」 by {0}%"),
 		E115(115, "Raises Max HP by {0}%"),
 		;
 		
@@ -144,11 +147,12 @@ public class Passive{
 		
 		public int getId() { return id; }
 		public String getBaseDescription() { return baseDescription; }
-		public String getDescription(Unit u, String target, Object... values) {
-			Object[] oa = new Object[3];
-			for(int i = 0; i < oa.length; i++)
-				oa[i] = ((Integer[])values[0])[i];
-			values = fix(u, oa);
+
+		public String getDescription(Unit u, String target, Integer... values) {
+			return getDescription(u, target, Arrays.stream(values).map(i -> i.toString()).collect(Collectors.toList()).toArray(new String[0]));
+		}
+		public String getDescription(Unit u, String target, String... values) {
+			values = fix(u, values);
 			String r = baseDescription;
 			for(int i = 0; i < values.length; i++)
 				r = r.replace("{" + i + "}", values[i].toString());
@@ -159,29 +163,35 @@ public class Passive{
 			return getBaseDescription().substring(getBaseDescription().indexOf("}")+1, getBaseDescription().indexOf("{", getBaseDescription().indexOf("}")));
 		}
 		
-		private Object[] fix(Unit u, Object[] v) {
+		private String[] fix(Unit u, String[] v) {
 			if(id == 17) v[1] = "" + (Integer.parseInt(v[1].toString())+1);
 			if(id == 22 || id == 48) {
-				Ability a = null; //_Library.JP.getSkillById(Integer.parseInt(v[0].toString()));
-				v[0] = a != null ? a.getName() : "Unknown Skill ID: " + v[0];
+				String a = u.getSpecificAbility(Integer.parseInt(v[0])).getName(); //_Library.JP.getSkillById(Integer.parseInt(v[0].toString()));
+				v[0] = a != null ? a : "Unknown Skill ID: " + v[0];
+			}
+			if(id == 107) {
+				String a = u.getSpecificAbility(Integer.parseInt(v[1])).getName(); //_Library.JP.getSkillById(Integer.parseInt(v[0].toString()));
+				v[1] = a != null ? a : "Unknown Skill ID: " + v[1];
 			}
 			if(id == 29 || id == 31 || id == 33 || id == 35 || id == 37 || id == 47 || id == 90) 
 				v[1] = v[1].toString().equalsIgnoreCase("-1") ? "" : " for " + v[1] + " turns";
 			if(id == 54) {
-				String a = u.getSpecificAilment(Integer.parseInt(v[0].toString())).getName();
-				v[0] = v[0].toString().equalsIgnoreCase("-1") ? "all" : ("ã€Œ" + (a != null ? a : "Unknown Ailment ID: " + v[0]) + "ï¿½?");
+				Ailment a = u.getSpecificAilment(Integer.parseInt(v[0]));
+				if(a != null)
+					v[0] = a.getName();
+				v[0] = v[0].toString().equalsIgnoreCase("-1") ? "all" : ((a != null ? a.getName() : "Unknown Ailment ID: " + v[0]));
 				v[1] = v[1].toString() + (v[1].toString().equalsIgnoreCase("1") ? " turn" : " turns");
 			}
-			if(id == 60) { Object o = MonsterType.getById((int)v[0]); if(o != null) v[0] = o; }
+			if(id == 60) { MonsterType o = MonsterType.getById(Integer.parseInt(v[0])); if(o != null) v[0] = o.getName(); }
 			if(id == 66) { 
-				switch((int)v[1]) {
-				case 2: v[1] = "20% IBrv Poison";
-				case 10: v[1] = "10% Max Brv Down";
-				case 11: v[1] = "10% Atk Down";
-				case 13: v[1] = "10% Def Down";
-				case 15: v[1] = "10% Speed Down";
-				case 57: v[1] = "10% Max Brv Up";
-				case 403: v[1] = "Lock";
+				switch(v[1]) {
+				case "2": v[1] = "20% IBrv Poison";
+				case "10": v[1] = "10% Max Brv Down";
+				case "11": v[1] = "10% Atk Down";
+				case "13": v[1] = "10% Def Down";
+				case "15": v[1] = "10% Speed Down";
+				case "57": v[1] = "10% Max Brv Up";
+				case "403": v[1] = "Lock";
 				}
 			}
 			return v;
@@ -228,7 +238,7 @@ public class Passive{
 		R55(55, "when ally kills an enemy"),
 		R58(58, "when HP is restored"),
 		R59(59, "when using group attacks on 1 target"),
-		R59_2(59, "when using group attacks"), //IF SKILL_ID = 296 and char = "Laguna"
+		R59_2(59, "when using group attacks"), //if SKILL_ID = 296 and char = "Laguna" || skill_id = 1803/5099 and char = "Kuja"(for the spheres)
 		R61(61, "while buffed"), //Has 1 argument, but it doesn't seem to be used for anything, maybe # of buffs required?
 		R63(63, "while an enemy is debuffed"),
 		R64(64, "during ability chain (includes BRV+/HP+)"), //Has 1 argument, but it doesn't seem to be used for anything, maybe # of buffs required?
@@ -282,8 +292,10 @@ public class Passive{
 				v[0] = a != null ? a : "Unknown Ailment ID: " + v[0];
 			}
 			if(id == 44) {
-				String a = u.getSpecificAilment(Integer.parseInt(v[0])).getName();
-				v[0] = v[0].equals("-1") ? "any" : "「" + (a != null ? a : "Unknown Ailment ID: " + v[0]) + "」";
+				Ailment a = u.getSpecificAilment(Integer.parseInt(v[0]));
+				if(a != null)
+					v[0] = a.getName();
+				v[0] = v[0].equals("-1") ? "any" : (a != null ? a.getName() : "Unknown Ailment ID: " + v[0]);
 			}
 			if(id == 52) v[1] = v[0].equals("1") ? "mastery" : "masteries";
 			if(id == 89) v[0] = v[0].equals("6") ? "Chelinka's Prayer" : (v[0].equals("7") ? "Eblan's Teachings" : ("Unknown Ailment ID: " + v[0]));
@@ -363,11 +375,13 @@ public class Passive{
 		List<String> results = new LinkedList<String>();
 		JSONParser.ValueGrouping<Effect> previousEff = null;
 		JSONParser.ValueGrouping<Required> previous = null;
+		if(getEffects().size() == 0)
+			return "**「D」** " + this.getDescription();
 		for(Dual<JSONParser.ValueGrouping<Effect>, JSONParser.ValueGrouping<Required>> effReq : getEffects()) {
 			JSONParser.ValueGrouping<Effect> eff = effReq.getValue1();
 			JSONParser.ValueGrouping<Required> req = effReq.getValue2();
 			if(req.type == null || eff.type == null) {
-				results.add("E" + eff.id + "(" + eff.values.toString() + ") when R" + req.id + "(" + req.values.toString() + ")");
+				results.add("E" + eff.id + "(" + Arrays.toString(eff.values) + ") when R" + req.id + "(" + Arrays.toString(req.values) + ")");
 				continue;
 			}
 			if(req.type.getId() == 1 && previous != null) {
@@ -383,27 +397,27 @@ public class Passive{
 						if(eff.values[1] == previousEff.values[1])
 							r = r.replace("{4}", ", " + eff.type.getShort() + "{4}");
 						else
-							r = r + System.lineSeparator() + " -" + eff.type.getDescription(this.unit, this.getTarget().getDescription(), (Object)eff.values);
+							r = r + System.lineSeparator() + " -" + eff.type.getDescription(this.unit, this.getTarget().getDescription(), eff.values);
 					}
 					results.remove(results.size() - 1);
 					results.add(r);
 				}
 				else if(!previous.type.isPostEffect()) {
 					String r = results.get(results.size() - 1);
-					r = r + System.lineSeparator() + " -" + eff.type.getDescription(this.unit, this.getTarget().getDescription(), (Object)eff.values);
+					r = r + System.lineSeparator() + " -" + eff.type.getDescription(this.unit, this.getTarget().getDescription(), eff.values);
 					results.remove(results.size() - 1);
 					results.add(r);
 				}else {
-					results.add(eff.type.getDescription(this.unit, this.getTarget().getDescription(), (Object)eff.values) + " " + previous.type.getDescription(this.unit, previous.values));
+					results.add(eff.type.getDescription(this.unit, this.getTarget().getDescription(), eff.values) + " " + previous.type.getDescription(this.unit, previous.values));
 				}
 				continue;
 			} else if(req.type.getId() == -1 || req.type.getId() == 2 || req.type.getId() == 1) {
-				results.add(eff.type.getDescription(this.unit, this.getTarget().getDescription(), (Object)eff.values));
+				results.add(eff.type.getDescription(this.unit, this.getTarget().getDescription(), eff.values));
 			} else {
 				if(req.type.isPostEffect())
-					results.add(eff.type.getDescription(this.unit, this.getTarget().getDescription(), (Object)eff.values) + " " + req.type.getDescription(this.unit, req.values));
+					results.add(eff.type.getDescription(this.unit, this.getTarget().getDescription(), eff.values) + " " + req.type.getDescription(this.unit, req.values));
 				else
-					results.add(req.type.getDescription(this.unit, req.values) + System.lineSeparator() + " -" + eff.type.getDescription(this.unit, this.getTarget().getDescription(), (Object)eff.values));
+					results.add(req.type.getDescription(this.unit, req.values) + System.lineSeparator() + " -" + eff.type.getDescription(this.unit, this.getTarget().getDescription(), eff.values));
 			}
 			previous = req;
 			previousEff = eff;

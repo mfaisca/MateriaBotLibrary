@@ -14,37 +14,39 @@ public class PassiveParser {
 	
 	public List<Passive> parsePassives(MyJSONObject obj, String passiveArray) {
 		List<Passive> passives = new LinkedList<Passive>();
-		for(MyJSONObject s : obj.getObjectArray(passiveArray)) {
-			Passive p = new Passive();
-			p.setId(s.getInt("id"));
-			p.setName(s.getObject("name").getString(region));
-			p.setDescription(s.getObject("desc").getString(region).replace("\\n", System.lineSeparator()));
-			p.setShortDescription(s.getObject("short_desc").getString(region).replace("\\n", System.lineSeparator()));
-			p.setCpCost(s.getObject("meta_data").getInt("cp"));
-			p.setLevel(s.getObject("meta_data").getInt("level"));
-			p.setTarget(Target.get(s.getObject("meta_data").getInt("target")));
-			for(MyJSONObject e : s.getObjectArray("effects")) {
-				Dual<JSONParser.ValueGrouping<Effect>, JSONParser.ValueGrouping<Required>> v = passiveExceptions(p, e);
-				if(v != null){
-					p.getEffects().add(v);
-					continue;
-				}
-				Effect eff = Effect.get(e.getInt("effect_id"));
-				Required req = Required.get(e.getInt("required_id"));
-				Integer[] ev = e.getIntArray("effect_values");
-				Integer[] rv = e.getIntArray("required_values");
-				JSONParser.ValueGrouping<Effect> vge = eff == null ? 
-												new JSONParser.ValueGrouping<Effect>(e.getInt("effect_id"), ev) : 
-												new JSONParser.ValueGrouping<Effect>(eff, ev);
-				JSONParser.ValueGrouping<Required> vgr = req == null ? 
-												new JSONParser.ValueGrouping<Required>(e.getInt("required_id"), rv) : 
-												new JSONParser.ValueGrouping<Required>(req, rv);
-				v = new Dual<JSONParser.ValueGrouping<Effect>, JSONParser.ValueGrouping<Required>>(vge, vgr);
-				p.getEffects().add(v);
-			}
-			passives.add(p);
-		}
+		for(MyJSONObject s : obj.getObjectArray(passiveArray))
+			passives.add(parsePassive(s));
 		return passives;
+	}
+	public Passive parsePassive(MyJSONObject s){
+		Passive p = new Passive();
+		p.setId(s.getInt("id"));
+		p.setName(s.getObject("name").getString(region));
+		p.setDescription(s.getObject("desc").getString(region).replace("\\n", System.lineSeparator()));
+		p.setShortDescription(s.getObject("short_desc").getString(region).replace("\\n", System.lineSeparator()));
+		p.setCpCost(s.getObject("meta_data").getInt("cp"));
+		p.setLevel(s.getObject("meta_data").getInt("level"));
+		p.setTarget(Target.get(s.getObject("meta_data").getInt("target")));
+		for(MyJSONObject e : s.getObjectArray("effects")) {
+			Dual<JSONParser.ValueGrouping<Effect>, JSONParser.ValueGrouping<Required>> v = passiveExceptions(p, e);
+			if(v != null){
+				p.getEffects().add(v);
+				continue;
+			}
+			Effect eff = Effect.get(e.getInt("effect_id"));
+			Required req = Required.get(e.getInt("required_id"));
+			Integer[] ev = e.getIntArray("effect_values");
+			Integer[] rv = e.getIntArray("required_values");
+			JSONParser.ValueGrouping<Effect> vge = eff == null ? 
+											new JSONParser.ValueGrouping<Effect>(e.getInt("effect_id"), ev) : 
+											new JSONParser.ValueGrouping<Effect>(eff, ev);
+			JSONParser.ValueGrouping<Required> vgr = req == null ? 
+											new JSONParser.ValueGrouping<Required>(e.getInt("required_id"), rv) : 
+											new JSONParser.ValueGrouping<Required>(req, rv);
+			v = new Dual<JSONParser.ValueGrouping<Effect>, JSONParser.ValueGrouping<Required>>(vge, vgr);
+			p.getEffects().add(v);
+		}
+		return p;
 	}
 	private static Dual<JSONParser.ValueGrouping<Effect>, JSONParser.ValueGrouping<Required>> passiveExceptions(Passive p, MyJSONObject e) {
 		Effect eff = null;
@@ -53,7 +55,7 @@ public class PassiveParser {
 			eff = Effect.E102; //Filler for Example
 		if(p.getId() == 1742 && e.getInt("required_id") == 52)
 			req = Required.R52_2;
-		else if(p.getId() == 296 && e.getInt("required_id") == 59)
+		else if((p.getId() == 296 || p.getId() == 1803 || p.getId() == 5099) && e.getInt("required_id") == 59) //1803 5099
 			req = Required.R59_2;
 		else if(p.getId() == 1000 && e.getInt("required_id") == 30)
 			req = Required.R1;

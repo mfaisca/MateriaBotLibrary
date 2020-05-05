@@ -11,7 +11,6 @@ import com.materiabot.GameElements.Sphere;
 import com.materiabot.GameElements.Sphere.SphereType;
 import com.materiabot.GameElements.Unit;
 import com.materiabot.GameElements.Datamining.Ailment;
-import com.materiabot.GameElements.Datamining.Ailment.Target;
 import com.materiabot.IO.JSON.JSONParser.MyJSONObject;
 import com.materiabot.IO.JSON.Unit.PassiveParser;
 
@@ -75,7 +74,7 @@ public class UnitParser {
 				ail.setDescription(ailment.getObject("desc").getString(region));
 				ail.setRate(ailment.getObject("meta_data").getInt("rate"));
 				ail.setRank(ailment.getObject("meta_data").getInt("rank"));
-				ail.setTarget(Target.get(ailment.getObject("meta_data").getInt("target")));
+				ail.setTarget(Ailment.Target.get(ailment.getObject("meta_data").getInt("target")));
 				ail.setDuration(ailment.getObject("meta_data").getInt("duration"));
 				ail.setArgs(Arrays.asList(ailment.getObject("meta_data").getIntArray("arguments")).stream().mapToInt(i->i).toArray());
 				//TODO Parse Ailments here
@@ -142,12 +141,18 @@ public class UnitParser {
 				p.setDescription(gearPassive.getObject("desc").getString(region).replace("\\n", System.lineSeparator()));
 				p.setShortDescription(gearPassive.getObject("short_desc").getString(region).replace("\\n", System.lineSeparator()));
 				p.setCpCost(gearPassive.getObject("meta_data").getInt("cp"));
+				p.setUnit(u);
 				equip.getPassives().add(p);
-				//TODO Missing Effects (Mainly for passive stat increases on EX+ and LD)
 			}
 			if(gear.getObjectArray("passives") != null) {
 				for(Passive p : new PassiveParser(region).parsePassives(gear, "passives")) {
 					p.setUnit(u);
+					try {
+						p.generateDescription();
+					} catch (BotException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					equip.getPassives().add(p);
 				}
 			}
@@ -189,12 +194,7 @@ public class UnitParser {
 			sphere.setId(gear.getInt("id"));
 			sphere.setType(SphereType.valueOf(gear.getString("category")));
 			MyJSONObject gearPassive = gear.getObject("passive");
-			Passive p = new Passive();
-			p.setId(gearPassive.getInt("id"));
-			p.setName(gearPassive.getObject("name").getString(region));
-			p.setDescription(gearPassive.getObject("desc").getString(region).replace("\\n", System.lineSeparator()));
-			p.setShortDescription(gearPassive.getObject("short_desc").getString(region).replace("\\n", System.lineSeparator()));
-			sphere.setPassive(p);
+			sphere.setPassive(new PassiveParser(region).parsePassive(gearPassive));
 			s2 = s1 == null ? null : sphere;
 			s1 = s1 == null ? sphere : s1;
 		}

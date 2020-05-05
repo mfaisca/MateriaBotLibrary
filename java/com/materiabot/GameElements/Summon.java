@@ -37,6 +37,7 @@ public class Summon{
 	private List<String> nicknames = new LinkedList<String>();
 	private int turns, maxBrvBonus, maxLevel;
 	private SummonPassive[] boardPassives;
+	private String specialBoostedChars;
 	private Unit[] chars = new Unit[6];
 	
 	public Summon(List<String> names, int level, Element element, String attackName, String blessing, String ability, int turns, int maxbrvBonus, String chargeSpeed) {
@@ -56,10 +57,7 @@ public class Summon{
 		this.turns = turns;
 		this.maxBrvBonus = maxbrvBonus;
 		this.chargeType = chargeSpeed;
-		int i = 0;
-		if(specialBoostedChars != null)
-			for(String ch : StringUtils.split(specialBoostedChars, "|"))
-				chars[i++] = _Library.JP.getUnit(ch);
+		this.specialBoostedChars = specialBoostedChars;
 	}
 	
 	public String getName() {
@@ -99,6 +97,10 @@ public class Summon{
 		return boardPassives;
 	}
 	public Unit[] getSpecialBoosteds() {
+		int i = 0;
+		if(specialBoostedChars != null)
+			for(String ch : StringUtils.split(specialBoostedChars, "|"))
+				chars[i++] = _Library.JP.getUnit(ch);
 		return chars;
 	}
 

@@ -9,10 +9,10 @@ public class Sphere{
 		private String name;
 		
 		public String getName() { return name; }
-		public String getEmoteLetter() { return "letter_" + this.name(); }
-		public String getEmoteSphere() { return "sphere_" + this.name(); }
-		public String getEmoteSphereLetter() { return "sphereLetter_" + this.name(); }
-		public String getEmoteSlot(int slot) { return "slot_" + this.name() + slot; }
+		public String getEmoteLetter() { return "sphereLetter" + this.name(); }
+		public String getEmoteSphere() { return "sphere" + this.name(); }
+		public String getEmoteSphereLetter() { return "sphere" + this.name() + "Letter"; }
+		public String getEmoteShardLetter() { return "shard" + this.name() + "Letter"; }
 		
 		public static SphereType get(String c) {
 			switch(c.toUpperCase()) {

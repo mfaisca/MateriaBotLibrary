@@ -41,10 +41,12 @@ public class Equipment{
 		W_EXP(7, "realizedWeapon", "ex+", "100cp", "ex+", "exp", "100", "100cp", "ex+3", "ex+2", "ex+1", "ex+0"), 
 		W_LD(5, "limitedWeapon", "ld", "90cp", "ld", "limited", "90", "90cp", "ld3", "ld2", "ld1"), 
 		W_BT(10, "burstWeapon", "bt", "140cp", "bt", "burst", "130", "130cp"),
-		A_4S(4, "silverArmor", "4a", "rarity4", "4a"), A_35(5, "uniqueArmor", "35a", "15cp", "35a"), 
-		A_90(5, "exArmor", "hg", "35cp", "90a"), A_90P(7, "realizedArmor", "hg+", "35cp", "90a+", "130a"), 
+		A_4S(4, "silverArmor", "4a", "rarity4", "4a"), 
+		A_35(5, "uniqueArmor", "35a", "15cp", "35a"), 
+		A_90(5, "exArmor", "hg", "35cp", "90a"), 
+		A_90P(7, "realizedArmor", "hg+", "35cp", "90a+", "130a"), 
 		A_7S(7, "highArmor", "7a", "haToken", "ha", "210a"),
-		BS(0, "bloomStone", "bloom", "AdditionalAttackType", "bloom");
+		BS(0, "bloomStone", "bloom", "bloom", "bloom");
 		
 		private int rarity;
 		private String name, imageName, emojiName;
@@ -69,11 +71,30 @@ public class Equipment{
 					return r;
 			return null;
 		}
+		public static Rarity getByEmoji(String s) {
+			for(Rarity r : values())
+				if(r.getEmojiName().equals(s) || r.getEmojiNameC().equals(s) || r.getEmojiNameS().equals(s))
+					return r;
+			return null;
+		}
 		public static Rarity getByTags(String s) {
 			for(Rarity r : values())
 				if(r.getNames().contains(s.toLowerCase()))
 					return r;
 			return null;
+		}
+
+		public static boolean isLowerTier(Rarity r) {
+			return Arrays.asList(W_4S, W_15, W_35, W_WoI, W_NT, W_MW).contains(r);
+		}
+		public static boolean isUpperTier(Rarity r) {
+			return Arrays.asList(W_EX, W_EXP, W_LD, W_BT).contains(r);
+		}
+		public static boolean isWeapon(Rarity r) {
+			return isLowerTier(r) || isUpperTier(r);
+		}
+		public static boolean isArmor(Rarity r) {
+			return Arrays.asList(A_4S, A_35, A_90, A_90P, A_7S).contains(r);
 		}
 	}
 	

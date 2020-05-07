@@ -20,6 +20,7 @@ public class _Library {
 	public static _Library get(String r) { return r.equalsIgnoreCase("JP") ? JP : GL; }	
 
 	private _Library(String r) {
+		name = r;
 		UNIT_CACHE = CacheBuilder.newBuilder()
 				.expireAfterAccess(15, TimeUnit.MINUTES).build(new CacheLoader<String, Unit>(){
 					@Override
@@ -30,6 +31,7 @@ public class _Library {
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	public LoadingCache<String, Unit> UNIT_CACHE;
+	private String name;
 	public static List<Summon> SUMMON_LIST = new LinkedList<Summon>();
 
 	static { //Temporary???
@@ -142,6 +144,7 @@ public class _Library {
 					"Raises Terra's ATK by 10%", 1, 6000, "Very Fast"));
 	}
 
+	public String getName() { return name; }
 	public Unit getUnit(String u) {
 		try {
 			return UNIT_CACHE.get(u);

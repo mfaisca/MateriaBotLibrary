@@ -147,12 +147,7 @@ public class UnitParser {
 			if(gear.getObjectArray("passives") != null) {
 				for(Passive p : new PassiveParser(region).parsePassives(gear, "passives")) {
 					p.setUnit(u);
-					try {
-						p.generateDescription();
-					} catch (BotException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					p.generateDescription();
 					equip.getPassives().add(p);
 				}
 			}

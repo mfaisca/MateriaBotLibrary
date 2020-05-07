@@ -3,11 +3,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import com.materiabot.GameElements.Datamining.Ailment;
 import com.materiabot.IO.JSON.JSONParser;
-
-import Shared.BotException;
 import Shared.Dual;
 import Shared.Methods;
 
@@ -371,7 +368,7 @@ public class Passive{
 		return effects;
 	}
 	
-	public String generateDescription() throws BotException {
+	public String generateDescription() {
 		List<String> results = new LinkedList<String>();
 		JSONParser.ValueGrouping<Effect> previousEff = null;
 		JSONParser.ValueGrouping<Required> previous = null;

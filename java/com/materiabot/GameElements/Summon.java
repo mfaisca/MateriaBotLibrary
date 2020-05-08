@@ -103,6 +103,9 @@ public class Summon{
 				chars[i++] = _Library.JP.getUnit(ch);
 		return chars;
 	}
+	public String getEmoteFrame() { return getName() + "Frame"; }
+	public String getEmoteCrystal() { return getName() + "Crystal"; }
+	public String getEmoteFace() { return getName() + "Face"; }
 
 	public static final Summon getSummonFromWoIWeapon(Unit u) {
 		Summon s = null;

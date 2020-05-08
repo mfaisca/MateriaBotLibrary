@@ -48,6 +48,7 @@ public class UnitParser {
 		File f = new File("./resources/" + region.toLowerCase() + "/tl_" + Methods.urlize(u.getName()).toLowerCase() + ".json");
 		MyJSONObject obj = JSONParser.loadContent(f.getAbsolutePath(), false);		
 		//int[] baseSkillIds = ArrayUtils.toPrimitive(obj.getIntArray("defaultAbilities"));
+		parseBaseAbilities(u, obj);
 		parseCompleteListAbilities(u, obj);
 		parseOptionalAbilities(u, obj);
 		parsePassives(u, obj);
@@ -56,12 +57,17 @@ public class UnitParser {
 		parseSpheres(u, obj);
 		return u;
 	}
+	private void parseBaseAbilities(Unit u, MyJSONObject obj) {
+		u.setBaseAbilities(obj.getIntArray("defaultAbilities"));
+	}
 	private void parseCompleteListAbilities(Unit u, MyJSONObject obj) {
 		for(MyJSONObject ab : obj.getObjectArray("completeListOfAbilities")) {
 			if(ab.getInt("error") != null) continue;
 			Ability a = new Ability();
 			a.setId(ab.getInt("id"));
 			a.setName(ab.getObject("name").getString(region));
+			if(region.equals("gl") && a.getName().charAt(0) >= 256)
+				return;
 			a.setDescription(ab.getObject("desc").getString(region).replace("\\n", System.lineSeparator()));
 			a.setUnit(u);
 			u.getAbilities().put(a.getId(), a);
@@ -78,6 +84,7 @@ public class UnitParser {
 				ail.setDuration(ailment.getObject("meta_data").getInt("duration"));
 				ail.setArgs(Arrays.asList(ailment.getObject("meta_data").getIntArray("arguments")).stream().mapToInt(i->i).toArray());
 				//TODO Parse Ailments here
+				//TODO Associate ailments to abilities so you can find what ailments an ability applies
 				u.getAilments().put(ail.getId(), ail);
 			}
 		}

@@ -14,6 +14,7 @@ public class Unit {
 	private List<String> nicknames = new LinkedList<String>();
 	private Crystal crystal;
 	private Equipment.Type equipmentType;
+	private Integer[] baseAbilities = new Integer[8];
 	private List<Ability.UpgradedAbility> upgradedAbilities = new LinkedList<Ability.UpgradedAbility>();
 	private HashMap<Integer, Ability> abilities = new HashMap<Integer, Ability>();
 	private HashMap<Integer, Passive> passives = new HashMap<Integer, Passive>();
@@ -45,6 +46,7 @@ public class Unit {
 	public Sphere getWeaponSphere() { return weaponSphere; }
 	public Sphere getBasicSphere() { return basicSphere; }
 	public void setSpheres(Sphere weapon, Sphere basic) { this.basicSphere = basic; this.weaponSphere = weapon; }
+	public void setBaseAbilities(Integer[] baseAbls) { baseAbilities = baseAbls; }
 	
 	public List<Ability> getAbility(Ability.Type type) {
 		Iterator<Ability.UpgradedAbility> iter = upgradedAbilities.stream()
@@ -52,7 +54,7 @@ public class Unit {
 				.collect(Collectors.toCollection(LinkedList::new))
 					.descendingIterator();
 		if(!iter.hasNext()) 
-			return new LinkedList<Ability>();
+			return baseAbilities.length > type.ordinal() ? Arrays.asList(abilities.get(baseAbilities[type.ordinal()])) : new LinkedList<Ability>();
 		List<Ability.UpgradedAbility> ret = new LinkedList<Ability.UpgradedAbility>();
 		Ability.UpgradedAbility last = iter.next();
 		while(iter.hasNext()) {

@@ -89,9 +89,15 @@ public class Passive{
 		}
 	}
 	public static enum Effect{
+		E1(1, "Raises ATK by {0}"),
+		E2(2, "Raises DEF by {0}"),
+		E3(3, "Raises Int BRV by {0}"),
+		E4(4, "Raises Max BRV by {0}"),
+		E5(5, "Raises HP by {0}"),
 		E11(11, "Deals +{0}% BRV damage when using group attacks on 1 target"),
 		E17(17, "Raises {3}ATK by {0}% up to {1} times"),
 		E19(19, ""), //Basch Only, no parameters, Passive effect is covered fully by other effect ID
+		E19_2(19, "Lowers ATK, INT BRV, MAX BRV by 10% and DEF by 20%"), //High Armor Effect - Essence of Strategy - Yes its constant, for now at least
 		E22(22, "「**{0}**」use +{1}"),
 		E28(28, "Raises {3}ATK{4} by {0}%"),
 		E29(29, "Raises {3}ATK{4} by {0}%{1}"),
@@ -129,9 +135,14 @@ public class Passive{
 		E82(82, "{0}% of HP recovered in excess of MAX HP shared with allies up to {1}% of the ally's Max HP"), 
 		E89(89, "Raises ATK, DEF, Int BRV, Max BRV by {0}%"), //Another one of these
 		E90(90, "Raises {3}ATK, DEF, Int BRV, Max BRV by {0}%{1}"), //The second parameter is usually -1 to represent infinite turns, but I'll leave it to be changeable through "fix"
+		E91(91, "Removes {0} buff on critical damage dealt"), //Unique? to Cloud WoI Weapon
 		E102(102, "Ignores resistances against ghost-type enemies"), //Unique to Sabin
 		E107(107, "Raises recast speed of 「**{1}**」 by {0}%"),
 		E115(115, "Raises Max HP by {0}%"),
+		E116(116, "May equip BT Ability 「**{0}**」"), //Generic effect for base EX/EX+/LD effect 
+		E117(117, null), //Generic effect for base EX/EX+/LD effect 
+		E187(187, "Raises {3}BRV damage dealt may exceed 9999 by {0}%"), //High Armor Effect - Essence of Offense
+		E188(188, "Raises {3}obtainable BRV and HP damage may exceed 99999 by {0}%"), //High armor Effect - Generic
 		;
 		
 		private int id;
@@ -162,7 +173,7 @@ public class Passive{
 		
 		private String[] fix(Unit u, String[] v) {
 			if(id == 17) v[1] = "" + (Integer.parseInt(v[1].toString())+1);
-			if(id == 22 || id == 48) {
+			if(id == 22 || id == 48 || id == 116) {
 				String a = u.getSpecificAbility(Integer.parseInt(v[0])).getName(); //_Library.JP.getSkillById(Integer.parseInt(v[0].toString()));
 				v[0] = a != null ? a : "Unknown Skill ID: " + v[0];
 			}
@@ -246,6 +257,7 @@ public class Passive{
 		R75(75, "After using Darkness:", false), //Cecil Exclusive                 
 		R76(76, "when inflicting a debuff"),
 		R77(77, "when using an ability"), //Has 1 argument, but it doesn't seem to be used for anything //TODO RECHECK THIS ONE
+		R77_2(77, "when using a Cross-Slash or Finishing Touch"), //Cloud NT Sword
 		R78(78, "while 「**{0}**」 is active"), //While buff is active
 		R79(79, "while an enemy is poisoned"), //Thancred Exclusive
 		R89(89, "while 「**{0}**」 is active"), //If required[0] = 6, "Chelinka's Prayer", else if required[0] = 7, "Eblan's Teachings", else 
@@ -281,7 +293,11 @@ public class Passive{
 		
 		private String[] fix(Unit u, String[] v) {
 			if(id == 14) {
-				String a = u.getSpecificAbility(Integer.parseInt(v[0])).getName();
+				String a = null;
+				if(v[0].equals("-1"))
+					a = "any ability";
+				else
+					a = u.getSpecificAbility(Integer.parseInt(v[0])).getName();
 				v[0] = a != null ? a : "Unknown Skill ID: " + v[0];
 			}
 			if(id == 32 || id == 40) {
@@ -372,7 +388,8 @@ public class Passive{
 		List<String> results = new LinkedList<String>();
 		JSONParser.ValueGrouping<Effect> previousEff = null;
 		JSONParser.ValueGrouping<Required> previous = null;
-		if(getEffects().size() == 0)
+		if(getEffects().size() == 0 || getEffects().stream()
+										.anyMatch(e -> e.getValue1().type.baseDescription == null))
 			return "**「D」** " + this.getDescription();
 		for(Dual<JSONParser.ValueGrouping<Effect>, JSONParser.ValueGrouping<Required>> effReq : getEffects()) {
 			JSONParser.ValueGrouping<Effect> eff = effReq.getValue1();

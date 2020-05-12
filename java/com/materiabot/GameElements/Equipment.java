@@ -41,28 +41,28 @@ public class Equipment{
 		W_EXP(7, "realizedWeapon", "ex+", "100cp", "ex+", "exp", "100", "100cp", "ex+3", "ex+2", "ex+1", "ex+0"), 
 		W_LD(5, "limitedWeapon", "ld", "90cp", "ld", "limited", "90", "90cp", "ld3", "ld2", "ld1"), 
 		W_BT(10, "burstWeapon", "bt", "140cp", "bt", "burst", "130", "130cp"),
-		A_4S(4, "silverArmor", "4a", "rarity4", "4a"), 
-		A_35(5, "uniqueArmor", "35a", "15cp", "35a"), 
-		A_90(5, "exArmor", "hg", "35cp", "90a"), 
-		A_90P(7, "realizedArmor", "hg+", "35cp", "90a+", "130a"), 
-		A_7S(7, "highArmor", "7a", "haToken", "ha", "210a"),
+		A_4S(4, "silverArmor", "4a", "a10cp", "4a"), 
+		A_35(5, "uniqueArmor", "35a", "armorToken", "35a"), 
+		A_90(5, "exArmor", "hg", "armorTokenP", "90a"), 
+		A_90P(7, "realizedArmor", "hg+", "armorTokenP", "90a+", "130a"), 
+		A_7S(7, "highArmor", "7a", "highArmorToken", "ha", "210a"),
 		BS(0, "bloomStone", "bloom", "bloom", "bloom");
 		
 		private int rarity;
-		private String name, imageName, emojiName;
+		private String name, imageName, emoteName;
 		private List<String> names = new LinkedList<String>();
 		
 		private Rarity(int rarity, String name, String imageName, String emojiName, String... gearNames) { 
-			this.rarity = rarity; this.name = name; this.imageName = imageName; this.emojiName = emojiName;
+			this.rarity = rarity; this.name = name; this.imageName = imageName; this.emoteName = emojiName;
 			names = Arrays.asList(gearNames);
 		}
 
 		public int getRarity() { return rarity; }
 		public String getName() { return name; }
 		public String getImageName() { return imageName; }
-		public String getEmojiName() { return emojiName; }
-		public String getEmojiNameC() { return emojiName + "Circle"; }
-		public String getEmojiNameS() { return emojiName + "Square"; }
+		public String getEmoteName() { return emoteName; }
+		public String getEmoteNameC() { return emoteName + "Circle"; }
+		public String getEmoteNameS() { return emoteName + "Square"; }
 		public List<String> getNames() { return names; }
 
 		public static Rarity getByName(String s) {
@@ -73,7 +73,7 @@ public class Equipment{
 		}
 		public static Rarity getByEmoji(String s) {
 			for(Rarity r : values())
-				if(r.getEmojiName().equals(s) || r.getEmojiNameC().equals(s) || r.getEmojiNameS().equals(s))
+				if(r.getEmoteName().equals(s) || r.getEmoteNameC().equals(s) || r.getEmoteNameS().equals(s))
 					return r;
 			return null;
 		}

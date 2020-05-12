@@ -131,30 +131,33 @@ public class UnitParser {
 	private void parseGear(Unit u, MyJSONObject obj) {
 		for(String gearType : Arrays.asList("silverWeapon", "baseWeapon", 
 				"uniqueWeapon", "summonWeapon", "ntWeapon", "manikinWeapon", "exWeapon", "realizedWeapon", 
-				"limitedWeapon", "burstWeapon", "silverArmor", "exArmor", "realizedArmor", "highArmor")) {
+				"limitedWeapon", "burstWeapon", "silverArmor", "uniqueArmor", "exArmor", "realizedArmor", "highArmor")) {
 			MyJSONObject gear = obj.getObject("gearList").getObject(gearType);
 			if(gear.getInt("id") == null) continue;
 			Equipment equip = new Equipment();
 			equip.setId(gear.getInt("id"));
 			equip.setName(gear.getObject("name").getString(region).replace("\\bQp", "+"));
-			equip.setType(u.getEquipmentType());
+			equip.setType(gearType.contains("Armor") ? Equipment.Type.Armor : u.getEquipmentType());
 			equip.setRarity(Equipment.Rarity.getByName(gearType));
 			equip.setUnit(u);
+			PassiveParser pp = new PassiveParser(region);
 			{
-				MyJSONObject gearPassive = gear.getObject("passive");
-				Passive p = new Passive();
-				p.setId(gearPassive.getInt("id"));
-				p.setName(gearPassive.getObject("name").getString(region));
-				p.setDescription(gearPassive.getObject("desc").getString(region).replace("\\n", System.lineSeparator()));
-				p.setShortDescription(gearPassive.getObject("short_desc").getString(region).replace("\\n", System.lineSeparator()));
-				p.setCpCost(gearPassive.getObject("meta_data").getInt("cp"));
+//				MyJSONObject gearPassive = gear.getObject("passive");
+				Passive p = pp.parsePassive(gear.getObject("passive"));
+//				Passive p = new Passive();
+//				p.setId(gearPassive.getInt("id"));
+//				p.setName(gearPassive.getObject("name").getString(region));
+//				p.setDescription(gearPassive.getObject("desc").getString(region).replace("\\n", System.lineSeparator()));
+//				p.setShortDescription(gearPassive.getObject("short_desc").getString(region).replace("\\n", System.lineSeparator()));
+//				p.setCpCost(gearPassive.getObject("meta_data").getInt("cp"));
 				p.setUnit(u);
+				p.generateDescription();
 				equip.getPassives().add(p);
 			}
 			if(gear.getObjectArray("passives") != null) {
-				for(Passive p : new PassiveParser(region).parsePassives(gear, "passives")) {
+				for(Passive p : pp.parsePassives(gear, "passives")) {
 					p.setUnit(u);
-					p.generateDescription();
+//					p.generateDescription();
 					equip.getPassives().add(p);
 				}
 			}

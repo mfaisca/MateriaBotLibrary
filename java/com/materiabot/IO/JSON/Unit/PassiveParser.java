@@ -51,14 +51,18 @@ public class PassiveParser {
 	private static Dual<JSONParser.ValueGrouping<Effect>, JSONParser.ValueGrouping<Required>> passiveExceptions(Passive p, MyJSONObject e) {
 		Effect eff = null;
 		Required req = null;
-		if(p.getId() == 0 && e.getInt("effect_id") == -0)
-			eff = Effect.E102; //Filler for Example
+//		if(p.getId() == 0 && e.getInt("effect_id") == -0)
+//			eff = Effect.E102; //Filler for Example
+		if(p.getId() == 537 && e.getInt("effect_id") == 19)
+			eff = Effect.E19_2; //For High Armor - Essence of Strategy
 		if(p.getId() == 1742 && e.getInt("required_id") == 52)
 			req = Required.R52_2;
 		else if((p.getId() == 296 || p.getId() == 1803 || p.getId() == 5099) && e.getInt("required_id") == 59) //1803 5099
 			req = Required.R59_2;
 		else if(p.getId() == 1000 && e.getInt("required_id") == 30)
 			req = Required.R1;
+		else if(p.getId() == 201 && e.getInt("required_id") == 77) //Cloud NT
+			req = Required.R77_2;
 		///////////////////////////////////////////////////////
 		if(eff == null && req == null)
 			return null;

@@ -174,20 +174,18 @@ public class Passive{
 		private String[] fix(Unit u, String[] v) {
 			if(id == 17) v[1] = "" + (Integer.parseInt(v[1].toString())+1);
 			if(id == 22 || id == 48 || id == 116) {
-				String a = u.getSpecificAbility(Integer.parseInt(v[0])).getName(); //_Library.JP.getSkillById(Integer.parseInt(v[0].toString()));
-				v[0] = a != null ? a : "Unknown Skill ID: " + v[0];
+				Ability ab = u.getSpecificAbility(Integer.parseInt(v[0])); //_Library.JP.getSkillById(Integer.parseInt(v[0].toString()));
+				v[0] = ab != null ? ab.getName() : "Unknown Skill ID: " + v[0];
 			}
 			if(id == 107) {
-				String a = u.getSpecificAbility(Integer.parseInt(v[1])).getName(); //_Library.JP.getSkillById(Integer.parseInt(v[0].toString()));
-				v[1] = a != null ? a : "Unknown Skill ID: " + v[1];
+				Ability ab = u.getSpecificAbility(Integer.parseInt(v[1])); //_Library.JP.getSkillById(Integer.parseInt(v[0].toString()));
+				v[1] = ab != null ? ab.getName() : "Unknown Skill ID: " + v[1];
 			}
 			if(id == 29 || id == 31 || id == 33 || id == 35 || id == 37 || id == 47 || id == 90) 
 				v[1] = v[1].toString().equalsIgnoreCase("-1") ? "" : " for " + v[1] + " turns";
 			if(id == 54) {
-				Ailment a = u.getSpecificAilment(Integer.parseInt(v[0]));
-				if(a != null)
-					v[0] = a.getName();
-				v[0] = v[0].toString().equalsIgnoreCase("-1") ? "all" : ((a != null ? a.getName() : "Unknown Ailment ID: " + v[0]));
+				Ailment ail = u.getSpecificAilment(Integer.parseInt(v[0]));
+				v[0] = v[0].toString().equalsIgnoreCase("-1") ? "all" : ((ail != null ? ail.getName() : "Unknown Ailment ID: " + v[0]));
 				v[1] = v[1].toString() + (v[1].toString().equalsIgnoreCase("1") ? " turn" : " turns");
 			}
 			if(id == 60) { MonsterType o = MonsterType.getById(Integer.parseInt(v[0])); if(o != null) v[0] = o.getName(); }
@@ -217,10 +215,10 @@ public class Passive{
 		R1(1, ""),   //When the condition is the same as the effect before it
 		R2(2, ""),   //When there's no condition
 		R14(14, "When using 「**{0}**」:", false), //When using {0}: ?????????
-		R26(26, "while own BRV > {0}% Max BRV"),
-		R29(29, "while own BRV < {0}% Int BRV"),
-		R30(30, "while own HP > {0}% Max HP"),
-		R31(31, "while own HP < {0}% Max HP"),
+		R26(26, "while own BRV >= {0}% Max BRV"),
+		R29(29, "while own BRV <= {0}% Int BRV"),
+		R30(30, "while own HP >= {0}% Max HP"),
+		R31(31, "while own HP <= {0}% Max HP"),
 		R32(32, "while 「**{0}**」 is active"), //While buff is active
 		R33(33, "when breaking a target"), //When breaking
 		R35(35, "if HP is MAX at start of last wave"),
@@ -293,22 +291,16 @@ public class Passive{
 		
 		private String[] fix(Unit u, String[] v) {
 			if(id == 14) {
-				String a = null;
-				if(v[0].equals("-1"))
-					a = "any ability";
-				else
-					a = u.getSpecificAbility(Integer.parseInt(v[0])).getName();
-				v[0] = a != null ? a : "Unknown Skill ID: " + v[0];
+				Ability ab = u.getSpecificAbility(Integer.parseInt(v[0]));
+				v[0] = v[0].equals("-1") ? "any ability" : (ab != null ? ab.getName() : "Unknown Skill ID: " + v[0]);
 			}
 			if(id == 32 || id == 40) {
-				String a = u.getSpecificAilment(Integer.parseInt(v[0])).getName();
-				v[0] = a != null ? a : "Unknown Ailment ID: " + v[0];
+				Ailment ail = u.getSpecificAilment(Integer.parseInt(v[0]));
+				v[0] = ail != null ? ail.getName() : "Unknown Ailment ID: " + v[0];
 			}
 			if(id == 44) {
-				Ailment a = u.getSpecificAilment(Integer.parseInt(v[0]));
-				if(a != null)
-					v[0] = a.getName();
-				v[0] = v[0].equals("-1") ? "any" : (a != null ? a.getName() : "Unknown Ailment ID: " + v[0]);
+				Ailment ail = u.getSpecificAilment(Integer.parseInt(v[0]));
+				v[0] = v[0].equals("-1") ? "any" : (ail != null ? ail.getName() : "Unknown Ailment ID: " + v[0]);
 			}
 			if(id == 52) v[1] = v[0].equals("1") ? "mastery" : "masteries";
 			if(id == 89) v[0] = v[0].equals("6") ? "Chelinka's Prayer" : (v[0].equals("7") ? "Eblan's Teachings" : ("Unknown Ailment ID: " + v[0]));
@@ -385,57 +377,63 @@ public class Passive{
 	}
 	
 	public String generateDescription() {
-		List<String> results = new LinkedList<String>();
-		JSONParser.ValueGrouping<Effect> previousEff = null;
-		JSONParser.ValueGrouping<Required> previous = null;
-		if(getEffects().size() == 0 || getEffects().stream()
-										.anyMatch(e -> e.getValue1().type.baseDescription == null))
-			return "**「D」** " + this.getDescription();
-		for(Dual<JSONParser.ValueGrouping<Effect>, JSONParser.ValueGrouping<Required>> effReq : getEffects()) {
-			JSONParser.ValueGrouping<Effect> eff = effReq.getValue1();
-			JSONParser.ValueGrouping<Required> req = effReq.getValue2();
-			if(req.type == null || eff.type == null) {
-				results.add("E" + eff.id + "(" + Arrays.toString(eff.values) + ") when R" + req.id + "(" + Arrays.toString(req.values) + ")");
-				continue;
-			}
-			if(req.type.getId() == 1 && previous != null) {
-				if(eff.type.getId() >= 28 && eff.type.getId() <= 37 && previousEff.type.getId() >= 28 && previousEff.type.getId() <= 37) {
-					String r = results.get(results.size() - 1);
-					if(eff.type.getId() % 2 == 0) { //Perma
-						if(eff.values[0] == previousEff.values[0])
-							r = r.replace("{4}", ", " + eff.type.getShort() + "{4}");
-						else 
-							r = Methods.replaceLast(r, "%", "%, " + eff.type.getShort() + " by " + eff.values[0] + "%");
-					}
-					else { //For X turns
-						if(eff.values[1] == previousEff.values[1])
-							r = r.replace("{4}", ", " + eff.type.getShort() + "{4}");
-						else
-							r = r + System.lineSeparator() + " -" + eff.type.getDescription(this.unit, this.getTarget().getDescription(), eff.values);
-					}
-					results.remove(results.size() - 1);
-					results.add(r);
+		try {
+			List<String> results = new LinkedList<String>();
+			JSONParser.ValueGrouping<Effect> previousEff = null;
+			JSONParser.ValueGrouping<Required> previous = null;
+			if(getEffects().size() == 0 || getEffects().stream()
+											.anyMatch(e -> e.getValue1().type.baseDescription == null))
+				return "**「D」** " + this.getDescription();
+			for(Dual<JSONParser.ValueGrouping<Effect>, JSONParser.ValueGrouping<Required>> effReq : getEffects()) {
+				JSONParser.ValueGrouping<Effect> eff = effReq.getValue1();
+				JSONParser.ValueGrouping<Required> req = effReq.getValue2();
+				if(req.type == null || eff.type == null) {
+					results.add("E" + eff.id + "(" + Arrays.toString(eff.values) + ") when R" + req.id + "(" + Arrays.toString(req.values) + ")");
+					continue;
 				}
-				else if(!previous.type.isPostEffect()) {
-					String r = results.get(results.size() - 1);
-					r = r + System.lineSeparator() + " -" + eff.type.getDescription(this.unit, this.getTarget().getDescription(), eff.values);
-					results.remove(results.size() - 1);
-					results.add(r);
-				}else {
-					results.add(eff.type.getDescription(this.unit, this.getTarget().getDescription(), eff.values) + " " + previous.type.getDescription(this.unit, previous.values));
+				if(req.type.getId() == 1 && previous != null) {
+					if(eff.type.getId() >= 28 && eff.type.getId() <= 37 && previousEff.type.getId() >= 28 && previousEff.type.getId() <= 37) {
+						String r = results.get(results.size() - 1);
+						if(eff.type.getId() % 2 == 0) { //Perma
+							if(eff.values[0] == previousEff.values[0])
+								r = r.replace("{4}", ", " + eff.type.getShort() + "{4}");
+							else 
+								r = Methods.replaceLast(r, "%", "%, " + eff.type.getShort() + " by " + eff.values[0] + "%");
+						}
+						else { //For X turns
+							if(eff.values[1] == previousEff.values[1])
+								r = r.replace("{4}", ", " + eff.type.getShort() + "{4}");
+							else
+								r = r + System.lineSeparator() + " -" + eff.type.getDescription(this.unit, this.getTarget().getDescription(), eff.values);
+						}
+						results.remove(results.size() - 1);
+						results.add(r);
+					}
+					else if(!previous.type.isPostEffect()) {
+						String r = results.get(results.size() - 1);
+						r = r + System.lineSeparator() + " -" + eff.type.getDescription(this.unit, this.getTarget().getDescription(), eff.values);
+						results.remove(results.size() - 1);
+						results.add(r);
+					}else {
+						results.add(eff.type.getDescription(this.unit, this.getTarget().getDescription(), eff.values) + " " + previous.type.getDescription(this.unit, previous.values));
+					}
+					continue;
+				} else if(req.type.getId() == -1 || req.type.getId() == 2 || req.type.getId() == 1) {
+					results.add(eff.type.getDescription(this.unit, this.getTarget().getDescription(), eff.values));
+				} else {
+					if(req.type.isPostEffect())
+						results.add(eff.type.getDescription(this.unit, this.getTarget().getDescription(), eff.values) + " " + req.type.getDescription(this.unit, req.values));
+					else
+						results.add(req.type.getDescription(this.unit, req.values) + System.lineSeparator() + " -" + eff.type.getDescription(this.unit, this.getTarget().getDescription(), eff.values));
 				}
-				continue;
-			} else if(req.type.getId() == -1 || req.type.getId() == 2 || req.type.getId() == 1) {
-				results.add(eff.type.getDescription(this.unit, this.getTarget().getDescription(), eff.values));
-			} else {
-				if(req.type.isPostEffect())
-					results.add(eff.type.getDescription(this.unit, this.getTarget().getDescription(), eff.values) + " " + req.type.getDescription(this.unit, req.values));
-				else
-					results.add(req.type.getDescription(this.unit, req.values) + System.lineSeparator() + " -" + eff.type.getDescription(this.unit, this.getTarget().getDescription(), eff.values));
+				previous = req;
+				previousEff = eff;
 			}
-			previous = req;
-			previousEff = eff;
+			return results.stream().map(s -> s.replace("{4}", "")).reduce("", (o1, o2) -> o1 + System.lineSeparator() + o2).trim();
+		} catch(Exception e) {
+			System.out.println("Error parsing " + getUnit().getName() + " effect id " + getId());
+			e.printStackTrace();
+			return null;
 		}
-		return results.stream().map(s -> s.replace("{4}", "")).reduce("", (o1, o2) -> o1 + System.lineSeparator() + o2).trim();
 	}
 }

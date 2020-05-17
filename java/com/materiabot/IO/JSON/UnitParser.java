@@ -3,6 +3,8 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+
+import com.google.common.base.CharMatcher;
 import com.materiabot.GameElements.Ability;
 import com.materiabot.GameElements.Artifact;
 import com.materiabot.GameElements.Equipment;
@@ -13,13 +15,12 @@ import com.materiabot.GameElements.Unit;
 import com.materiabot.GameElements.Datamining.Ailment;
 import com.materiabot.IO.JSON.JSONParser.MyJSONObject;
 import com.materiabot.IO.JSON.Unit.PassiveParser;
-
-import Shared.BotException;
 import Shared.Methods;
 
 public class UnitParser {
-	public static interface OverrideManager{
+	public static interface OverrideManager{		
 		public Unit getUnit(String name);
+		public Unit getRandomUnit();
 	}
 	public static List<OverrideManager> overrideManagerCollection = new LinkedList<OverrideManager>();
 	private String region;
@@ -30,7 +31,7 @@ public class UnitParser {
 		try {
 			return createUnit(name);
 		} catch(Exception e) {
-			new BotException("Error loading unit " + name, e).printStackTrace();;
+			
 		}
 		return null;
 	}
@@ -66,8 +67,8 @@ public class UnitParser {
 			Ability a = new Ability();
 			a.setId(ab.getInt("id"));
 			a.setName(ab.getObject("name").getString(region));
-			if(region.equals("gl") && a.getName().charAt(0) >= 256)
-				return;
+			if(region.equals("gl") && !CharMatcher.ascii().matchesAllOf(a.getName()))
+				continue;
 			a.setDescription(ab.getObject("desc").getString(region).replace("\\n", System.lineSeparator()));
 			a.setUnit(u);
 			u.getAbilities().put(a.getId(), a);
@@ -106,7 +107,7 @@ public class UnitParser {
 					ua.upgrade.setType(ua.type);
 					u.getUpgradedAbilities().add(ua);
 				} catch(Exception e) {
-					System.out.println("Error loading \"" + u.getName() + "\" OptionalAbility ID: " + skillLevel.getInt("id"));
+					System.out.println("Error loading \"" + u.getName() + "\" OptionalAbility ID: " + skillLevel.getInt("id") + " - This is probably fine, just JP abilities being filtered");
 					continue;
 				}
 			}
@@ -137,6 +138,8 @@ public class UnitParser {
 			Equipment equip = new Equipment();
 			equip.setId(gear.getInt("id"));
 			equip.setName(gear.getObject("name").getString(region).replace("\\bQp", "+"));
+			if(region.equals("gl") && !CharMatcher.ascii().matchesAllOf(equip.getName()))
+				continue;
 			equip.setType(gearType.contains("Armor") ? Equipment.Type.Armor : u.getEquipmentType());
 			equip.setRarity(Equipment.Rarity.getByName(gearType));
 			equip.setUnit(u);
@@ -151,13 +154,13 @@ public class UnitParser {
 //				p.setShortDescription(gearPassive.getObject("short_desc").getString(region).replace("\\n", System.lineSeparator()));
 //				p.setCpCost(gearPassive.getObject("meta_data").getInt("cp"));
 				p.setUnit(u);
-				p.generateDescription();
+				//p.generateDescription();
 				equip.getPassives().add(p);
 			}
 			if(gear.getObjectArray("passives") != null) {
 				for(Passive p : pp.parsePassives(gear, "passives")) {
 					p.setUnit(u);
-//					p.generateDescription();
+					p.generateDescription();
 					equip.getPassives().add(p);
 				}
 			}

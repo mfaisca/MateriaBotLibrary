@@ -2,7 +2,6 @@ package com.materiabot;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -12,7 +11,6 @@ import com.materiabot.GameElements.Summon;
 import com.materiabot.GameElements.Unit;
 import com.materiabot.GameElements.Summon.SummonPassive;
 import com.materiabot.IO.JSON.UnitParser;
-import Shared.BotException;
 
 public class _Library {
 	public static final _Library GL = new _Library("gl");
@@ -148,8 +146,8 @@ public class _Library {
 	public Unit getUnit(String u) {
 		try {
 			return UNIT_CACHE.get(u);
-		} catch (ExecutionException e) {
-			new BotException("Error loading unit " + u, e).printStackTrace();
+		} catch (Exception e) {
+			
 		}
 		return null;
 	}

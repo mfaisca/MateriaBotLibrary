@@ -18,6 +18,7 @@ public class Unit {
 	private List<Ability.UpgradedAbility> upgradedAbilities = new LinkedList<Ability.UpgradedAbility>();
 	private HashMap<Integer, Ability> abilities = new HashMap<Integer, Ability>();
 	private HashMap<Integer, Passive> passives = new HashMap<Integer, Passive>();
+	private List<Passive> charaBoards = new LinkedList<Passive>();
 	private HashMap<Integer, Ailment> ailments = new HashMap<Integer, Ailment>();
 	private List<Equipment> equipment = new LinkedList<Equipment>();
 	private List<Artifact> artifacts = new LinkedList<Artifact>();
@@ -39,6 +40,7 @@ public class Unit {
 	public List<Ability.UpgradedAbility> getUpgradedAbilities() { return upgradedAbilities; }
 	public HashMap<Integer, Ability> getAbilities() { return abilities; }
 	public HashMap<Integer, Passive> getPassives() { return passives; }
+	public List<Passive> getCharaBoards() { return charaBoards; }
 	public HashMap<Integer, Ailment> getAilments() { return ailments; }
 	public List<Equipment> getEquipment() { return equipment; }
 	public List<Artifact> getArtifacts() { return artifacts; }
@@ -72,6 +74,7 @@ public class Unit {
 				.map(e -> e.getValue())
 				.findFirst().orElse(null);
 	}
+
 	public Passive getEquipmentPassive(Equipment.Rarity rarity) {
 		return getEquipmentPassive(rarity, 0);
 	}

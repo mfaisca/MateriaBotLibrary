@@ -32,8 +32,8 @@ public class Equipment{
 	}
 	public static enum Rarity{
 		W_4S(4, "silverWeapon", "4w", "10cp", "4", "4w", "4*"), 
-		W_15(5, "baseWeapon", "15", "15cp", "15", "15cp"), 
-		W_35(5, "uniqueWeapon", "35", "35cp", "35", "35cp"), 
+		W_15(5, "baseWeapon", "15", "15cp", "15", "15cp", "1"), 
+		W_35(5, "uniqueWeapon", "35", "35cp", "35", "35cp", "2"), 
 		W_WoI(5, "summonWeapon", "woi", "emptyCrystal", "woi", "summon"), 
 		W_NT(5, "ntWeapon", "NT", "nt_cloud", "nt"), 
 		W_MW(5, "manikinWeapon", "dark", "IronManikin", "manikin", "mw", "dark", "shadow"), 

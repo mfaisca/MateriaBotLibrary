@@ -141,6 +141,7 @@ public class Passive{
 		E115(115, "Raises Max HP by {0}%"),
 		E116(116, "May equip BT Ability 「**{0}**」"), //Generic effect for base EX/EX+/LD effect 
 		E117(117, null), //Generic effect for base EX/EX+/LD effect 
+		E170(170, "Increases BRV overflow limit by {0}%"),
 		E187(187, "Raises {3}BRV damage dealt may exceed 9999 by {0}%"), //High Armor Effect - Essence of Offense
 		E188(188, "Raises {3}obtainable BRV and HP damage may exceed 99999 by {0}%"), //High armor Effect - Generic
 		;
@@ -229,7 +230,7 @@ public class Passive{
 		R40(40, "while 「**{0}**」 is active"), //While buff is active
 		R41(41, "when BRV = 0"),
 		R42(42, "when initiating a launch"),
-		R43(43, "if BRV >= Int BRV and enemy has twice as much BRV", true), //Spite weird stupid condition
+		R43(43, "if BRV >= Int BRV and enemy has twice as much BRV"), //Spite weird stupid condition
 		R44(44, "when granting 「**{0}**」 buff"),
 		R45(45, "when dealing BRV damage"), //This condition is used on Tifa and Zidane on their Slayer passives, but there's no actual condition to it
 		R46(46, "when attacking during a launch"),

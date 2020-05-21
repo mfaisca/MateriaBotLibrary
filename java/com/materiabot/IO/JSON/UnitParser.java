@@ -45,18 +45,25 @@ public class UnitParser {
 	}
 	
 	private Unit createUnit(String name) {
-		Unit u = getUnit(name.replace("_", " "));
-		File f = new File("./resources/" + region.toLowerCase() + "/tl_" + Methods.urlize(u.getName()).toLowerCase() + ".json");
-		MyJSONObject obj = JSONParser.loadContent(f.getAbsolutePath(), false);		
-		//int[] baseSkillIds = ArrayUtils.toPrimitive(obj.getIntArray("defaultAbilities"));
-		parseBaseAbilities(u, obj);
-		parseCompleteListAbilities(u, obj);
-		parseOptionalAbilities(u, obj);
-		parsePassives(u, obj);
-		parseArtifacts(u, obj);
-		parseGear(u, obj);
-		parseSpheres(u, obj);
-		return u;
+		try{
+			Unit u = getUnit(name.replace("_", " "));
+			File f = new File("./resources/" + region.toLowerCase() + "/tl_" + Methods.urlize(u.getName()).toLowerCase() + ".json");
+			if(!f.exists()) return null;
+			MyJSONObject obj = JSONParser.loadContent(f.getAbsolutePath(), false);		
+			//int[] baseSkillIds = ArrayUtils.toPrimitive(obj.getIntArray("defaultAbilities"));
+			parseBaseAbilities(u, obj);
+			parseCompleteListAbilities(u, obj);
+			parseOptionalAbilities(u, obj);
+			parsePassives(u, obj);
+			parseCharaBoards(u, obj);
+			parseArtifacts(u, obj);
+			parseGear(u, obj);
+			parseSpheres(u, obj);
+			return u;
+		} catch(Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 	private void parseBaseAbilities(Unit u, MyJSONObject obj) {
 		u.setBaseAbilities(obj.getIntArray("defaultAbilities"));
@@ -117,6 +124,14 @@ public class UnitParser {
 		for(Passive p : new PassiveParser(region).parsePassives(obj, "awakeningPassives")) {
 			p.setUnit(u);
 			u.getPassives().put(p.getLevel(), p);
+		}
+	}
+	private void parseCharaBoards(Unit u, MyJSONObject obj) {
+		if(obj.getObject("enhancementBoard") == null)
+			return;
+		for(Passive p : new PassiveParser(region).parsePassives(obj.getObject("enhancementBoard"), "passives")) {
+			p.setUnit(u);
+			u.getCharaBoards().add(p);
 		}
 	}
 	private void parseArtifacts(Unit u, MyJSONObject obj) {

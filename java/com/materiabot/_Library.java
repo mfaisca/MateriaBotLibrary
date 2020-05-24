@@ -147,7 +147,7 @@ public class _Library {
 		try {
 			return UNIT_CACHE.get(u);
 		} catch (Exception e) {
-			System.out.println("Failed to register unit " + u);
+			//System.out.println("Failed to register unit " + u); //FIXME 
 		}
 		return null;
 	}

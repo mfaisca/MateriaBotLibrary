@@ -47,7 +47,7 @@ public class UnitParser {
 	private Unit createUnit(String name) {
 		try{
 			Unit u = getUnit(name.replace("_", " "));
-			File f = new File("./resources/" + region.toLowerCase() + "/tl_" + Methods.urlize(u.getName()).toLowerCase() + ".json");
+			File f = new File("./resources/" + region.toLowerCase() + "/tl_" + Methods.urlizeDB(u.getName()).toLowerCase() + ".json");
 			if(!f.exists()) return null;
 			MyJSONObject obj = JSONParser.loadContent(f.getAbsolutePath(), false);		
 			//int[] baseSkillIds = ArrayUtils.toPrimitive(obj.getIntArray("defaultAbilities"));

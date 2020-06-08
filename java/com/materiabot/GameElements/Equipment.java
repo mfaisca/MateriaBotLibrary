@@ -12,7 +12,7 @@ public class Equipment{
 		Armor(), Artifact(), BloomStone();
 		
 		public String getEmote() { return name() + "Equip"; }
-		public String getTrashEmote() { return "Trash" + name(); }
+		//public String getTrashEmote() { return "Trash" + name(); }
 		
 
 		public static Type random3Star() {
@@ -31,6 +31,7 @@ public class Equipment{
 		}
 	}
 	public static enum Rarity{
+		W_3S(3, "bronzeWeapon", "3w", "1cp", "3", "3w", "3*"), 
 		W_4S(4, "silverWeapon", "4w", "10cp", "4", "4w", "4*"), 
 		W_15(5, "baseWeapon", "15", "15cp", "15", "15cp", "1"), 
 		W_35(5, "uniqueWeapon", "35", "35cp", "35", "35cp", "2"), 
@@ -41,6 +42,7 @@ public class Equipment{
 		W_EXP(7, "realizedWeapon", "ex+", "100cp", "ex+", "exp", "100", "100cp", "ex+3", "ex+2", "ex+1", "ex+0"), 
 		W_LD(5, "limitedWeapon", "ld", "90cp", "ld", "limited", "90", "90cp", "ld3", "ld2", "ld1"), 
 		W_BT(10, "burstWeapon", "bt", "140cp", "bt", "burst", "130", "130cp"),
+		A_3S(3, "bronzeArmor", "3a", "a1cp", "3a"), 
 		A_4S(4, "silverArmor", "4a", "a10cp", "4a"), 
 		A_35(5, "uniqueArmor", "35a", "armorToken", "35a"), 
 		A_90(5, "exArmor", "hg", "armorTokenP", "90a"), 

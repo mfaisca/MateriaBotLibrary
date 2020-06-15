@@ -139,7 +139,7 @@ public class Passive{
 		E102(102, "Ignores resistances against ghost-type enemies"), //Unique to Sabin
 		E107(107, "Raises recast speed of 「**{1}**」 by {0}%"),
 		E115(115, "Raises Max HP by {0}%"),
-		E116(116, "May equip BT Ability 「**{0}**」"), //Generic effect for base EX/EX+/LD effect 
+		E116(116, "May equip ability 「**{0}**」"), //Generic effect for base EX/EX+/LD effect 
 		E117(117, null), //Generic effect for base EX/EX+/LD effect 
 		E170(170, "Increases BRV overflow limit by {0}%"),
 		E187(187, "Raises {3}BRV damage dealt may exceed 9999 by {0}%"), //High Armor Effect - Essence of Offense

@@ -1,18 +1,22 @@
 package com.materiabot.GameElements;
+import com.google.common.collect.Streams;
+import com.materiabot.GameElements.Datamining.Ability2;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 public class Ability {
 	public static enum Type{
-		BRV("brv"), HP("hp"), 
-		S1("s1", "1"), S2("s2", "2"), AA("aa", "additional"), EX("ex", "exclusive"), 
-		LD("ld", "limited"), BT("bt", "burst"), CA("ca", "call");
+		BRV("brv", "brv+", "brv++", "brv+++", "brv++++"), HP("hp", "hp+", "hp++", "hp+++", "hp++++"), 
+		S1("s1", "1"), S2("s2", "2"), AA("aa", "additional"), EX("ex", "ex+"), 
+		LD("ld"), BT("bt"), CA("ca", "call");
 		private List<String> names = new LinkedList<String>();
 		
 		private Type(String... skillNames) { 
 			names = Arrays.asList(skillNames);
 		}
+		
+		public List<String> getNames(){ return names; }
 		
 		public static Type getByTags(String s) {
 			for(Type t : values())
@@ -36,17 +40,34 @@ public class Ability {
 	private int useCount;
 	private Type type;
 	private Unit unit;
-	
+	private Ability2 details;
+
 	public int getId() { return id; }
 	public void setId(int id) { this.id = id; }
 	public String getName() { return name; }
 	public void setName(String name) { this.name = name; }
 	public String getDescription() { return description; }
 	public void setDescription(String description) { this.description = description; }
-	public int getUseCount() { return useCount; }
+	public int getUseCount() { 
+		return useCount + Streams.concat(
+								unit.getEquipment().stream().flatMap(e -> e.getPassives().stream()),
+								unit.getPassives().values().stream())
+							.flatMap(e -> e.getEffects().stream())
+							.map(e -> e.getValue1())
+							.filter(e -> e.type == Passive.Effect.E22 
+										&& unit.getBaseAbility(type).get(0).getId() == e.values[0].intValue())
+							.map(e -> e.values[1])
+							.reduce((v1, v2) -> v1 + v2).orElse(0);
+	}
 	public void setUseCount(int useCount) { this.useCount = useCount; }
 	public Type getType() { return type; }
 	public void setType(Type type) { this.type = type; }
 	public Unit getUnit() { return unit; }
 	public void setUnit(Unit unit) { this.unit = unit; }
+	public Ability2 getDetails() { return this.details; }
+	public void setDetails(Ability2 details) { this.details = details; }
+	
+	public String generateDescription() { //TODO
+		return null;
+	}
 }

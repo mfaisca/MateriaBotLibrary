@@ -1,9 +1,9 @@
 package com.materiabot.IO.JSON.Unit;
-import java.util.List;
 import java.util.Arrays;
-import java.util.LinkedList;
 import com.materiabot.GameElements.Unit;
+import com.google.common.base.CharMatcher;
 import com.materiabot.GameElements.Ability;
+import com.materiabot.GameElements.Datamining.Ability2;
 import com.materiabot.GameElements.Datamining.Ailment;
 import com.materiabot.GameElements.Datamining.Ailment.Target;
 import com.materiabot.IO.JSON.JSONParser.MyJSONObject;
@@ -17,19 +17,22 @@ public class AbilityParser {
 	
 	public AbilityParser(Unit u, String r) { unit = u; region = r.toLowerCase(); }
 	
-	public List<Ability> parseAbilities(MyJSONObject obj) {
-		List<Ability> ret = new LinkedList<Ability>();
-		for(MyJSONObject a : obj.getObjectArray("completeListOfAbilities")) {
-			Ability ab = parseAbility(a);
-			ret.add(ab);
+	public void parseAbilities(MyJSONObject obj, String abilityArray) {
+		for(MyJSONObject a : obj.getObjectArray(abilityArray)) {
+			if(a.getInt("error") != null) continue; //Some exception I made???
+			if(region.equals("gl") && !CharMatcher.ascii().matchesAllOf(a.getObject("name").getString(region))) //Ignore JP Skills in GL
+				continue;
+			parseAbility(a);
 		}
-		return ret;
 	}
-	private Ability parseAbility(MyJSONObject ab) {
+	public Ability parseAbility(MyJSONObject ab) {
 		Ability a = new Ability();
 		a.setId(ab.getInt("id"));
 		a.setName(ab.getObject("name").getString(region));
 		a.setDescription(ab.getObject("desc").getString(region).replace("\\n", System.lineSeparator()));
+		a.setUseCount(ab.getInt("use_count"));
+		a.setDetails(new Ability2());
+		a.getDetails().setAttackType(Ability2.Attack_Type.get(ab.getObject("type_data").getInt("attack_type")));
 		a.setUnit(unit);
 		unit.getAbilities().put(a.getId(), a);
 		//TODO Parse HitData Here

@@ -35,11 +35,17 @@ public class Ability2 {
 		}
 	}
 	public static enum Attack_Type{
+		None(0, "None"),
 		Melee(1, "Melee Attack"),
 		Ranged(2, "Ranged Attack"),
 		Magic(3, "Magic Attack"),
-		MixedMeleeRanged(4, "Melee + Ranged Attack"),
-		MixedMeleeMagic(5, "Melee + Magic Attack");
+		RangedMelee(4, "Melee + Ranged Attack"),
+		MagicMelee(5, "Melee + Magic Attack"),
+		MagicRanged(-1, "Ranged + Magic Attack"),
+		Buff(-1, "Buff"),
+		Debuff(-1, "Debuff"),
+		Shield(-1, "Shield"),
+		Heal(-1, "Heal");
 
 		private int id;
 		private String description;

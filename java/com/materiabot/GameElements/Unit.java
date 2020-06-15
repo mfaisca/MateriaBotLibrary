@@ -49,7 +49,10 @@ public class Unit {
 	public Sphere getBasicSphere() { return basicSphere; }
 	public void setSpheres(Sphere weapon, Sphere basic) { this.basicSphere = basic; this.weaponSphere = weapon; }
 	public void setBaseAbilities(Integer[] baseAbls) { baseAbilities = baseAbls; }
-	
+
+	public List<Ability> getBaseAbility(Ability.Type type) {
+		return Arrays.asList(abilities.get(baseAbilities[type.ordinal()]));
+	}
 	public List<Ability> getAbility(Ability.Type type) {
 		Iterator<Ability.UpgradedAbility> iter = upgradedAbilities.stream()
 				.filter(ua -> ua.type.equals(type))
@@ -59,13 +62,13 @@ public class Unit {
 			return baseAbilities.length > type.ordinal() ? Arrays.asList(abilities.get(baseAbilities[type.ordinal()])) : new LinkedList<Ability>();
 		List<Ability.UpgradedAbility> ret = new LinkedList<Ability.UpgradedAbility>();
 		Ability.UpgradedAbility last = iter.next();
+		ret.add(last);
 		while(iter.hasNext()) {
 			Ability.UpgradedAbility cur = iter.next();
 			if(cur.reqExtendPassives.equals(last.reqExtendPassives) && 
-				cur.reqWeaponPassives.equals(last.reqWeaponPassives))
+				cur.reqWeaponPassives.equals(last.reqWeaponPassives) && ret.stream().map(a -> a.upgrade.getName()).noneMatch(a -> a.equals(cur.upgrade.getName())))
 					ret.add(0, cur);
 		}
-		ret.add(last);
 		return ret.stream().map(ua -> ua.upgrade).collect(Collectors.toList());
 	}
 	public Passive getPassive(int level) {

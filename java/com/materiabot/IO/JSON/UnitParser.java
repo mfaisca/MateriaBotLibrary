@@ -3,7 +3,6 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-
 import com.google.common.base.CharMatcher;
 import com.materiabot.GameElements.Ability;
 import com.materiabot.GameElements.Artifact;
@@ -12,8 +11,8 @@ import com.materiabot.GameElements.Passive;
 import com.materiabot.GameElements.Sphere;
 import com.materiabot.GameElements.Sphere.SphereType;
 import com.materiabot.GameElements.Unit;
-import com.materiabot.GameElements.Datamining.Ailment;
 import com.materiabot.IO.JSON.JSONParser.MyJSONObject;
+import com.materiabot.IO.JSON.Unit.AbilityParser;
 import com.materiabot.IO.JSON.Unit.PassiveParser;
 import Shared.Methods;
 
@@ -50,7 +49,6 @@ public class UnitParser {
 			File f = new File("./resources/" + region.toLowerCase() + "/tl_" + Methods.urlizeDB(u.getName()).toLowerCase() + ".json");
 			if(!f.exists()) return null;
 			MyJSONObject obj = JSONParser.loadContent(f.getAbsolutePath(), false);		
-			//int[] baseSkillIds = ArrayUtils.toPrimitive(obj.getIntArray("defaultAbilities"));
 			parseBaseAbilities(u, obj);
 			parseCompleteListAbilities(u, obj);
 			parseOptionalAbilities(u, obj);
@@ -69,33 +67,7 @@ public class UnitParser {
 		u.setBaseAbilities(obj.getIntArray("defaultAbilities"));
 	}
 	private void parseCompleteListAbilities(Unit u, MyJSONObject obj) {
-		for(MyJSONObject ab : obj.getObjectArray("completeListOfAbilities")) {
-			if(ab.getInt("error") != null) continue;
-			Ability a = new Ability();
-			a.setId(ab.getInt("id"));
-			a.setName(ab.getObject("name").getString(region));
-			if(region.equals("gl") && !CharMatcher.ascii().matchesAllOf(a.getName()))
-				continue;
-			a.setDescription(ab.getObject("desc").getString(region).replace("\\n", System.lineSeparator()));
-			a.setUnit(u);
-			u.getAbilities().put(a.getId(), a);
-			//TODO Parse HitData Here
-			for(MyJSONObject ailment : ab.getObjectArray("ailments")) {
-				Ailment ail = new Ailment();
-				ail.setId(ailment.getInt("id"));
-				ail.setCastId(ailment.getInt("cast_id"));
-				ail.setName(ailment.getObject("name").getString(region));
-				ail.setDescription(ailment.getObject("desc").getString(region));
-				ail.setRate(ailment.getObject("meta_data").getInt("rate"));
-				ail.setRank(ailment.getObject("meta_data").getInt("rank"));
-				ail.setTarget(Ailment.Target.get(ailment.getObject("meta_data").getInt("target")));
-				ail.setDuration(ailment.getObject("meta_data").getInt("duration"));
-				ail.setArgs(Arrays.asList(ailment.getObject("meta_data").getIntArray("arguments")).stream().mapToInt(i->i).toArray());
-				//TODO Parse Ailments here
-				//TODO Associate ailments to abilities so you can find what ailments an ability applies
-				u.getAilments().put(ail.getId(), ail);
-			}
-		}
+		new AbilityParser(u, region).parseAbilities(obj, "completeListOfAbilities");
 	}
 	private void parseOptionalAbilities(Unit u, MyJSONObject obj) {
 		int typeIdx = -1;

@@ -100,7 +100,7 @@ public class Summon{
 		int i = 0;
 		if(specialBoostedChars != null)
 			for(String ch : StringUtils.split(specialBoostedChars, "|"))
-				chars[i++] = _Library.JP.getUnit(ch);
+				chars[i++] = _Library.L.getUnit(ch);
 		return chars;
 	}
 	public String getEmoteFrame() { return getName() + "Frame"; }

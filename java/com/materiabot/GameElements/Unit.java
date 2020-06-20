@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import com.materiabot.GameElements.Sphere.SphereType;
 
 public class Unit {	
@@ -17,6 +16,7 @@ public class Unit {
 	private List<Ability.UpgradedAbility> upgradedAbilities = new LinkedList<Ability.UpgradedAbility>();
 	private HashMap<Integer, Ability> abilities = new HashMap<Integer, Ability>();
 	private HashMap<Integer, Passive> passives = new HashMap<Integer, Passive>();
+	private HashMap<Integer, Passive> glPassives = new HashMap<Integer, Passive>();
 	private List<Passive> charaBoards = new LinkedList<Passive>();
 	private HashMap<Integer, Ailment> ailments = new HashMap<Integer, Ailment>();
 	private List<Equipment> equipment = new LinkedList<Equipment>();
@@ -38,7 +38,8 @@ public class Unit {
 	public void setEquipmentType(Equipment.Type t) { equipmentType = t; }
 	public List<Ability.UpgradedAbility> getUpgradedAbilities() { return upgradedAbilities; }
 	public HashMap<Integer, Ability> getAbilities() { return abilities; }
-	public HashMap<Integer, Passive> getPassives() { return passives; }
+	public HashMap<Integer, Passive> getJPPassives() { return passives; }
+	public HashMap<Integer, Passive> getPassives() { return glPassives; }
 	public List<Passive> getCharaBoards() { return charaBoards; }
 	public HashMap<Integer, Ailment> getAilments() { return ailments; }
 	public List<Equipment> getEquipment() { return equipment; }
@@ -53,8 +54,15 @@ public class Unit {
 		return Arrays.asList(abilities.get(baseAbilities[type.ordinal()]));
 	}
 	public List<Ability> getAbility(Ability.Type type) {
+		return getAbility(type, null);
+	}
+	public List<Ability> getAbility(Ability.Type type, String region) {
+		Passive awakening = type.equals(Ability.Type.S1) ? this.getPassive(55, region) :
+							type.equals(Ability.Type.S2) ? this.getPassive(60, region) :
+							type.equals(Ability.Type.AA) ? this.getPassive(70, region) : null;
 		Iterator<Ability.UpgradedAbility> iter = upgradedAbilities.stream()
 				.filter(ua -> ua.type.equals(type))
+				.filter(ua -> awakening == null || ua.reqExtendPassives.stream().anyMatch(rp -> rp.intValue() == awakening.getId()))
 				.collect(Collectors.toCollection(LinkedList::new))
 					.descendingIterator();
 		if(!iter.hasNext()) 
@@ -65,13 +73,18 @@ public class Unit {
 		while(iter.hasNext()) {
 			Ability.UpgradedAbility cur = iter.next();
 			if(cur.reqExtendPassives.equals(last.reqExtendPassives) && 
-				cur.reqWeaponPassives.equals(last.reqWeaponPassives) && ret.stream().map(a -> a.upgrade.getName()).noneMatch(a -> a.equals(cur.upgrade.getName())))
+				cur.reqWeaponPassives.equals(last.reqWeaponPassives) && 
+				ret.stream().map(a -> a.upgrade.getName()).noneMatch(a -> a.equals(cur.upgrade.getName())))
 					ret.add(0, cur);
 		}
 		return ret.stream().map(ua -> ua.upgrade).collect(Collectors.toList());
 	}
 	public Passive getPassive(int level) {
-		return passives.entrySet().stream()
+		return getPassive(level, null);
+	}
+	public Passive getPassive(int level, String region) {
+		return ((region == null ? "GL" : region).equals("GL") ? getPassives() : getJPPassives())
+				.entrySet().stream()
 				.filter(e -> e.getValue().getLevel() == level)
 				.map(e -> e.getValue())
 				.findFirst().orElse(null);
@@ -95,23 +108,6 @@ public class Unit {
 	}
 	public Ailment getSpecificAilment(int id) {
 		return ailments.get(id);
-	}
-	public Passive findPassive(String requestedInfo) {
-		if(StringUtils.isNumeric(requestedInfo))
-			return getPassive(Integer.parseInt(requestedInfo));
-		Equipment w = null;
-		if(requestedInfo.toUpperCase().contains("LD"))
-			w = getEquipment(Equipment.Rarity.W_LD);
-		if(requestedInfo.toUpperCase().contains("EX+"))
-			w = getEquipment(Equipment.Rarity.W_EXP);
-		if(requestedInfo.toUpperCase().contains("EX"))
-			w = getEquipment(Equipment.Rarity.W_EX);
-		if(w != null) {
-			int idx = Integer.parseInt(requestedInfo.substring(w.getRarity().equals(Equipment.Rarity.W_EXP) ? 2 : 1).trim());
-			idx -= (w.getRarity().equals(Equipment.Rarity.W_EXP) ? 0 : 1);
-			return w.getPassives().get(idx);
-		}
-		return null;
 	}
 
 	public String toString() {

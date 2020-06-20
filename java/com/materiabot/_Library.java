@@ -13,17 +13,14 @@ import com.materiabot.GameElements.Summon.SummonPassive;
 import com.materiabot.IO.JSON.UnitParser;
 
 public class _Library {
-	public static final _Library GL = new _Library("gl");
-	public static final _Library JP = new _Library("jp");
-	public static _Library get(String r) { return r.equalsIgnoreCase("JP") ? JP : GL; }	
+	public static final _Library L = new _Library();
 
-	private _Library(String r) {
-		name = r;
+	private _Library() {
 		UNIT_CACHE = CacheBuilder.newBuilder()
 				.expireAfterAccess(15, TimeUnit.MINUTES).build(new CacheLoader<String, Unit>(){
 					@Override
 					public Unit load(String key) throws Exception {
-						return new UnitParser(r).parseUnit(key);
+						return new UnitParser().parseUnit(key);
 					}
 				});
 	}
@@ -156,7 +153,6 @@ public class _Library {
 	}
 
 	public static void reset() {
-		GL.UNIT_CACHE.invalidateAll();
-		JP.UNIT_CACHE.invalidateAll();
+		L.UNIT_CACHE.invalidateAll();
 	}
 }

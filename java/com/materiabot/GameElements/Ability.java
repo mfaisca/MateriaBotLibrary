@@ -222,6 +222,7 @@ public class Ability {
 				Ally(13, "ally"),
 				SplitHP(18, "split between enemies"), //Cid/Prompto Only
 				Traps(18, "traps???"), //Emperor only(S2 / EX)
+				AoE2(21, "all enemies"),
 				Caller(29, "caller"),
 				
 				;private int id;

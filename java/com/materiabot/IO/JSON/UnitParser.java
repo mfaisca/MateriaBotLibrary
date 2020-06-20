@@ -23,10 +23,7 @@ public class UnitParser {
 		public Unit getRandomUnit();
 	}
 	public static List<OverrideManager> overrideManagerCollection = new LinkedList<OverrideManager>();
-	private String region;
-	
-	public UnitParser(String r) { region = r.toLowerCase(); }
-	
+		
 	public Unit parseUnit(String name) {
 		try {
 			return createUnit(name);
@@ -47,7 +44,7 @@ public class UnitParser {
 	private Unit createUnit(String name) {
 		try{
 			Unit u = getUnit(name.replace("_", " "));
-			File f = new File("./resources/" + region.toLowerCase() + "/tl_" + Methods.urlizeDB(u.getName()).toLowerCase() + ".json");
+			File f = new File("./resources/units/db_" + Methods.urlizeDB(u.getName()).toLowerCase() + ".json");
 			if(!f.exists()) return null;
 			MyJSONObject obj = JSONParser.loadContent(f.getAbsolutePath(), false);		
 			parseBaseAbilities(u, obj);
@@ -113,6 +110,10 @@ public class UnitParser {
 	}
 	private void parsePassives(Unit u, MyJSONObject obj) {
 		for(Passive p : new PassiveParser().parsePassives(obj, "awakeningPassives")) {
+			p.setUnit(u);
+			u.getJPPassives().put(p.getLevel(), p);
+		}
+		for(Passive p : new PassiveParser().parsePassives(obj, "glAwakeningPassives")) {
 			p.setUnit(u);
 			u.getPassives().put(p.getLevel(), p);
 		}

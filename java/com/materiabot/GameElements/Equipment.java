@@ -36,7 +36,7 @@ public class Equipment{
 		W_15(5, "baseWeapon", "15", "15cp", "15", "15cp", "1"), 
 		W_35(5, "uniqueWeapon", "35", "35cp", "35", "35cp", "2"), 
 		W_WoI(5, "summonWeapon", "woi", "emptyCrystal", "woi", "summon"), 
-		W_NT(5, "ntWeapon", "NT", "nt_cloud", "nt"), 
+		W_NT(5, "ntWeapon", "NT", "ntlogo", "nt"), 
 		W_MW(5, "manikinWeapon", "dark", "IronManikin", "manikin", "mw", "dark", "shadow"), 
 		W_EX(5, "exWeapon", "ex", "70cp", "ex", "70", "70cp", "ex3", "ex2", "ex1"), 
 		W_EXP(7, "realizedWeapon", "ex+", "100cp", "ex+", "exp", "100", "100cp", "ex+3", "ex+2", "ex+1", "ex+0"), 

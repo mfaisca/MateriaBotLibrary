@@ -7,6 +7,34 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Ability {
+	public static enum ChargeRate{
+		crEFast(3000, "Fast+++", "Extremely Fast"),
+		crVFast(6000, "Fast++", "Very Fast"),
+		crFast(9000, "Fast+", "Fast"),
+		crFast2(10350, "Fast+", "Fast"),
+		crSFast(12000, "Fast", "Slightly Fast"),
+		crNormal(14400, "Normal", "Normal"),
+		crNormal2(15000, "Normal", "Normal"),
+		crSSlow(18000, "Slow", "Slightly Slow"),
+		crSlow(21000, "Slow-", "Slow"),
+		crVSlow(24000, "Slow--", "Very Slow"),
+		
+		;private int chargeRate;
+		@SuppressWarnings("unused")
+		private String GL, JP;
+		
+		private ChargeRate(int cr, String g, String j) { GL = g; JP = j; chargeRate = cr; }
+
+		public int getChargeRate() { return chargeRate; }
+		public String getDesc() { return GL; }
+		public static ChargeRate getBy(int chargeRate) {
+			for(ChargeRate cr : values()) {
+				if(chargeRate == cr.chargeRate)
+					return cr;
+			}
+			return null;
+		}
+	}
 	public static class Details {
 		public static enum Type{
 			BRV(1, "BRV Attack"),
@@ -135,6 +163,7 @@ public class Ability {
 				Stat14(14, "HP Damage Dealt"),
 				Stat15(15, "Attack"),
 				Stat16(16, "Attack"),
+				Stat21(21, "highest current BRV"),
 				Stat29(29, "Unknown"), //Jecht unused skill?
 				Stat36(36, "HP Damage Dealt"), //Serah EX only?
 				Stat37(37, "Total Party Current HP"), //Unique to Ignis?
@@ -228,16 +257,17 @@ public class Ability {
 				E46(46, "Delays {t} by {0}"), //(# of turns)
 				E48(48, "{1}% chance to steal {0} buffs from {t}"), //(# of buffs, ?(-1), success%, ?(-1)) OR (# of buffs, success%, ?(-1)) OR (# of buffs, success%, ?(-1))
 				E50(50, null), //Yuri Only
-				E51(51, "Transfer debuffs"), //(Duration extended, ?, ?, ?) OR (?, ?, ?) - It always transfers to all, even though target is 1
+				E51(51, "Transfer own debuffs to all enemies" + System.lineSeparator() + 
+						"Extends transferred debuff duration by {0}"), //(Duration extended, ?, ?, ?) OR (Duration extended, ?, ?) - It always transfers to all, even though target is 1
 				E52(52, "Reduce {t} HP by {0}%"), //(%, ?) - Cecil, Rinoa, Yuri
 				E54(54, "Revive"), //(% of effectValueType, ?)
 				E55(55, ""), //TODO (100) - Balthier Great Aim and Yuffie I dont need this, but unknown what it refers to
 				E57(57, "{0}% chance to Break {t}"), //(success%)
 				E58(58, "BRV hits have a random potency between {0}% and {1}%", true, false), //(minPower, maxPower, ?(3), ?(-1)) - Shadow Exclusive - minPower and maxPower are in tens(4, 6 = 40%, 60%)
-				E61(61, "Battery for Target current BRV"), //(copy%)
-				E65(65, "HP Heal based on damage dealt"), //(Potency, MaxHP%Healed) EffectValueType = What damage it is based on
+				E61(61, "Raises party BRV by {0}% of {t} {evt}"), //(copy%)
+				E65(65, "Restores {t} HP by {0}% of {evt}, up to {1}% Max HP"), //(Potency, MaxHP%Healed) EffectValueType = What damage it is based on
 				E69(62, null), //(X) || Unique to Ignis Regroup - Unknown Effect, others are accounted for
-				E70(70, "Battery"), //EffectValueType 2 = Copy Target BRV || Otherwise table
+				E70(70, "Raises BRV by {0}% of {t} {evt}"), //EffectValueType 2 = Copy Target BRV || Otherwise table
 				E72(72, "Lower turn rate when breaking or hitting broken target"), //(New Cost[, ?(-1)]))
 				E73(73, "100% Accuracy BRV & 50% Bonus DMG if target not targetting self"), //([?]) - No params - Fucking Lion
 				E78(78, "BRV Hits apply a stacking IBRV debuff"), //Lenna Rapid Fire mechanic
@@ -247,9 +277,9 @@ public class Ability {
 				E89(89, "Increases 「**{1}**」 stacks by {0}"), //(# of stacks to increase, buffID)
 				E90(90, "Moves own next turn to just before target's next turn"),
 				E93(93, "Adds an extra hit if [Royal Arms] is up"), //([-1]) Noctis unique hit (30/60/80/100/120)
-				E94(94, "Increases damage based on party's [Shield] value"), //(10, -1) Unknown how to formulate it
+				E94(94, "Raises BRV damage based on party's [Shield] value"), //(10, -1) Unknown how to formulate it
 				E97(97, "BRV Damage boosted up to X based on how much HP you're missing"), //(Potency, -1) Terra EX
-				E99(99, "HP Heal based on valueType"), //(Potency[, MaxHP%Healed, ?]) EffectValueType = What damage it is based on
+		/**/			E99(99, "HP Heal based on valueType"), //(Potency[, MaxHP%Healed, ?]) EffectValueType = What damage it is based on
 				//HP Heal based on valueType, XXX% heal in excess goes to BRV
 				E100(100, "Restores {t} HP by {0}% of {evt}, up to {1}% Max HP" + System.lineSeparator() + 
 						  "{2}% of excess healing is converted to BRV"), //(Potency, MaxHP%Healed, XXX100, ?, ?) XXX = 100(%) / 300(%)
@@ -257,36 +287,37 @@ public class Ability {
 				E103(103, ""),		//Cait Sith Only	//I have no fucking idea how the arguments work
 				E104(104, ""),  	//Cait Sith Only  //EffectValueType
 				E105(105, ""),  	//Cait Sith Only  //EffectValueType
-				E106(106, null, true), //(Overflow%) - Mentions overflow through an argument instead of the regular field, older model perhaps?
+				E106(106, null, true, false), //(Overflow%) - Mentions overflow through an argument instead of the regular field, older model perhaps?
 				E107(107, "100% AoE HP Damage", true),
-				E110(110, "Free Turn"),
+				E110(110, "Doesn't increase turn count"),
 				E111(111, null), //Old Data? Barret Counter
-				E113(113, "Extends self-buffs by X turns"), //Prishe Only? (X, 1, -1)
-				E114(114, ""), //TODO Fang EX (50, -1)
-				E115(115, "Increase Damage by X% against ST"), //(X, -1)
+				E113(113, "Extends self-buffs by {0}"), //Prishe Only? (X, 1, -1)
+				E114(114, "Initiates a chase sequence if the target is broken"), //TODO Fang EX (50, -1)
+				E115(115, "Raises BRV Damage by {0}% against ST"), //(X, -1)
 				E116(116, ""), //TODO
 				E117(117, "Raises BRV Damage by {0}% against Broken Targets", true, false), //(X)
-				E120(120, "Increase Damage by X% against target with Turn Rate Down or SPD Down"), //(1, X)
+				E120(120, "Raises BRV Damage by {1}% against target with 「**Turn Rate Down**」 or 「**SPD Down**」", true, false), //(1, X)
 				E121(121, "{0}"), //(X, buffId) || (X, 2, -1)
-				E122(122, "Raises BRV by X% of Y"), //(X) || effectvaluetype = stat its based on
-				E124(124, ""), //EffectValueType = 14 || Leon only || Could this be his unique debuff??
-				E125(125, "Unbreak target"),
-				E126(126, "Heal party by X%, allows overhealing up to Y%"), //Porom only (X, Y, ?)
-				E128(128, ""), //Alphinaud Only - Something related to his summon?
+				E122(122, "Raises {t} BRV by {0}% of {evt}"), //(X) || effectvaluetype = stat its based on
+				E124(124, "Restores {t} HP by {0}% of {evt}, up to {1}% Max HP" + System.lineSeparator() + 
+						  "{2}% of excess healing is added to allies HP, up to {3}% Max HP"),
+				E125(125, "Cancels {t} BREAK status"),
+				E126(126, "Restores {t} HP by {0}% of {evt}" + System.lineSeparator() + "Allows overhealing up to {1}%"), //Porom only (X, Y, ?)
+				E128(128, "123"), //Alphinaud Only - Something related to his summon?
 				E129(129, "Release pet when broken"), //Alphinaud Only
-				E131(131, "Raise party's BRV by X% of the party's highest current BRV"), //(X) || EffectValueType = 21 ||| Setzer Only
-				E132(132, null), //(X) || Unique to Ignis Regroup - Unknown Effect, others are accounted for
-				E135(135, "Increased BRV damage by X% when dealing critical hits"),
+				E131(131, "Raises {t} BRV by {0}% of {evt} (except the one with highest current BRV)"), //(X) || EffectValueType = 21 ||| Setzer Only
+				E132(132, "123"), //(X) || Unique to Ignis Regroup - Unknown Effect, others are accounted for
+				E135(135, "Raises Critical BRV Damage by {0}%", true, false),
 				E136(136, "Recover {0} of {2}"), //(#ofUses, 100, skillID)
-				E137(137, "AOE HP Attacks based on party members current BRV"), //(100) / (1, 100) || Sherlotta Only
-				E139(139, "X turn delay if buff Y is active"), //(X, Y) || Garland Only
-				E140(140, ""), //Prompto Only - His AA
-				E141(141, "Reduces Chakra by #"), //Lyse Only  (# of stacks to lose(negative), buff_id) - buff_id doesnt exist for some reason
+				E137(137, "Deals HP damage to {t} equal to party current BRV"), //(100) / (1, 100) || Sherlotta Only
+				E139(139, "Delays {t} by {0} delay if 「**{1}**」 is active"), //(X, Y) || Garland Only
+				E140(140, "123"), //TODO
+				E141(141, "123"), //TODO
 				E142(142, "Reduce target's BRV by X% based on own Y"), //(X) - Y = effect_value_type = based on stat X
-				E147(147, null), //Ignis EX Only - Dead skill
-				E154(154, "Reduces all enemies BRV to 0"), //Yuri Only
-				E156(156, "Battery self for {0}% of stat(effectValueType), lower (target) BRV by {0}% of stat(effectValueType)"), //ExDeath only - Stat is always 16(Attack)
-				E157(157, "Battery party for {0}% of stat(effectValueType), lower (target) BRV by {0}% of stat(effectValueType)"), //ExDeath only - Stat is always 16(Attack)
+				E147(147, "123"), //Ignis EX Only - Dead skill
+				E154(154, "123"), //TODO
+				E156(156, "Battery self for {0}% of {evt}, lower {t} BRV by {0}% of {evt}"), //ExDeath only - Stat is always 16(Attack)
+				E157(157, "Battery party for {0}% of {evt}, lower {t} BRV by {0}% of {evt}"), //ExDeath only - Stat is always 16(Attack)
 				;
 
 				private int id;
@@ -334,9 +365,9 @@ public class Ability {
 						case 34: //"{0}") - Angel Wing Unique Buff - ([1]) No value = remove, Value = give
 							if(v.length > 0) 
 								v[0] = "Grants 「**Angel Wing**」 for 3 turns";
-							else
-								v[0] = "Dispels 「**Angel Wing**」";
-							break;
+							else {
+								ret.values = new String[] {"Dispels 「**Angel Wing**」"};
+							}break;
 						case 37:{ //Dispels 「**{0}**」 - (ID of buff)
 							Ailment ail = u.getSpecificAilment(Integer.parseInt(v[0]));
 							v[0] = v[0].toString().equalsIgnoreCase("-1") ? "all" : ((ail != null ? ail.getName() : "Unknown Ailment ID: " + v[0]));
@@ -355,9 +386,14 @@ public class Ability {
 							if(h.getEffect().getEffectValueType() == 46)
 								v[0] = v[Shared.Methods.RNG.nextInt(4)];
 						case 43:
+						case 65: //(Potency, MaxHP%Healed)
+						case 122:
+						case 124:
 							ret.effectValueType = BasedOnStat.get(h.getEffect().getEffectValueType()).getStat();
 							break;
 						case 46:
+						case 51:
+						case 113:
 							v[0] = (v[0].equals("1") ? "1 turn" : v[0] + " turns");
 							break;
 						case 48:
@@ -368,6 +404,9 @@ public class Ability {
 							v[1] = v[1] + "0";
 							int fixBrvRate = (Integer.parseInt(v[1]) + Integer.parseInt(v[0]))/2;
 							d.hits.forEach(dh -> dh.brvRate = fixBrvRate);
+							break;
+						case 70:
+							ret.effectValueType = BasedOnStat.get(h.effect.effectValueType == 2 ? 12 : h.effect.effectValueType).getStat();
 							break;
 						case 89:{ //Increases 「**{1}**」 stacks by {0} - (# of stacks to increase, buffID)
 							Ailment ail = u.getSpecificAilment(Integer.parseInt(v[1]));
@@ -400,6 +439,15 @@ public class Ability {
 							Ability ab = u.getSpecificAbility(Integer.parseInt(v[2]));
 							v[0] = v[0].equals("-1") ? "all uses" : (v[0].equals("1") ? "1 use" : (v[0] + " uses"));
 							v[2] = v[2].equals("-1") ? "both abilities" : (ab != null ? ab.getName() : ("Unknown Skill ID: " + v[2]));
+							break;
+						case 139:
+							v[0] = (v[0].equals("1") ? "1 turn" : v[0] + " turns");
+							Ailment ail = u.getSpecificAilment(Integer.parseInt(v[1]));
+							v[1] = v[1].toString().equalsIgnoreCase("-1") ? "all" : ((ail != null ? ail.getName() : "Unknown Ailment ID: " + v[1]));
+							break;
+						case 156:
+						case 157:
+							ret.effectValueType = BasedOnStat.get(h.getEffect().getEffectValueType()).getStat();
 							break;
 					}
 					return ret;
@@ -663,6 +711,12 @@ public class Ability {
 		String potency = null;
 		String last = null, build = null, bigLast = null; int count = 1, bigCount = 1;
 		List<String> effects = new LinkedList<String>();
+		if(this.getDetails().getChaseDmg() >= 50)
+			effects.add("Initiates a chase sequence (" + this.getDetails().getChaseDmg() + ")");
+		else if(this.getDetails().getChaseDmg() > 3)
+			effects.add("Easier to initiate a chase sequence (" + this.getDetails().getChaseDmg() + ")");
+		else if(this.getDetails().getChaseDmg() == 0)
+			effects.add("Cannot initiate a chase sequence");
 		if(gainedOverflow > 100)
 			effects.add("Gained BRV may exceed Max BRV up to " + gainedOverflow + "%");
 		for(String eff: effects2) {

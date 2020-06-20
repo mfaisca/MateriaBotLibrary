@@ -1,8 +1,20 @@
-package com.materiabot.GameElements.Datamining;
+package com.materiabot.GameElements;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Ailment {	
+public class Ailment {
+	public static enum Emotes{
+		BUFF_GENERIC("buffGeneric"),
+		DEBUFF_GENERIC("debuffGeneric"),
+		
+		;
+		private String emote;
+		
+		private Emotes(String emote) { this.emote = emote; }
+		
+		public String get() { return emote; }
+	}
+	
 	public static enum Target {
 		ST(1, "ST"),
 		Self(2, "Self?"),
@@ -113,7 +125,7 @@ public class Ailment {
 		private EffectType effectType;
 		private BuffType buffType;
 		private EffectValType effectValType;
-		private int argument;
+		private Integer[] arguments;
 		
 		public EffectType getEffectType() {
 			return effectType;
@@ -133,11 +145,11 @@ public class Ailment {
 		public void setEffectValType(EffectValType effectValType) {
 			this.effectValType = effectValType;
 		}
-		public int getArgument() {
-			return argument;
+		public Integer[] getArgument() {
+			return arguments;
 		}
-		public void setArgument(int argument) {
-			this.argument = argument;
+		public void setArgument(Integer[] arguments) {
+			this.arguments = arguments;
 		}
 	}
 	
@@ -204,5 +216,20 @@ public class Ailment {
 	}
 	public List<Effect> getEffects() {
 		return effects;
+	}
+	public boolean isBuff() {
+		return !(target == Target.ST || target == Target.AoE);
+	}
+	public String generateDescription() {
+		return getDesc();
+	}
+	public boolean equals(Object o) {
+		if(o == null || !o.getClass().equals(this.getClass()))
+			return false;
+		Ailment other = (Ailment)o;
+		return this.getName().equals(other.getName()) && this.generateDescription().equals(other.generateDescription());
+	}
+	public int hashCode() {
+		return this.getName().hashCode() + this.generateDescription().hashCode();
 	}
 }

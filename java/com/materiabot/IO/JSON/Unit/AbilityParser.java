@@ -1,11 +1,18 @@
 package com.materiabot.IO.JSON.Unit;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 import com.materiabot.GameElements.Unit;
+import Shared.Methods;
 import com.google.common.base.CharMatcher;
 import com.materiabot.GameElements.Ability;
-import com.materiabot.GameElements.Datamining.Ability2;
-import com.materiabot.GameElements.Datamining.Ailment;
-import com.materiabot.GameElements.Datamining.Ailment.Target;
+import com.materiabot.GameElements.Ailment;
+import com.materiabot.GameElements.Ability.Details;
+import com.materiabot.GameElements.Ability.Details.Attack_Type;
+import com.materiabot.GameElements.Ability.Details.Command_Type;
+import com.materiabot.GameElements.Ability.Details.Hit_Data.EffectType;
+import com.materiabot.GameElements.Ailment.Target;
+import com.materiabot.GameElements.Ability.Details.Target_Type;
+import com.materiabot.GameElements.Element;
 import com.materiabot.IO.JSON.JSONParser.MyJSONObject;
 
 public class AbilityParser {
@@ -13,14 +20,13 @@ public class AbilityParser {
 		
 	}
 	private Unit unit;
-	private String region;
 	
-	public AbilityParser(Unit u, String r) { unit = u; region = r.toLowerCase(); }
+	public AbilityParser(Unit u) { unit = u; }
 	
 	public void parseAbilities(MyJSONObject obj, String abilityArray) {
 		for(MyJSONObject a : obj.getObjectArray(abilityArray)) {
 			if(a.getInt("error") != null) continue; //Some exception I made???
-			if(region.equals("gl") && !CharMatcher.ascii().matchesAllOf(a.getObject("name").getString(region))) //Ignore JP Skills in GL
+			if(!CharMatcher.ascii().matchesAllOf(a.getObject("name").getString("gl"))) //Ignore JP Skills in GL
 				continue;
 			parseAbility(a);
 		}
@@ -28,28 +34,53 @@ public class AbilityParser {
 	public Ability parseAbility(MyJSONObject ab) {
 		Ability a = new Ability();
 		a.setId(ab.getInt("id"));
-		a.setName(ab.getObject("name").getString(region));
-		a.setDescription(ab.getObject("desc").getString(region).replace("\\n", System.lineSeparator()));
+		a.setName(Methods.getBestText(ab.getStringArray(ab.getObject("name"))));
+		a.setDescription(Methods.getBestText(ab.getStringArray(ab.getObject("desc"))).replace("\\n", System.lineSeparator()));
 		a.setUseCount(ab.getInt("use_count"));
-		a.setDetails(new Ability2());
-		a.getDetails().setAttackType(Ability2.Attack_Type.get(ab.getObject("type_data").getInt("attack_type")));
+		a.setDetails(new Details());
+		a.getDetails().setAttackType(Details.Attack_Type.get(ab.getObject("type_data").getInt("attack_type")));
 		a.setUnit(unit);
+		Details d = new Details();
+		a.setDetails(d);
+		d.setAttackType(Attack_Type.get(ab.getObject("type_data").getInt("attack_type")));
+		d.setChaseDmg(ab.getObject("chase_data").getInt("can_initiate_chase") * ab.getObject("chase_data").getInt("chase_dmg"));
+		d.setCommandType(Command_Type.get(ab.getObject("type_data").getInt("command_type")));
+		d.setMovementCost(ab.getInt("movement_cost"));
+		d.setTargetType(Target_Type.get(ab.getObject("type_data").getInt("target_type")));
 		unit.getAbilities().put(a.getId(), a);
-		//TODO Parse HitData Here
+		for(MyJSONObject data : ab.getObjectArray("hit_data")) {
+			Details.Hit_Data hd = new Details.Hit_Data();
+			hd.setId(data.getInt("id"));
+			hd.setType(Details.Hit_Data.Type.get(data.getInt("type")));
+			hd.setArguments(data.getIntArray("arguments"));
+			hd.setBrvRate(data.getObject("brv_data").getInt("brv_rate"));
+			hd.setMaxBrvOverflow(data.getObject("brv_data").getInt("max_brv_overflow"));
+			hd.setMaxBrvOverflowOnBreak(data.getObject("brv_data").getInt("max_brv_overflow_with_break"));
+			hd.setSingleTargetBrvRate(data.getObject("brv_data").getInt("single_target_brv_rate"));
+			hd.setAttackType(Details.Hit_Data.Attack_Type.get(data.getInt("attack_type")));
+			hd.getElements().addAll(Arrays.asList(data.getIntArray("element")).stream().map(e -> Element.get(e.intValue())).collect(Collectors.toList()));
+			hd.setTarget(Details.Hit_Data.Target.get(data.getInt("target")));
+			hd.setEffect(new Details.Hit_Data.Effect());
+			hd.getEffect().setEffect(EffectType.get(data.getInt("effect")));
+			hd.getEffect().setEffectValueType(data.getInt("effect_value_type"));
+			d.getHits().add(hd);
+		}
 		for(MyJSONObject ailment : ab.getObjectArray("ailments")) {
 			Ailment ail = new Ailment();
 			ail.setId(ailment.getInt("id"));
 			ail.setCastId(ailment.getInt("cast_id"));
-			ail.setName(ailment.getObject("name").getString(region));
-			ail.setDescription(ailment.getObject("desc").getString(region));
+			ail.setName(Methods.getBestText(ailment.getStringArray(ailment.getObject("name"))));
+			ail.setDescription(Methods.getBestText(ailment.getStringArray(ailment.getObject("desc"))).replace("\\n", System.lineSeparator()));
 			ail.setRate(ailment.getObject("meta_data").getInt("rate"));
 			ail.setRank(ailment.getObject("meta_data").getInt("rank"));
 			ail.setTarget(Target.get(ailment.getObject("meta_data").getInt("target")));
 			ail.setDuration(ailment.getObject("meta_data").getInt("duration"));
 			ail.setArgs(Arrays.asList(ailment.getObject("meta_data").getIntArray("arguments")).stream().mapToInt(i->i).toArray());
 			//TODO Parse Ailments here
+			d.getAilments().add(ail);
 			unit.getAilments().put(ail.getId(), ail);
 		}
+		a.generateDescription();
 		return a;
 	}
 }

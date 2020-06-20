@@ -1,4 +1,5 @@
 package com.materiabot.IO.JSON.Unit;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import com.materiabot.GameElements.Passive;
@@ -6,11 +7,10 @@ import com.materiabot.GameElements.Passive.*;
 import com.materiabot.IO.JSON.JSONParser;
 import com.materiabot.IO.JSON.JSONParser.MyJSONObject;
 import Shared.Dual;
+import Shared.Methods;
 
 public class PassiveParser {
-	private String region;
-	
-	public PassiveParser(String r) { region = r.toLowerCase(); }
+	public PassiveParser() { }
 	
 	public List<Passive> parsePassives(MyJSONObject obj, String passiveArray) {
 		List<Passive> passives = new LinkedList<Passive>();
@@ -21,9 +21,9 @@ public class PassiveParser {
 	public Passive parsePassive(MyJSONObject s){
 		Passive p = new Passive();
 		p.setId(s.getInt("id"));
-		p.setName(s.getObject("name").getString(region));
-		p.setDescription(s.getObject("desc").getString(region).replace("\\n", System.lineSeparator()));
-		p.setShortDescription(s.getObject("short_desc").getString(region).replace("\\n", System.lineSeparator()));
+		p.setName(Methods.getBestText(s.getStringArray(s.getObject("name"))));
+		p.setDescription(Methods.getBestText(s.getStringArray(s.getObject("desc"))).replace("\\n", System.lineSeparator()));
+		p.setShortDescription(Methods.getBestText(s.getStringArray(s.getObject("short_desc"))).replace("\\n", System.lineSeparator()));
 		p.setCpCost(s.getObject("meta_data").getInt("cp"));
 		p.setLevel(s.getObject("meta_data").getInt("level"));
 		p.setTarget(Target.get(s.getObject("meta_data").getInt("target")));
@@ -37,6 +37,10 @@ public class PassiveParser {
 			Required req = Required.get(e.getInt("required_id"));
 			Integer[] ev = e.getIntArray("effect_values");
 			Integer[] rv = e.getIntArray("required_values");
+			if(eff == null)
+				System.out.println("E" + e.getInt("effect_id") + " | " + p.getName() + "(" + p.getId() + ") | Vals:(" + Arrays.toString(ev) + ")");
+			if(req == null)
+				System.out.println("R" + e.getInt("required_id") + " | " + p.getName() + "(" + p.getId() + ") | Vals:(" + Arrays.toString(rv) + ") | Target: " + e.getInt("required_target") + "/" + e.getInt("required_target_value"));
 			JSONParser.ValueGrouping<Effect> vge = eff == null ? 
 											new JSONParser.ValueGrouping<Effect>(e.getInt("effect_id"), ev) : 
 											new JSONParser.ValueGrouping<Effect>(eff, ev);

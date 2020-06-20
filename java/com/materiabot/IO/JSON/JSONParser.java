@@ -9,14 +9,12 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
-
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class JSONParser {
-	public static abstract class JSON_PATH{
-		public static final String ARTIFACT_PATH = "https://pastebin.com/raw/KhaefxA4";
-	}
 	public static class MyJSONObject{
 		private JSONObject json;
 
@@ -35,6 +33,18 @@ public class JSONParser {
 			} catch(Exception e) {
 				return null; 
 			}
+		}
+		@Deprecated
+		@SuppressWarnings("unchecked")
+		/**
+		 * To be used only in names and descriptions to make it easier to find a valid text, following the order: GL > EN > JP
+		 */
+		public String[] getStringArray(MyJSONObject obj) {
+			String[] ret = new String[obj.json.keySet().size()];
+			int i = 0;
+			for(Object o : ((Set<String>)obj.json.keySet()).stream().sorted().collect(Collectors.toList()))
+				ret[i++] = obj.getString(o.toString());
+			return ret;
 		}
 		public Integer[] getIntArray(String name) { 
 			try {

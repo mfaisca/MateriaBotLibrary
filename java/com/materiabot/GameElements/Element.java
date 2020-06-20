@@ -10,11 +10,14 @@ public enum Element{
 	
 	public Color getColor() { return c; }
 	public String getEmote() { return name() + "Element"; }
-	
+
 	public static Element get(String text) {
 		for(Element element : values())
 			if(element.name().equalsIgnoreCase(text))
 				return element;
 		return null;
+	}
+	public static Element get(int val) {
+		return Element.values()[val-1];
 	}
 }

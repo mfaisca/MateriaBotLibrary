@@ -3,14 +3,15 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import com.google.common.base.CharMatcher;
 import com.materiabot.GameElements.Ability;
+import com.materiabot.GameElements.Ailment;
 import com.materiabot.GameElements.Artifact;
 import com.materiabot.GameElements.Equipment;
 import com.materiabot.GameElements.Passive;
 import com.materiabot.GameElements.Sphere;
 import com.materiabot.GameElements.Sphere.SphereType;
 import com.materiabot.GameElements.Unit;
+import com.materiabot.GameElements.Ailment.Target;
 import com.materiabot.IO.JSON.JSONParser.MyJSONObject;
 import com.materiabot.IO.JSON.Unit.AbilityParser;
 import com.materiabot.IO.JSON.Unit.PassiveParser;
@@ -51,6 +52,7 @@ public class UnitParser {
 			MyJSONObject obj = JSONParser.loadContent(f.getAbsolutePath(), false);		
 			parseBaseAbilities(u, obj);
 			parseCompleteListAbilities(u, obj);
+			parseDefaultAilments(u, obj);
 			parseOptionalAbilities(u, obj);
 			parsePassives(u, obj);
 			parseCharaBoards(u, obj);
@@ -67,7 +69,24 @@ public class UnitParser {
 		u.setBaseAbilities(obj.getIntArray("defaultAbilities"));
 	}
 	private void parseCompleteListAbilities(Unit u, MyJSONObject obj) {
-		new AbilityParser(u, region).parseAbilities(obj, "completeListOfAbilities");
+		new AbilityParser(u).parseAbilities(obj, "completeListOfAbilities");
+	}
+	private void parseDefaultAilments(Unit u, MyJSONObject obj) {
+		for(MyJSONObject ailment : obj.getObjectArray("defaultAilments")) {
+			Ailment ail = new Ailment();
+			ail.setId(ailment.getInt("id"));
+			ail.setCastId(ailment.getInt("cast_id"));
+			if(ailment.getObject("name") == null) continue; //FIXME Temporary Fix for a Prishe bugged DefaultAilment
+			ail.setName(Methods.getBestText(ailment.getStringArray(ailment.getObject("name"))));
+			ail.setDescription(Methods.getBestText(ailment.getStringArray(ailment.getObject("desc"))));
+			ail.setRate(ailment.getObject("meta_data").getInt("rate"));
+			ail.setRank(ailment.getObject("meta_data").getInt("rank"));
+			ail.setTarget(Target.get(ailment.getObject("meta_data").getInt("target")));
+			ail.setDuration(ailment.getObject("meta_data").getInt("duration"));
+			ail.setArgs(Arrays.asList(ailment.getObject("meta_data").getIntArray("arguments")).stream().mapToInt(i->i).toArray());
+			//TODO Parse Ailments here
+			u.getAilments().put(ail.getId(), ail);
+		}
 	}
 	private void parseOptionalAbilities(Unit u, MyJSONObject obj) {
 		int typeIdx = -1;
@@ -93,7 +112,7 @@ public class UnitParser {
 		}
 	}
 	private void parsePassives(Unit u, MyJSONObject obj) {
-		for(Passive p : new PassiveParser(region).parsePassives(obj, "awakeningPassives")) {
+		for(Passive p : new PassiveParser().parsePassives(obj, "awakeningPassives")) {
 			p.setUnit(u);
 			u.getPassives().put(p.getLevel(), p);
 		}
@@ -101,7 +120,7 @@ public class UnitParser {
 	private void parseCharaBoards(Unit u, MyJSONObject obj) {
 		if(obj.getObject("enhancementBoard") == null)
 			return;
-		for(Passive p : new PassiveParser(region).parsePassives(obj.getObject("enhancementBoard"), "passives")) {
+		for(Passive p : new PassiveParser().parsePassives(obj.getObject("enhancementBoard"), "passives")) {
 			p.setUnit(u);
 			u.getCharaBoards().add(p);
 		}
@@ -110,13 +129,14 @@ public class UnitParser {
 		for(MyJSONObject pass : obj.getObjectArray("artifactList")) {
 			Artifact a = new Artifact();
 			a.setId(pass.getInt("id"));
-			a.setName(pass.getObject("name").getString(region));
-			a.setDescription(pass.getObject("desc").getString(region).replace("\\n", System.lineSeparator()));
-			a.setShortDescription(pass.getObject("short_desc").getString(region).replace("\\n", System.lineSeparator()));
+			a.setName(Methods.getBestText(pass.getStringArray(pass.getObject("name"))));
+			a.setDescription(Methods.getBestText(pass.getStringArray(pass.getObject("desc"))).replace("\\n", System.lineSeparator()));
+			a.setShortDescription(Methods.getBestText(pass.getStringArray(pass.getObject("short_desc"))).replace("\\n", System.lineSeparator()));
 			u.getArtifacts().add(a);
 		}
 	}
 	private void parseGear(Unit u, MyJSONObject obj) {
+		PassiveParser pp = new PassiveParser();
 		for(String gearType : Arrays.asList("silverWeapon", "baseWeapon", 
 				"uniqueWeapon", "summonWeapon", "ntWeapon", "manikinWeapon", "exWeapon", "realizedWeapon", 
 				"limitedWeapon", "burstWeapon", "silverArmor", "uniqueArmor", "exArmor", "realizedArmor", "highArmor")) {
@@ -124,43 +144,20 @@ public class UnitParser {
 			if(gear.getInt("id") == null) continue;
 			Equipment equip = new Equipment();
 			equip.setId(gear.getInt("id"));
-			equip.setName(gear.getObject("name").getString(region).replace("\\bQp", "+"));
-			if(region.equals("gl") && !CharMatcher.ascii().matchesAllOf(equip.getName()))
-				continue;
+			equip.setName(Methods.getBestText(gear.getStringArray(gear.getObject("name"))).replace("\\bQp", "+"));
 			equip.setType(gearType.contains("Armor") ? Equipment.Type.Armor : u.getEquipmentType());
 			equip.setRarity(Equipment.Rarity.getByName(gearType));
 			equip.setUnit(u);
-			PassiveParser pp = new PassiveParser(region);
 			{
-//				MyJSONObject gearPassive = gear.getObject("passive");
 				Passive p = pp.parsePassive(gear.getObject("passive"));
-//				Passive p = new Passive();
-//				p.setId(gearPassive.getInt("id"));
-//				p.setName(gearPassive.getObject("name").getString(region));
-//				p.setDescription(gearPassive.getObject("desc").getString(region).replace("\\n", System.lineSeparator()));
-//				p.setShortDescription(gearPassive.getObject("short_desc").getString(region).replace("\\n", System.lineSeparator()));
-//				p.setCpCost(gearPassive.getObject("meta_data").getInt("cp"));
 				p.setUnit(u);
-				//p.generateDescription();
 				equip.getPassives().add(p);
 			}
-			if(gear.getObjectArray("passives") != null) {
+			if(gear.getObjectArray("passives") != null)
 				for(Passive p : pp.parsePassives(gear, "passives")) {
 					p.setUnit(u);
-					p.generateDescription();
 					equip.getPassives().add(p);
 				}
-			}
-//				for(MyJSONObject gearPassive : gear.getObjectArray("passives")) {
-//					Passive p = new Passive(_Library.get(region));
-//					p.setId(gearPassive.getInt("id"));
-//					p.setName(gearPassive.getObject("name").getString(region));
-//					p.setDescription(gearPassive.getObject("desc").getString(region).replace("\\n", System.lineSeparator()));
-//					p.setShortDescription(gearPassive.getObject("short_desc").getString(region).replace("\\n", System.lineSeparator()));
-//					p.setCpCost(gearPassive.getObject("meta_data").getInt("cp"));
-//					equip.getPassives().add(p);
-//					//TODO Missing Effects (Mainly for passive stat increases on EX+ and LD)
-//				}
 			u.getEquipment().add(equip);
 		}
 		MyJSONObject gear = obj.getObject(Equipment.Rarity.BS.getName());
@@ -173,9 +170,9 @@ public class UnitParser {
 		MyJSONObject gearPassive = gear.getObject("passive");
 		Passive p = new Passive();
 		p.setId(gearPassive.getInt("id"));
-		p.setName(gearPassive.getObject("name").getString(region));
-		p.setDescription(gearPassive.getObject("desc").getString(region).replace("\\n", System.lineSeparator()));
-		p.setShortDescription(gearPassive.getObject("short_desc").getString(region).replace("\\n", System.lineSeparator()));
+		p.setName(Methods.getBestText(gearPassive.getStringArray(gearPassive.getObject("name"))));
+		p.setDescription(Methods.getBestText(gearPassive.getStringArray(gearPassive.getObject("desc"))).replace("\\n", System.lineSeparator()));
+		p.setShortDescription(Methods.getBestText(gearPassive.getStringArray(gearPassive.getObject("short_desc"))).replace("\\n", System.lineSeparator()));
 		p.setCpCost(gearPassive.getObject("meta_data").getInt("cp"));
 		equip.getPassives().add(p);
 		u.getEquipment().add(equip);
@@ -189,7 +186,7 @@ public class UnitParser {
 			sphere.setId(gear.getInt("id"));
 			sphere.setType(SphereType.valueOf(gear.getString("category")));
 			MyJSONObject gearPassive = gear.getObject("passive");
-			sphere.setPassive(new PassiveParser(region).parsePassive(gearPassive));
+			sphere.setPassive(new PassiveParser().parsePassive(gearPassive));
 			s2 = s1 == null ? null : sphere;
 			s1 = s1 == null ? sphere : s1;
 		}

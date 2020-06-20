@@ -7,44 +7,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import com.materiabot.GameElements.Ability;
+import com.materiabot.GameElements.Ailment;
 import com.materiabot.GameElements.Passive;
-import com.materiabot.GameElements.Datamining.Ability2;
-import com.materiabot.GameElements.Datamining.Ailment;
 import com.materiabot.IO.JSON.JSONParser;
 import com.materiabot.IO.JSON.JSONParser.MyJSONObject;
 
 public class JSON_Analyzer {
 	public static void main(String[] args) throws Exception {
 		mainAnalyzer(args);
-		//testStuff(args);
 	}
-
-//	public static void testStuff(String[] args) throws IOException, BotException {
-//		Scanner in = new Scanner(System.in);
-//		while(true) {
-//			String unitName = in.nextLine();
-//			if(unitName.equalsIgnoreCase("exit")) break;
-//			int level = in.nextInt(); in.nextLine();
-//			//System.out.println(UnitParser.parseCharacter(unitName).getPassives().stream().filter(p -> p.getLevel() == level).findFirst().get().generateDescription());
-//		}
-//		in.close();
-//	}
 	public static void mainAnalyzer(String[] args) throws IOException {
-//		File main = null;
 		File main = new File("./resources/gl");
-//		for(File f : main.listFiles()){
-//			BufferedReader br = new BufferedReader(new FileReader(f));
-//			String name = f.getName().replace("raw_data_", "");
-//			FileWriter fw = new FileWriter("D:\\Workspace\\_files\\gl\\" + name);
-//			String l;
-//			while((l = br.readLine()) != null)
-//				fw.write(l + System.lineSeparator());
-//			fw.close();
-//			br.close();
-//		}
-//		
-//		if(true)
-//			return;		
 		HashMap<Integer, List<String>> helperMap = new HashMap<Integer, List<String>>();
 		for(File f : main.listFiles()){
 			String charName = getNameFromFileName(f.getName());
@@ -92,17 +66,15 @@ public class JSON_Analyzer {
 						int i = 0;
 						if(!single)
 							for(MyJSONObject oo : ability.getObjectArray("hit_data")) {
-								if(Ability2.Hit_Data.EffectType.get(oo.getInt("effect")) != null && Ability2.Hit_Data.EffectType.get(oo.getInt("effect")).getBaseDescription().length() >= 0)
+								if(Ability.Details.Hit_Data.EffectType.get(oo.getInt("effect")) != null && Ability.Details.Hit_Data.EffectType.get(oo.getInt("effect")).getBaseDescription().length() >= 0)
 									continue;
 								Integer key = oo.getInt("effect")*100 + oo.getInt("effect_value_type");
-								//Integer key = oo.getInt("target");
 								if(!helperMap.containsKey(key))
 									helperMap.put(key, new LinkedList<String>());
 								helperMap.get(key).add(charName + "@" + ability.getObject("name").getString("gl") + "/" + i++ + "(" + ability.getInt("id") + "/" + oo.getInt("id") + ")");
 							}
 						else {
 							Integer key = ability.getObject("effects").getInt("effect_id");
-							//Integer key = ability.getInt("movement_cost");
 							if(!helperMap.containsKey(key))
 								helperMap.put(key, new LinkedList<String>());
 							helperMap.get(key).add(charName + "@" + ability.getObject("name").getString("gl") + "/" + i++ + "(" + ability.getInt("id") + ")");
@@ -141,37 +113,18 @@ public class JSON_Analyzer {
 					}
 				}
 		}
-		
-		//FileWriter fw = new FileWriter(new File("output.txt"));
 		for(Entry<Integer, List<String>> s : helperMap.entrySet().stream().sorted((s1, s2) -> s1.getKey().compareTo(s2.getKey())).collect(Collectors.toList())) {
 			System.out.println(s.getKey() + ": {");
-			//fw.write(s.getKey() + ": {" + "\n");
 			int cur = 0;
 			for(String ss : s.getValue()) {
 				if(++cur == 100) break;
 				System.out.println("\t" + ss);
-				//fw.write("\t" + ss + "\n");
 			}
 			System.out.println("}");
-			//fw.write("}\n");
 		}
-		//fw.close();
 	}
 	
-//	public static final int getNumberFromFileName(String name){
-//		name = name.substring(9);
-//		int i = 0;
-//		for(char c : name.toCharArray())
-//			if('0' <= c && c <= '9')
-//				i++;
-//			else
-//				break;
-//		name = name.substring(0, i);
-//		return Integer.parseInt(name);
-//	}
-	
 	public static final String getNameFromFileName(String name){
-		//name = name;//name.substring(9);
 		int i = 0;
 		for(char c : name.toCharArray())
 			if('0' <= c && c <= '9')

@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import com.materiabot.GameElements.Sphere.SphereType;
-import com.materiabot.GameElements.Datamining.Ailment;
 
 public class Unit {	
 	private String name;

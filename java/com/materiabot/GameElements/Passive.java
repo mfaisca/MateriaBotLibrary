@@ -3,7 +3,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
-import com.materiabot.GameElements.Datamining.Ailment;
 import com.materiabot.IO.JSON.JSONParser;
 import Shared.Dual;
 import Shared.Methods;
@@ -138,6 +137,8 @@ public class Passive{
 		E91(91, "Removes {0} buff on critical damage dealt"), //Unique? to Cloud WoI Weapon
 		E102(102, "Ignores resistances against ghost-type enemies"), //Unique to Sabin
 		E107(107, "Raises recast speed of 「**{1}**」 by {0}%"),
+		E113(113, "Increase ATK by {0}%, Max BRV by {1}%"), //TODO ATK parameter has value 20000000 - Split by 3 - 20|000|000 - According to Rem, these could represent a second index
+															//with order ATK DEF SPD and then IBRV MBRV for a second argument - Look into making a second indexing {0.0~2}?
 		E115(115, "Raises Max HP by {0}%"),
 		E116(116, "May equip ability 「**{0}**」"), //Generic effect for base EX/EX+/LD effect 
 		E117(117, null), //Generic effect for base EX/EX+/LD effect 
@@ -259,6 +260,7 @@ public class Passive{
 		R77_2(77, "when using a Cross-Slash or Finishing Touch"), //Cloud NT Sword
 		R78(78, "while 「**{0}**」 is active"), //While buff is active
 		R79(79, "while an enemy is poisoned"), //Thancred Exclusive
+		R88(88, "After using a Call Ability with BRV damage:", false), 
 		R89(89, "while 「**{0}**」 is active"), //If required[0] = 6, "Chelinka's Prayer", else if required[0] = 7, "Eblan's Teachings", else 
 		;
 		
@@ -309,7 +311,7 @@ public class Passive{
 			return v;
 		}
 		
-		public static Required get(int id) {
+		public static Required get(int id) {;
 			for(Required r : values())
 				if(r.getId() == id)
 					return r;
@@ -383,7 +385,7 @@ public class Passive{
 			JSONParser.ValueGrouping<Effect> previousEff = null;
 			JSONParser.ValueGrouping<Required> previous = null;
 			if(getEffects().size() == 0 || getEffects().stream()
-											.anyMatch(e -> e.getValue1().type.baseDescription == null))
+											.anyMatch(e -> e.getValue1().type == null || e.getValue1().type.baseDescription == null))
 				return "**「D」** " + this.getDescription();
 			for(Dual<JSONParser.ValueGrouping<Effect>, JSONParser.ValueGrouping<Required>> effReq : getEffects()) {
 				JSONParser.ValueGrouping<Effect> eff = effReq.getValue1();

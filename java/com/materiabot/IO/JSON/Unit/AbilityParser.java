@@ -34,6 +34,8 @@ public class AbilityParser {
 	public Ability parseAbility(MyJSONObject ab) {
 		Ability a = new Ability();
 		a.setId(ab.getInt("id"));
+//		if(ab.getObject("name").getString("en").length() == 0 && 
+//			ab.getObject("name").getString("gl").length() == 0) return null;
 		a.setName(Methods.getBestText(ab.getStringArray(ab.getObject("name"))));
 		a.setDescription(Methods.getBestText(ab.getStringArray(ab.getObject("desc"))).replace("\\n", System.lineSeparator()));
 		a.setUseCount(ab.getInt("use_count"));
@@ -52,6 +54,9 @@ public class AbilityParser {
 			Details.Hit_Data hd = new Details.Hit_Data();
 			hd.setId(data.getInt("id"));
 			hd.setType(Details.Hit_Data.Type.get(data.getInt("type")));
+			if(hd.getType() == null) {
+				continue;
+			}
 			hd.setArguments(data.getIntArray("arguments"));
 			hd.setBrvRate(data.getObject("brv_data").getInt("brv_rate"));
 			hd.setMaxBrvOverflow(data.getObject("brv_data").getInt("max_brv_overflow"));
@@ -60,9 +65,15 @@ public class AbilityParser {
 			hd.setAttackType(Details.Hit_Data.Attack_Type.get(data.getInt("attack_type")));
 			hd.getElements().addAll(Arrays.asList(data.getIntArray("element")).stream().map(e -> Element.get(e.intValue())).collect(Collectors.toList()));
 			hd.setTarget(Details.Hit_Data.Target.get(data.getInt("target")));
+			if(hd.getTarget() == null)
+				System.out.println("ST" + data.getInt("target") + " | " + a.getName() + "(" + a.getId() + ") | HD ID: " + hd.getId());
 			hd.setEffect(new Details.Hit_Data.Effect());
 			hd.getEffect().setEffect(EffectType.get(data.getInt("effect")));
+			if(hd.getEffect().getEffect() == null)
+				System.out.println("SE" + data.getInt("effect") + " | " + a.getName() + "(" + a.getId() + ") | HD ID: " + hd.getId());
 			hd.getEffect().setEffectValueType(data.getInt("effect_value_type"));
+			if(hd.getEffect().getEffectValueType() == -1)
+				System.out.println("SEVT" + data.getInt("effect_value_type") + " | " + a.getName() + "(" + a.getId() + ") | HD ID: " + hd.getId());
 			d.getHits().add(hd);
 		}
 		for(MyJSONObject ailment : ab.getObjectArray("ailments")) {
@@ -80,7 +91,7 @@ public class AbilityParser {
 			d.getAilments().add(ail);
 			unit.getAilments().put(ail.getId(), ail);
 		}
-		a.generateDescription();
+		//a.generateDescription();
 		return a;
 	}
 }

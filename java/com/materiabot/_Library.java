@@ -11,6 +11,7 @@ import com.materiabot.GameElements.Summon;
 import com.materiabot.GameElements.Unit;
 import com.materiabot.GameElements.Summon.SummonPassive;
 import com.materiabot.IO.JSON.UnitParser;
+import com.materiabot.Utils.Constants;
 
 public class _Library {
 	public static final _Library L = new _Library();
@@ -54,7 +55,7 @@ public class _Library {
 					new SummonPassive("Shiva Base&Guard Up", "Raises Initial BRV by 10% and Defense by 20% when HP < 80%.", "IBrv+10% & DEF+20% if HP<80%", true), 
 					new SummonPassive("Shiva Bonus Up", "Raises Break Bonus by 5% when HP < 80%.", "Break Bonus +5% if HP<80%"), 
 					new SummonPassive("Shiva Critical Power Up", "Raises Critical BRV damage by 10% when HP < 80%.", "Crit dmg dealt +10% if HP<80%", true)));
-			SUMMON_LIST.add(new Summon(Arrays.asList("Ramuh"), 30, Element.Lightning, "Judgement Bolt", "Raises Max BRV by 15%" + System.lineSeparator() + "Raises Defense by 40% when HP < 80%", 
+			SUMMON_LIST.add(new Summon(Arrays.asList("Ramuh"), 30, Element.Thunder, "Judgement Bolt", "Raises Max BRV by 15%" + System.lineSeparator() + "Raises Defense by 40% when HP < 80%", 
 					"4000 Lightning BRV Magical damage" + System.lineSeparator() + "Grants Lightning attribute to the party", 
 					"8|6|10|12|14", "Setzer|Onion Knight|Lenna|Maria|Cid|Eiko", 6, 6000, "Moderately Fast", 
 					new SummonPassive("Lightning Resist Up", "Lowers Lightning damage taken by 10%.", "Lightning dmg taken -10%"),
@@ -154,5 +155,7 @@ public class _Library {
 
 	public static void reset() {
 		L.UNIT_CACHE.invalidateAll();
+		Constants.COMMANDS.clear();
+		UnitParser.UNITS.clear();
 	}
 }

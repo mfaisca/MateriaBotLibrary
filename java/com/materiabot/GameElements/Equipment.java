@@ -14,7 +14,6 @@ public class Equipment{
 		public String getEmote() { return name() + "Equip"; }
 		//public String getTrashEmote() { return "Trash" + name(); }
 		
-
 		public static Type random3Star() {
 			int rng = Methods.RNG.nextInt(8);
 			if(rng == 7) rng = 11;
@@ -28,6 +27,10 @@ public class Equipment{
 		public static Type random5Star() {
 			int rng = Methods.RNG.nextInt(11);
 			return values()[rng];
+		}
+
+		public static Type find(int id) {
+			return values()[id-1];
 		}
 	}
 	public static enum Rarity{

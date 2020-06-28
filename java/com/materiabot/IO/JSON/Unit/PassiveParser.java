@@ -14,12 +14,16 @@ public class PassiveParser {
 	
 	public List<Passive> parsePassives(MyJSONObject obj, String passiveArray) {
 		List<Passive> passives = new LinkedList<Passive>();
-		for(MyJSONObject s : obj.getObjectArray(passiveArray))
-			passives.add(parsePassive(s));
+		for(MyJSONObject s : obj.getObjectArray(passiveArray)) {
+			Passive p = parsePassive(s);
+			if(p != null)
+				passives.add(p);
+		}
 		return passives;
 	}
 	public Passive parsePassive(MyJSONObject s){
 		Passive p = new Passive();
+		if(s.getInt("error") != null) return null;
 		p.setId(s.getInt("id"));
 		p.setName(Methods.getBestText(s.getStringArray(s.getObject("name"))));
 		p.setDescription(Methods.getBestText(s.getStringArray(s.getObject("desc"))).replace("\\n", System.lineSeparator()));
@@ -38,9 +42,9 @@ public class PassiveParser {
 			Integer[] ev = e.getIntArray("effect_values");
 			Integer[] rv = e.getIntArray("required_values");
 			if(eff == null)
-				System.out.println("E" + e.getInt("effect_id") + " | " + p.getName() + "(" + p.getId() + ") | Vals:(" + Arrays.toString(ev) + ")");
+				System.out.println("PE" + e.getInt("effect_id") + " | " + p.getName() + "(" + p.getId() + ") | Vals:(" + Arrays.toString(ev) + ")");
 			if(req == null)
-				System.out.println("R" + e.getInt("required_id") + " | " + p.getName() + "(" + p.getId() + ") | Vals:(" + Arrays.toString(rv) + ") | Target: " + e.getInt("required_target") + "/" + e.getInt("required_target_value"));
+				System.out.println("PR" + e.getInt("required_id") + " | " + p.getName() + "(" + p.getId() + ") | Vals:(" + Arrays.toString(rv) + ") | Target: " + e.getInt("required_target") + "/" + e.getInt("required_target_value"));
 			JSONParser.ValueGrouping<Effect> vge = eff == null ? 
 											new JSONParser.ValueGrouping<Effect>(e.getInt("effect_id"), ev) : 
 											new JSONParser.ValueGrouping<Effect>(eff, ev);

@@ -22,4 +22,7 @@ public enum Crystal{
 					return crystal;
 		return null;
 	}
+	public static Crystal find(int id) {
+		return values()[id-1];
+	}
 }

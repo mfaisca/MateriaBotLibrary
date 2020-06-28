@@ -9,6 +9,7 @@ import com.materiabot.GameElements.Sphere.SphereType;
 
 public class Unit {	
 	private String name;
+	private int series = -1;
 	private List<String> nicknames = new LinkedList<String>();
 	private Crystal crystal;
 	private Equipment.Type equipmentType;
@@ -27,10 +28,13 @@ public class Unit {
 	public Unit(String name, String... nicknames) {
 		this.name = name;
 		this.nicknames.add(name.toLowerCase());
-		this.nicknames.addAll(Arrays.asList(nicknames).stream().map(s -> s.toLowerCase()).collect(Collectors.toList()));
+		if(nicknames != null)
+			this.nicknames.addAll(Arrays.asList(nicknames).stream().map(s -> s.toLowerCase()).collect(Collectors.toList()));
 	}
 	
 	public String getName() { return name; }
+	public int getSeries() { return series; }
+	public void setSeries(int series) { this.series = series; }
 	public List<String> getNicknames() { return nicknames; }
 	public Crystal getCrystal() { return crystal; }
 	public void setCrystal(Crystal c) { crystal = c; }
@@ -63,6 +67,7 @@ public class Unit {
 		Iterator<Ability.UpgradedAbility> iter = upgradedAbilities.stream()
 				.filter(ua -> ua.type.equals(type))
 				.filter(ua -> awakening == null || ua.reqExtendPassives.stream().anyMatch(rp -> rp.intValue() == awakening.getId()))
+				.sorted((u1, u2) -> u1.upgrade.getDescription().length() - u2.upgrade.getDescription().length())
 				.collect(Collectors.toCollection(LinkedList::new))
 					.descendingIterator();
 		if(!iter.hasNext()) 
@@ -114,12 +119,12 @@ public class Unit {
 		return this.getName();
 	}
 	public Unit clone() { //Shallow copy since this is all its required for the Managers
-		Unit clone = new Unit(name, nicknames.toArray(new String[0]));
+		Unit clone = new Unit(name);
+		clone.nicknames = this.nicknames;
 		clone.setCrystal(this.getCrystal());
 		clone.setEquipmentType(this.getEquipmentType());
-		clone.sphereSlots[0] = this.sphereSlots[0];
-		clone.sphereSlots[1] = this.sphereSlots[1];
-		clone.sphereSlots[2] = this.sphereSlots[2];
+		clone.setSeries(this.getSeries());
+		clone.sphereSlots = this.sphereSlots;
 		return clone;
 	}
 }

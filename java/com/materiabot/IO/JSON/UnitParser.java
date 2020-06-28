@@ -6,6 +6,7 @@ import java.util.List;
 import com.materiabot.GameElements.Ability;
 import com.materiabot.GameElements.Ailment;
 import com.materiabot.GameElements.Artifact;
+import com.materiabot.GameElements.Crystal;
 import com.materiabot.GameElements.Equipment;
 import com.materiabot.GameElements.Passive;
 import com.materiabot.GameElements.Sphere;
@@ -18,35 +19,32 @@ import com.materiabot.IO.JSON.Unit.PassiveParser;
 import Shared.Methods;
 
 public class UnitParser {
-	public static interface OverrideManager{		
+	public static interface OverrideManager{
+		public static class _Default extends Unit{
+			public _Default(String name, String... nicknames) {
+				super(name, nicknames);
+			}
+		}
+
 		public Unit getUnit(String name);
-		public Unit getRandomUnit();
+		public List<Unit> getAllUnits();
 	}
 	public static List<OverrideManager> overrideManagerCollection = new LinkedList<OverrideManager>();
+	public static List<Unit> UNITS = new LinkedList<Unit>();
 		
 	public Unit parseUnit(String name) {
-		try {
-			return createUnit(name);
-		} catch(Exception e) {
-			
-		}
-		return null;
+		return createUnit(name);
 	}
-	private static Unit getUnit(String name) {
-		for(OverrideManager m : overrideManagerCollection) {
-			Unit u = m.getUnit(name);
-			if(u != null) 
-				return u;
-		}
-		return new Unit(name);
-	}
-	
 	private Unit createUnit(String name) {
 		try{
-			Unit u = getUnit(name.replace("_", " "));
+			Unit u = UNITS.stream()
+						.filter(uu -> uu.getNicknames().contains(name.replace("_", " ").toLowerCase()))
+						.map(uu -> uu.clone())
+						.findFirst().orElse(new Unit(name));
 			File f = new File("./resources/units/db_" + Methods.urlizeDB(u.getName()).toLowerCase() + ".json");
 			if(!f.exists()) return null;
-			MyJSONObject obj = JSONParser.loadContent(f.getAbsolutePath(), false);		
+			MyJSONObject obj = JSONParser.loadContent(f.getAbsolutePath(), false);
+			parseProfile(u, obj);
 			parseBaseAbilities(u, obj);
 			parseCompleteListAbilities(u, obj);
 			parseDefaultAilments(u, obj);
@@ -61,6 +59,13 @@ public class UnitParser {
 			e.printStackTrace();
 			return null;
 		}
+	}
+	private void parseProfile(Unit u, MyJSONObject obj) {
+		u.setCrystal(Crystal.find(obj.getObject("profile").getInt("crystal")));
+		u.setEquipmentType(Equipment.Type.find(obj.getObject("profile").getInt("weaponType")));
+		u.setSeries(obj.getObject("profile").getInt("world"));
+		for(int i = 0; i < 3; i++)
+			u.getSphereSlots()[i] = SphereType.get(obj.getObject("profile").getObject("traits").getStringArray("spheres")[i]);
 	}
 	private void parseBaseAbilities(Unit u, MyJSONObject obj) {
 		u.setBaseAbilities(obj.getIntArray("defaultAbilities"));
@@ -112,6 +117,7 @@ public class UnitParser {
 		for(Passive p : new PassiveParser().parsePassives(obj, "awakeningPassives")) {
 			p.setUnit(u);
 			u.getJPPassives().put(p.getLevel(), p);
+			u.getPassives().put(p.getLevel(), p);
 		}
 		for(Passive p : new PassiveParser().parsePassives(obj, "glAwakeningPassives")) {
 			p.setUnit(u);
@@ -149,15 +155,15 @@ public class UnitParser {
 			equip.setType(gearType.contains("Armor") ? Equipment.Type.Armor : u.getEquipmentType());
 			equip.setRarity(Equipment.Rarity.getByName(gearType));
 			equip.setUnit(u);
-			{
-				Passive p = pp.parsePassive(gear.getObject("passive"));
+			Passive p = pp.parsePassive(gear.getObject("passive"));
+			if(p != null) {
 				p.setUnit(u);
 				equip.getPassives().add(p);
 			}
 			if(gear.getObjectArray("passives") != null)
-				for(Passive p : pp.parsePassives(gear, "passives")) {
-					p.setUnit(u);
-					equip.getPassives().add(p);
+				for(Passive ppp : pp.parsePassives(gear, "passives")) {
+					ppp.setUnit(u);
+					equip.getPassives().add(ppp);
 				}
 			u.getEquipment().add(equip);
 		}

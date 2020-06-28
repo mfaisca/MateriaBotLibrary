@@ -108,9 +108,11 @@ public class Passive{
 		E35(35, "Raises {3}Int BRV{4} by {0}%{1}"), //Doesnt Exist, just a guess
 		E36(36, "Raises {3}Max BRV{4} by {0}%"),
 		E37(37, "Raises {3}Max BRV{4} by {0}%{1}"),
+		E38(38, "Raises 「**{1}**」 and 「**{2}**」 by {0}%"),
 		E39(39, "Raises BRV Damage by {0}%"),
 		E40(40, "Raises turn rate"), //Only receives 1 parameter, but I don't know how to have it make sense for the end user
 		E43(43, "Raises BRV by {0}% of Int BRV"), //Receives a 2nd Parameter "1", which probably indicates what stat its based on, but all examples refer to 1, so I'm removing that variable for ease of coding
+		E44(44, "Raises BRV gained by {0}%"),
 		E47(47, "Raises {3}ATK, DEF, Int BRV, Max BRV by {0}%{1}"), //The second parameter is usually -1 to represent infinite turns, but I'll leave it to be changeable through "fix"
 		E48(48, "Raises turn rate of {0}"), //Receives 2 parameters, but I don't know how to have 2nd make sense for the end user (Its usually 4)
 		E49(49, "Break is avoided and BRV drops to 1"),
@@ -132,17 +134,25 @@ public class Passive{
 		E78(78, "Raises BRV Damage dealt to humanoids by {0}%"), //Maneater, unique to Steiner
 		E79(79, "Counters with a BRV Attack"), //
 		E82(82, "{0}% of HP recovered in excess of MAX HP shared with allies up to {1}% of the ally's Max HP"), 
+		E83(83, "Raises {3}evasion for{1}"),
 		E89(89, "Raises ATK, DEF, Int BRV, Max BRV by {0}%"), //Another one of these
 		E90(90, "Raises {3}ATK, DEF, Int BRV, Max BRV by {0}%{1}"), //The second parameter is usually -1 to represent infinite turns, but I'll leave it to be changeable through "fix"
 		E91(91, "Removes {0} buff on critical damage dealt"), //Unique? to Cloud WoI Weapon
 		E102(102, "Ignores resistances against ghost-type enemies"), //Unique to Sabin
 		E107(107, "Raises recast speed of 「**{1}**」 by {0}%"),
-		E113(113, "Increase ATK by {0}%, Max BRV by {1}%"), //TODO ATK parameter has value 20000000 - Split by 3 - 20|000|000 - According to Rem, these could represent a second index
+		E113(113, "Raises {0}"), //TODO ATK parameter has value 20000000 - Split by 3 - 20|000|000 - According to Rem, these could represent a second index
 															//with order ATK DEF SPD and then IBRV MBRV for a second argument - Look into making a second indexing {0.0~2}?
 		E115(115, "Raises Max HP by {0}%"),
 		E116(116, "May equip ability 「**{0}**」"), //Generic effect for base EX/EX+/LD effect 
 		E117(117, null), //Generic effect for base EX/EX+/LD effect 
-		E170(170, "Increases BRV overflow limit by {0}%"),
+		E146(146, "Raises PATK by {0}%{1}"),
+		E148(148, null),
+		E150(150, "Raises {3}PATK by {0}%{1}"),
+		E168(168, "Reduces {3}HP damage taken by {0}%{1}"),
+		E169(169, "Reduces {3}BRV damage taken by {0}%{1}"),
+		E170(170, "Raises BRV overflow limit by {0}%"),
+		E171(171, "Raises BRV overflow limit by {0}%{1}"),
+		E181(181, "Reduce all enemies speed for {2}"), //Parameters are (100, 1944, 6), no idea what 0 and 1 are used for
 		E187(187, "Raises {3}BRV damage dealt may exceed 9999 by {0}%"), //High Armor Effect - Essence of Offense
 		E188(188, "Raises {3}obtainable BRV and HP damage may exceed 99999 by {0}%"), //High armor Effect - Generic
 		;
@@ -174,33 +184,92 @@ public class Passive{
 		}
 		
 		private String[] fix(Unit u, String[] v) {
-			if(id == 17) v[1] = "" + (Integer.parseInt(v[1].toString())+1);
-			if(id == 22 || id == 48 || id == 116) {
-				Ability ab = u.getSpecificAbility(Integer.parseInt(v[0])); //_Library.JP.getSkillById(Integer.parseInt(v[0].toString()));
-				v[0] = ab != null ? ab.getName() : "Unknown Skill ID: " + v[0];
-			}
-			if(id == 107) {
-				Ability ab = u.getSpecificAbility(Integer.parseInt(v[1])); //_Library.JP.getSkillById(Integer.parseInt(v[0].toString()));
-				v[1] = ab != null ? ab.getName() : "Unknown Skill ID: " + v[1];
-			}
-			if(id == 29 || id == 31 || id == 33 || id == 35 || id == 37 || id == 47 || id == 90) 
-				v[1] = v[1].toString().equalsIgnoreCase("-1") ? "" : " for " + v[1] + " turns";
-			if(id == 54) {
-				Ailment ail = u.getSpecificAilment(Integer.parseInt(v[0]));
-				v[0] = v[0].toString().equalsIgnoreCase("-1") ? "all" : ((ail != null ? ail.getName() : "Unknown Ailment ID: " + v[0]));
-				v[1] = v[1].toString() + (v[1].toString().equalsIgnoreCase("1") ? " turn" : " turns");
-			}
-			if(id == 60) { MonsterType o = MonsterType.getById(Integer.parseInt(v[0])); if(o != null) v[0] = o.getName(); }
-			if(id == 66) { 
-				switch(v[1]) {
-				case "2": v[1] = "20% IBrv Poison";
-				case "10": v[1] = "10% Max Brv Down";
-				case "11": v[1] = "10% Atk Down";
-				case "13": v[1] = "10% Def Down";
-				case "15": v[1] = "10% Speed Down";
-				case "57": v[1] = "10% Max Brv Up";
-				case "403": v[1] = "Lock";
+			switch(id) {
+				case 17:
+					v[1] = "" + (Integer.parseInt(v[1].toString())+1);
+					break;
+				case 22:
+				case 48:
+				case 116:{
+					Ability ab = u.getSpecificAbility(Integer.parseInt(v[0])); //_Library.JP.getSkillById(Integer.parseInt(v[0].toString()));
+					v[0] = ab != null ? ab.getName() : "Unknown Skill ID: " + v[0];
+					break;}
+				case 29:
+				case 31:
+				case 33:
+				case 35:
+				case 37:
+				case 47:
+				case 83:
+				case 90:
+				case 147:
+				case 150:
+				case 168:
+				case 169:
+					v[1] = v[1].toString().equalsIgnoreCase("-1") ? "" : " for " + v[1] + (v[1].toString().equalsIgnoreCase("1") ? " turn" : " turns");
+					break;
+				case 38:{
+					v[1] = u.getAbility(Ability.Type.S1).get(0).getName();
+					v[2] = u.getAbility(Ability.Type.S2).get(0).getName();
+					break;}
+				case 54:{
+					Ailment ail = u.getSpecificAilment(Integer.parseInt(v[0]));
+					v[0] = v[0].toString().equalsIgnoreCase("-1") ? "all" : ((ail != null ? ail.getName() : "Unknown Ailment ID: " + v[0]));
+					v[1] = v[1].toString() + (v[1].toString().equalsIgnoreCase("1") ? " turn" : " turns");
+					break;}
+				case 60: { 
+					MonsterType o = MonsterType.getById(Integer.parseInt(v[0])); 
+					if(o != null) 
+						v[0] = o.getName(); 
+					break;}
+				case 66: {
+					switch(v[1]) {
+						case "2": v[1] = "20% IBrv Poison";
+						case "10": v[1] = "10% Max Brv Down";
+						case "11": v[1] = "10% Atk Down";
+						case "13": v[1] = "10% Def Down";
+						case "15": v[1] = "10% Speed Down";
+						case "57": v[1] = "10% Max Brv Up";
+						case "403": v[1] = "Lock";
+					}
+					break;
 				}
+				case 107:{
+					Ability ab = u.getSpecificAbility(Integer.parseInt(v[1])); //_Library.JP.getSkillById(Integer.parseInt(v[0].toString()));
+					v[1] = ab != null ? ab.getName() : "Unknown Skill ID: " + v[1];
+					break;}
+				case 113:
+					int atk = 0, def = 0, spd = 0, ibrv = 0, mbrv = 0;
+					if(v[0].length() == 9) {
+						atk = Integer.parseInt(v[0].substring(0, 3));
+						def = Integer.parseInt(v[0].substring(3, 6));
+						spd = Integer.parseInt(v[0].substring(6, 9));
+					}else if(v[0].length() == 6) {
+						def = Integer.parseInt(v[0].substring(0, 3));
+						spd = Integer.parseInt(v[0].substring(3, 6));
+					}else {
+						spd = Integer.parseInt(v[0]);
+					}
+					if(v[1].length() == 6) {
+						ibrv = Integer.parseInt(v[1].substring(0, 3));
+						mbrv = Integer.parseInt(v[1].substring(3, 6));
+					}else {
+						mbrv = Integer.parseInt(v[1]);
+					}
+					v[0] = "";
+					if(atk > 0) 	v[0] += ", ATK by " + atk + "%";
+					if(mbrv > 0) 	v[0] += ", Max BRV by " + mbrv + "%";
+					if(ibrv > 0) 	v[0] += ", Int BRV by " + ibrv + "%";
+					if(def > 0) 	v[0] += ", DEF by " + def + "%";
+					if(spd > 0) 	v[0] += ", Speed by " + spd + "%";
+					if(v.length > 0)
+						v[0] = v[0].substring(2);
+					else
+						v[0] = "Error Parsing Effect 113. Please notify Quetz";
+					break;
+				case 181:
+					v[2] = v[2].toString().equalsIgnoreCase("-1") ? "" : " for " + v[2] + (v[2].toString().equalsIgnoreCase("1") ? " turn" : " turns");
+					break;
 			}
 			return v;
 		}
@@ -255,13 +324,19 @@ public class Passive{
 		R69(69, "when using ability with 1 use left"), //Sabin CL50 Exclusive
 		R74(74, "when an ally's BRV is below their Int Brv"), //Krile CL50 Exclusive (3 parameters, but its an exclusive passive, so leaving it hardcoded)
 		R75(75, "After using Darkness:", false), //Cecil Exclusive                 
-		R76(76, "when inflicting a debuff"),
+		R76(76, "when inflicting a debuff{0}"),
 		R77(77, "when using an ability"), //Has 1 argument, but it doesn't seem to be used for anything //TODO RECHECK THIS ONE
 		R77_2(77, "when using a Cross-Slash or Finishing Touch"), //Cloud NT Sword
 		R78(78, "while 「**{0}**」 is active"), //While buff is active
 		R79(79, "while an enemy is poisoned"), //Thancred Exclusive
-		R88(88, "After using a Call Ability with BRV damage:", false), 
+		R81(81, "when using a Call Ability with BRV damage"),  //TODO CL78
+		R82(82, "when 「**{0}**」 is at least {1} stacks"), 
+		R83(83, "while 「**{0}**」 is active"), 
+		R84(84, "while an enemy has 「**{0}**」"), //TODO Recheck ailment IDs with Rem
+		R88(88, "when using a Call Ability with BRV damage"),  //TODO CL78
 		R89(89, "while 「**{0}**」 is active"), //If required[0] = 6, "Chelinka's Prayer", else if required[0] = 7, "Eblan's Teachings", else 
+		R116(116, "when using a Call Ability with BRV damage"),  //TODO CL78
+		R133(133, "{0}"), 
 		;
 		
 		private int id;
@@ -281,33 +356,74 @@ public class Passive{
 		public String getBaseDescription() { return baseDescription; }
 		public boolean isPostEffect() { return postEffect; }
 		
-		public String getDescription(Unit u, Integer... values) {
-			return getDescription(u, Arrays.stream(values).map(i -> i.toString()).collect(Collectors.toList()).toArray(new String[0]));
+		public String getDescription(Unit u, int cl, Integer... values) {
+			return getDescription(u, cl, Arrays.stream(values).map(i -> i.toString()).collect(Collectors.toList()).toArray(new String[0]));
 		}
-		public String getDescription(Unit u, String... values) {
-			values = fix(u, values);
+		public String getDescription(Unit u, int cl, String... values) {
+			values = fix(u, cl, values);
 			String r = baseDescription;
 			for(int i = 0; i < values.length; i++)
 				r = r.replace("{" + i + "}", values[i]);
 			return r;
 		}
 		
-		private String[] fix(Unit u, String[] v) {
-			if(id == 14) {
-				Ability ab = u.getSpecificAbility(Integer.parseInt(v[0]));
-				v[0] = v[0].equals("-1") ? "any ability" : (ab != null ? ab.getName() : "Unknown Skill ID: " + v[0]);
+		private String[] fix(Unit u, int cl, String[] v) {
+			switch(id) {
+				case 14:
+				case 82:{
+					Ability ab = u.getSpecificAbility(Integer.parseInt(v[0]));
+					v[0] = v[0].equals("-1") ? "any ability" : (ab != null ? ab.getName() : "Unknown Skill ID: " + v[0]);
+					break;}
+				case 32:
+				case 40:
+				case 78:{
+					Ailment ail = u.getSpecificAilment(Integer.parseInt(v[0]));
+					v[0] = ail != null ? ail.getName() : "Unknown Ailment ID: " + v[0];
+					break;}
+				case 44:{
+					Ailment ail = u.getSpecificAilment(Integer.parseInt(v[0]));
+					v[0] = v[0].equals("-1") ? "any" : (ail != null ? ail.getName() : "Unknown Ailment ID: " + v[0]);
+					break;}
+				case 52:{
+					v[1] = v[0].equals("1") ? "mastery" : "masteries";
+					break;}
+				case 76:{
+					v[0] = cl == 78 ? " with a Call Ability" : ""; //TODO CL78
+					break;}
+				case 83:{
+					switch(u.getName()) {
+						case "Desch":
+							v[0] = u.getSpecificAilment(1579).getName() + "**」 or 「**" + u.getSpecificAilment(1580).getName();
+						case "Yuri":
+							v[0] = u.getSpecificAilment(337).getName();
+						case "Edge":
+							v[0] = u.getSpecificAilment(1360).getName();
+						default:
+							v[0] = "**unknown requirement. Please notify Quetz**";
+					}
+					break;}
+				case 84:{
+					switch(u.getName()) {
+						case "Gabranth":
+							v[0] = "Mark of Guilt**」 or 「**Felon's Imprint";
+						default:
+							v[0] = "**unknown requirement. Please notify Quetz**";
+					}
+					break;}
+				case 89:{
+					v[0] = v[0].equals("6") ? "Chelinka's Prayer" : (v[0].equals("7") ? "Eblan's Teachings" : ("Unknown Ailment ID: " + v[0]));
+					break;}
+				case 133:{
+					switch(u.getName()) { //TODO CL78
+						case "Krile":
+							v[0] = "when using a Call Ability with a BRV recovery effect";
+						case "Beatrix":
+							v[0] = "when using a Call Ability at Max HP";
+						default:
+							v[0] = "**unknown requirement. Please notify Quetz**";
+					}
+				}
 			}
-			if(id == 32 || id == 40) {
-				Ailment ail = u.getSpecificAilment(Integer.parseInt(v[0]));
-				v[0] = ail != null ? ail.getName() : "Unknown Ailment ID: " + v[0];
-			}
-			if(id == 44) {
-				Ailment ail = u.getSpecificAilment(Integer.parseInt(v[0]));
-				v[0] = v[0].equals("-1") ? "any" : (ail != null ? ail.getName() : "Unknown Ailment ID: " + v[0]);
-			}
-			if(id == 52) v[1] = v[0].equals("1") ? "mastery" : "masteries";
-			if(id == 89) v[0] = v[0].equals("6") ? "Chelinka's Prayer" : (v[0].equals("7") ? "Eblan's Teachings" : ("Unknown Ailment ID: " + v[0]));
-			
 			return v;
 		}
 		
@@ -418,16 +534,16 @@ public class Passive{
 						results.remove(results.size() - 1);
 						results.add(r);
 					}else {
-						results.add(eff.type.getDescription(this.unit, this.getTarget().getDescription(), eff.values) + " " + previous.type.getDescription(this.unit, previous.values));
+						results.add(eff.type.getDescription(this.unit, this.getTarget().getDescription(), eff.values) + " " + previous.type.getDescription(this.unit, this.getLevel(), previous.values));
 					}
 					continue;
 				} else if(req.type.getId() == -1 || req.type.getId() == 2 || req.type.getId() == 1) {
 					results.add(eff.type.getDescription(this.unit, this.getTarget().getDescription(), eff.values));
 				} else {
 					if(req.type.isPostEffect())
-						results.add(eff.type.getDescription(this.unit, this.getTarget().getDescription(), eff.values) + " " + req.type.getDescription(this.unit, req.values));
+						results.add(eff.type.getDescription(this.unit, this.getTarget().getDescription(), eff.values) + " " + req.type.getDescription(this.unit, this.getLevel(), req.values));
 					else
-						results.add(req.type.getDescription(this.unit, req.values) + System.lineSeparator() + " -" + eff.type.getDescription(this.unit, this.getTarget().getDescription(), eff.values));
+						results.add(req.type.getDescription(this.unit, this.getLevel(), req.values) + System.lineSeparator() + " -" + eff.type.getDescription(this.unit, this.getTarget().getDescription(), eff.values));
 				}
 				previous = req;
 				previousEff = eff;

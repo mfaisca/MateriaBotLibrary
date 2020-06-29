@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public enum Element{
-	Fire2(221, 47, 41), Fire(221, 47, 41), Ice(4, 223, 238), 
+	Null(0, 0, 0), Fire(221, 47, 41), Ice(4, 223, 238), 
 	Thunder(240, 233, 76), Water(27, 78, 242), 
 	Earth(155, 97, 34), Wind(131, 213, 116), 
 	Dark(102, 49, 143), Holy(255, 255, 255);

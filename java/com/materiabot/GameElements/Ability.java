@@ -218,13 +218,13 @@ public class Ability {
 			}
 			public static enum Target{
 				ST(1, "target"),
-				Self(2, "self"),
+				Self(2, "own"),
 				Random(3, "random targets"), //Kuja/Lenna only
 				AoE(5, 21, "all enemies"),
 				Party(6, 8, "party"),
 				Allies(7, "allies"),
 				Splash(10, "splash"),
-				Distributed(11, 18, "split between enemies"),
+				Alternating(11, 18, "split between enemies"),
 				Ally(13, "ally"),
 				Traps(18, "traps???"), //Emperor only(S2 / EX)
 				Caller(29, "caller"),
@@ -248,7 +248,7 @@ public class Ability {
 					return Arrays.asList(values()).stream().filter(t -> t.getId() == id || t.getId2() == id).findFirst().orElse(null);
 				}
 			}
-			public static enum EffectType{ //EffectValueType irrelevant if not mentioned
+			public static enum EffectType{
 				EN1(-1, null, true),//Basic Hits - Exclusive to Yuri
 				E1(1, null, true), //Basic Hits
 				E7(7, "Removes {0} debuffs from {t}"),//(#ofRemovedDebuffs[, ?]) First can be -1 for all
@@ -262,7 +262,7 @@ public class Ability {
 															//For effect_value_type = 46, there's 4 potencies and one is picked at random
 				E42(42, "{0}% Gravity on {t}"),//(% of shave)
 				E43(43, "Recover {t} HP by {0}% of {evt}"), //(Potency[, ?]) - EffectValueType says what stat its based on
-				E44(44, "{0}% HP Splash Damage", true), //HP Splash Damage - (% of splash)
+				E44(44, null, false), //HP Splash Damage - (% of splash)
 				E46(46, "Delays {t} by {0}"), //(# of turns)
 				E48(48, "{1}% chance to steal {0} buffs from {t}"), //(# of buffs, ?(-1), success%, ?(-1)) OR (# of buffs, success%, ?(-1)) OR (# of buffs, success%, ?(-1))
 				E50(50, null), //Yuri Only
@@ -296,7 +296,7 @@ public class Ability {
 				E104(104, ""),  	//Cait Sith Only  //EffectValueType
 				E105(105, ""),  	//Cait Sith Only  //EffectValueType
 				E106(106, null, true, false), //(Overflow%) - Mentions overflow through an argument instead of the regular field, older model perhaps?
-				E107(107, "100% AoE HP Damage", true),
+				E107(107, null, true), // 100% AoE HP Damage
 				E110(110, "Doesn't increase turn count"),
 				E111(111, null), //Old Data? Barret Counter
 				E113(113, "Extends self-buffs by {0}"), //Prishe Only? (X, 1, -1)
@@ -705,139 +705,13 @@ public class Ability {
 	public Details getDetails() { return this.details; }
 	public void setDetails(Details details) { this.details = details; }
 
-	public String generateDescriptionOld() {
-		List<Integer> damage = new LinkedList<Integer>();
-		List<String> effects2 = new LinkedList<String>();
-		List<Integer> usedEffects = new LinkedList<Integer>();
-		int stolenOverflow = 0, gainedOverflow = 0;
-		for(Hit_Data hd : details.getHits()) {
-			if(hd.getEffect().getEffect() == null) {
-				effects2.add("**Unknown Hit_Data " + hd.getId() + "**");
-				continue;
-			}
-			if(hd.getEffect().getEffect().isAbilityPower()) {
-				if(stolenOverflow <= 100)
-					stolenOverflow = hd.getMaxBrvOverflow();
-				
-				if(hd.getType() == Hit_Data.Type.BRV || hd.getType() == Hit_Data.Type.BRVIgnoreDEF) {
-					damage.add(hd.getBrvRate());
-					effects2.add(hd.target.name() + hd.getElements().stream().map(e -> ImageUtils.getEmoteText(e.getEmote())).reduce((e1, e2) -> e1 + e2).orElse("") + ImageUtils.getEmoteText("attackType_" + hd.getAttackType().name()) + " BRV123");
-				}
-				else if(hd.getType() == Hit_Data.Type.HP || hd.getType() == Hit_Data.Type.HPSplash) {
-					damage.add(-1);
-					if(hd.getEffect().getEffect().getBaseDescription() == null) {
-						if(hd.getTarget().equals(Hit_Data.Target.AoE))
-							effects2.add("Followed by a split AoE HP Attack");
-						else
-							effects2.add("Followed by an HP Attack");
-					}
-				}
-			}else {
-				if(gainedOverflow <= 100)
-					gainedOverflow = hd.getMaxBrvOverflow();
-			}
-			if(hd.getEffect().getEffect().getBaseDescription() == null) continue;
-			if(hd.getEffect().getEffect().allowRepeats())
-				effects2.add(hd.getEffect().getEffect().getDescription(getUnit(), getDetails(), hd));
-			else {
-				if(usedEffects.stream().noneMatch(h -> h.equals(hd.getEffect().getEffect().getId())))
-					effects2.add(hd.getEffect().getEffect().getDescription(getUnit(), getDetails(), hd));
-				usedEffects.add(hd.getEffect().getEffect().getId());
-			}
-		}
-		int totalPotency = 0;
-		String potency = null;
-		String last = null, build = null, bigLast = null; int count = 1, bigCount = 1;
-		List<String> effects = new LinkedList<String>();
-		if(this.getDetails().getChaseDmg() >= 50)
-			effects.add("Initiates a chase sequence (" + this.getDetails().getChaseDmg() + ")");
-		else if(this.getDetails().getChaseDmg() > 3)
-			effects.add("Easier to initiate a chase sequence (" + this.getDetails().getChaseDmg() + ")");
-		else if(this.getDetails().getChaseDmg() == 0)
-			effects.add("Cannot initiate a chase sequence");
-		if(gainedOverflow > 100)
-			effects.add("Gained BRV may exceed Max BRV up to " + gainedOverflow + "%");
-		for(String eff: effects2) {
-			if(eff.contains("BRV123") || eff.contains("Followed by a")) {
-				if(last == null)
-					last = eff;
-				else if(last.equals(eff))
-					count++;
-				else {
-					eff = (count == 1 ? "" :  (count + " ")) + 
-													last.replace("123", "") + " + " + 
-													eff.replace("123", "")
-														.replace("Followed by an HP Attack", "HP")
-														.replace("Followed by a split AoE HP Attack", "AoE HP (split)");
-					last = null;
-					count = 1;
-					if(eff.equals(bigLast))
-						bigCount++;
-					else
-						build = (build == null ? "" : build + " + ") + eff;
-					bigLast = eff;
-				}
-			}
-			else {
-				if(bigCount > 1) {
-					effects.remove(bigLast);
-					effects.add("(" + bigLast + ") x " + bigCount);
-				}
-				else if(build != null)
-					effects.add(build);
-				effects.add(eff);
-				bigCount = 1;
-				bigLast = null;
-				build = null;
-			}
-		}
-		if(last != null) {
-			if(build != null)
-				build += " + " + last.replace("Followed by an HP Attack", "HP").replace("Followed by a split AoE HP Attack", "AoE HP (split)");
-			else
-				effects.add((count == 1 ? "" :  (count + " ")) + last.replace("123", ""));
-		}	
-		if(build != null)
-			effects.add(build);
-		if(bigCount > 1) {
-			effects.remove(bigLast);
-			effects.add("(" + bigLast + ") x " + bigCount);
-			bigCount = 1;
-			bigLast = null;
-		}
-		last = null; count = 1;
-		for(Integer d : damage) {
-			if(d > 0)
-				totalPotency += d;
-			if(last == null)
-				last = ""+d;
-			else if(last.equals(""+d))
-				count++;
-			else {
-				String out = last + (count == 1 ? "%" :  "% x " + count);
-				last = d.intValue() == -1 ? null : ""+d;
-				count = 1;
-				potency = potency == null ? out : (potency + " + " + out);
-			}
-		}
-		if(last != null){
-			String out = last + (count == 1 ? "%" :  "% x " + count);
-			potency = potency == null ? out : (potency + " + " + out);
-		}
-		if(potency != null && totalPotency > 0) {
-			potency = "BRV Potency: " + potency.replace(" + -1%", "") + " = " + totalPotency + "%" + (stolenOverflow > 100 ? " (" + stolenOverflow + "% overflow)" : "");
-			effects.add("");
-			effects.add(potency);
-		}
-		return effects.stream().reduce((s1, s2) -> s1 + System.lineSeparator() + s2).orElse("");
-	}
-
 	private static class EffectBuilder{
 		int count = 1;
 		String desc = null;
 		boolean merge;
 		boolean hp;
 		int attackTypeId;
+		List<Element> elements = null;
 		
 		public EffectBuilder(String d, boolean m, boolean hpp, int at) { desc = d; merge = m; hp = hpp; attackTypeId = at; }
 		public void increase() { count++; }
@@ -862,6 +736,17 @@ public class Ability {
 		List<EffectBuilder> effects = new LinkedList<EffectBuilder>();
 		List<EffectBuilder> effectsFinal = new LinkedList<EffectBuilder>();
 		int stolenOverflow = 0, gainedOverflow = 0;
+		boolean fullAoE = false;
+		int splash = -1;
+		for(Hit_Data hd : details.getHits()) {
+			if(hd.getEffect().getEffect() == Hit_Data.EffectType.E107)
+				fullAoE = true;
+			else if(hd.getEffect().getEffect() == Hit_Data.EffectType.E44)
+				splash = hd.getArguments()[0];
+			else
+				continue;
+			break;
+		}
 		for(Hit_Data hd : details.getHits()) {
 			if(hd.getEffect().getEffect() == null) {
 				effects.add(new EffectBuilder("**Unknown Hit_Data " + hd.getId() + "**", false, false, -1));
@@ -872,15 +757,17 @@ public class Ability {
 					stolenOverflow = hd.getMaxBrvOverflow();
 				if(hd.getType() == Hit_Data.Type.BRV || hd.getType() == Hit_Data.Type.BRVIgnoreDEF) {
 					damage.add(hd.getBrvRate());
-					effects.add(new EffectBuilder(hd.target.name() + hd.getElements().stream().map(e -> ImageUtils.getEmoteText(e.getEmote())).reduce((e1, e2) -> e1 + e2).orElse("") + "12345" + " BRV", true, false, hd.getAttackType().getId()));
+					EffectBuilder eb = new EffectBuilder(hd.target.name() + "12345" + " BRV", true, false, hd.getAttackType().getId());
+					eb.elements = hd.getElements();
+					effects.add(eb);
 				}
 				else if(hd.getType() == Hit_Data.Type.HP || hd.getType() == Hit_Data.Type.HPSplash) {
 					damage.add(-1);
 					if(hd.getEffect().getEffect().getBaseDescription() == null) {
 						if(hd.getTarget().equals(Hit_Data.Target.AoE))
-							effects.add(new EffectBuilder("AoE HP(split)", true, true, hd.getAttackType() == null ? -1 : hd.getAttackType().getId()));
+							effects.add(new EffectBuilder(fullAoE ? "AoE HP(Full)" : "AoE HP(Split)", true, true, hd.getAttackType() == null ? -1 : hd.getAttackType().getId()));
 						else
-							effects.add(new EffectBuilder("HP", true, true, hd.getAttackType() == null ? -1 : hd.getAttackType().getId()));
+							effects.add(new EffectBuilder(splash > 0 ? "HP (" + splash + "% Splash)" : "HP", true, true, hd.getAttackType() == null ? -1 : hd.getAttackType().getId()));
 					}
 				}
 			}else {
@@ -896,11 +783,18 @@ public class Ability {
 					effects.add(0, bb);
 			}
 		}
-		boolean replace = false;
-		for(EffectBuilder eb : effects) //ImageUtils.getEmoteText("attackType_" + hd.getAttackType().name())
+		boolean replaceAttackType = false;
+		boolean replaceElement = false;
+		List<Element> elements = null;
+		for(EffectBuilder eb : effects) {
 			if(eb.attackTypeId != -1 && eb.attackTypeId != this.getDetails().getAttackType().getId()) {
-				replace = true; break;
+				replaceAttackType = true;
 			}
+			if(eb.elements != null && elements == null)
+				elements = eb.elements;
+			if(elements != null && eb.elements != null && !eb.elements.equals(elements))
+				replaceElement = true;
+		}
 		if(gainedOverflow > 100)
 			effectsFinal.add(new EffectBuilder("Gained BRV may exceed Max BRV up to " + gainedOverflow + "%", false, false, -1));
 		if(this.getDetails().getChaseDmg() >= 50)
@@ -913,7 +807,15 @@ public class Ability {
 		int count = 1, totalPotency = 0;
 		EffectBuilder prev = null;
 		for(EffectBuilder eb : effects) {
-			eb.desc = eb.desc.replace("12345", replace ? ImageUtils.getEmoteText("attackType_" + Hit_Data.Attack_Type.get(eb.attackTypeId)) : "");
+			eb.desc = eb.desc.replace("12345", 
+										(replaceAttackType ? 
+											ImageUtils.getEmoteText("attackType_" + Hit_Data.Attack_Type.get(eb.attackTypeId)) : 
+											"") + 
+										(replaceElement && eb.elements != null ? 
+											eb.elements.stream()
+												.map(e -> ImageUtils.getEmoteText(e.getEmote()))
+												.reduce("", (e1, e2) -> e1 + e2) : 
+											""));
 			if(prev == null) { effectsFinal.add(prev = eb); continue; }
 			if(prev.equals(eb))
 				prev.increase();
@@ -953,6 +855,9 @@ public class Ability {
 			effectsFinal.add(new EffectBuilder("", false, false, -1));
 			effectsFinal.add(new EffectBuilder(potency, false, false, -1));
 		}
-		return effectsFinal.stream().map(s -> s.toString()).reduce((s1, s2) -> s1 + System.lineSeparator() + s2).orElse("");
+		return effectsFinal.stream()
+					.map(s -> s.toString())
+					.map(s -> (s.startsWith("HP") || s.startsWith("AoE HP") ? "Followed by an " : "") + s)
+					.reduce((s1, s2) -> s1 + System.lineSeparator() + s2).orElse("");
 	}
 }

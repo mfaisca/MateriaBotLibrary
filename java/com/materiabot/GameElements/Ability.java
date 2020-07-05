@@ -307,8 +307,8 @@ public class Ability {
 				E120(120, "Raises BRV Damage by {1}% against target with 「**Turn Rate Down**」 or 「**SPD Down**」", true, false), //(1, X)
 				E121(121, "{0}"), //(X, buffId) || (X, 2, -1)
 				E122(122, "Raises {t} BRV by {0}% of {evt}"), //(X) || effectvaluetype = stat its based on
-				E124(124, "Restores {t} HP by {0}% of {evt}, up to {1}% Max HP" + System.lineSeparator() + 
-						  "{2}% of excess healing is added to allies HP, up to {3}% Max HP"),
+				E124(124, "Restores {t} HP by {0}% of {evt}, up to {2}% Max HP" + System.lineSeparator() + 
+						  "{1}% of excess healing is added to allies HP, up to {3}% Max HP"),
 				E125(125, "Cancels {t} BREAK status"),
 				E126(126, "Restores {t} HP by {0}% of {evt}" + System.lineSeparator() + "Allows overhealing up to {1}%"), //Porom only (X, Y, ?)
 				E128(128, "123"), //Alphinaud Only - Something related to his summon?
@@ -326,6 +326,7 @@ public class Ability {
 				E154(154, "123"), //TODO
 				E156(156, "Lower {t} BRV by {0}% of {evt}, battery self for {0}% of {evt}{1}"),
 				E157(157, "Lower {t} BRV by {0}% of {evt}, battery party for {0}% of {evt}"),
+				E186(186, null), //Cloud BT Unknown Effect
 				;
 
 				private int id;
@@ -523,6 +524,7 @@ public class Ability {
 			
 			private int id;
 			private Type type;
+			private String fakeDesc;
 			private Integer[] arguments;
 			private Attack_Type attackType;
 			private Target target;
@@ -532,6 +534,9 @@ public class Ability {
 			private int maxBrvOverflow = 100;
 			private int maxBrvOverflowOnBreak = 0;
 			private int singleTargetBrvRate = 0;
+			
+			public Hit_Data() {}
+			public Hit_Data(String desc) { fakeDesc = desc; }
 			
 			public int getId() {
 				return id;
@@ -564,13 +569,16 @@ public class Ability {
 				this.target = target;
 			}
 			public List<Element> getElements() {
-				return elements;
+				return elements.stream().filter(e -> !e.equals(Element.Null)).collect(Collectors.toList());
 			}
 			public Effect getEffect() {
 				return effect;
 			}
 			public void setEffect(Effect effect) {
 				this.effect = effect;
+			}
+			public String getFakeDesc() {
+				return fakeDesc;
 			}
 			public int getBrvRate() {
 				return brvRate;
@@ -595,6 +603,13 @@ public class Ability {
 			}
 			public void setSingleTargetBrvRate(int singleTargetBrvRate) {
 				this.singleTargetBrvRate = singleTargetBrvRate;
+			}
+
+			@Override
+			public boolean equals(Object other) {
+				return ((Hit_Data)other).getFakeDesc() != null && this.getFakeDesc() != null ? 
+							((Hit_Data)other).getFakeDesc().equals(this.getFakeDesc()) : 
+							super.equals(other);
 			}
 		}
 		
@@ -704,7 +719,29 @@ public class Ability {
 	public void setUnit(Unit unit) { this.unit = unit; }
 	public Details getDetails() { return this.details; }
 	public void setDetails(Details details) { this.details = details; }
-
+	public void removeHitDataById(int hitDataId) {
+		Hit_Data hd = getDetails().getHits().stream().filter(hdd -> hdd.getId() == hitDataId).findFirst().orElse(null);
+		if(hd != null)
+			getDetails().getHits().remove(hd);
+	}
+	public Ailment getAilmentById(int ailmentId) {
+		Ailment a = getDetails().getAilments().stream().filter(ai -> ai.getId() == ailmentId).findFirst().orElse(null);
+		return a;
+	}
+	public void removeAilmentById(int ailmentId) {
+		Ailment a = getAilmentById(ailmentId);
+		if(a != null)
+			getDetails().getAilments().remove(a);
+	}
+	public void fixStupidCriticalDamage(int hitDataId, int ailmentId, int critDamagePercentage) {
+		removeHitDataById(hitDataId);
+		removeAilmentById(ailmentId);
+		getDetails().getHits().stream()
+			.filter(hd -> hd.getType().equals(Ability.Details.Hit_Data.Type.BRV) || hd.getType().equals(Ability.Details.Hit_Data.Type.BRVIgnoreDEF))
+			.peek(hd -> hd.getEffect().setEffect(Ability.Details.Hit_Data.EffectType.E135))
+			.forEach(hd -> hd.setArguments(new Integer[]{critDamagePercentage}));
+	}
+	
 	private static class EffectBuilder{
 		int count = 1;
 		String desc = null;
@@ -734,11 +771,11 @@ public class Ability {
 	public String generateDescription() {
 		List<Integer> damage = new LinkedList<Integer>();
 		List<EffectBuilder> effects = new LinkedList<EffectBuilder>();
-		List<EffectBuilder> effectsFinal = new LinkedList<EffectBuilder>();
 		int stolenOverflow = 0, gainedOverflow = 0;
 		boolean fullAoE = false;
 		int splash = -1;
 		for(Hit_Data hd : details.getHits()) {
+			if(hd.getEffect() == null) continue;
 			if(hd.getEffect().getEffect() == Hit_Data.EffectType.E107)
 				fullAoE = true;
 			else if(hd.getEffect().getEffect() == Hit_Data.EffectType.E44)
@@ -748,6 +785,10 @@ public class Ability {
 			break;
 		}
 		for(Hit_Data hd : details.getHits()) {
+			if(hd.getFakeDesc() != null) {
+				effects.add(new EffectBuilder(hd.getFakeDesc(), false, false, -1));
+				continue;
+			}
 			if(hd.getEffect().getEffect() == null) {
 				effects.add(new EffectBuilder("**Unknown Hit_Data " + hd.getId() + "**", false, false, -1));
 				continue;
@@ -787,6 +828,7 @@ public class Ability {
 		boolean replaceElement = false;
 		List<Element> elements = null;
 		for(EffectBuilder eb : effects) {
+			if(!eb.desc.contains("12345")) continue; //To make sure that I only look at actual BRV hits
 			if(eb.attackTypeId != -1 && eb.attackTypeId != this.getDetails().getAttackType().getId()) {
 				replaceAttackType = true;
 			}
@@ -795,6 +837,7 @@ public class Ability {
 			if(elements != null && eb.elements != null && !eb.elements.equals(elements))
 				replaceElement = true;
 		}
+		List<EffectBuilder> effectsFinal = new LinkedList<EffectBuilder>();
 		if(gainedOverflow > 100)
 			effectsFinal.add(new EffectBuilder("Gained BRV may exceed Max BRV up to " + gainedOverflow + "%", false, false, -1));
 		if(this.getDetails().getChaseDmg() >= 50)
@@ -832,6 +875,18 @@ public class Ability {
 			else
 				effectsFinal.add(prev = eb);
 		}
+		prev = null;
+		effects = effectsFinal;
+		effectsFinal = new LinkedList<EffectBuilder>();
+		for(EffectBuilder eb : effects) {
+			if(prev == null) { effectsFinal.add(prev = eb); continue; }
+			if(prev.equals(eb))
+				prev.increase();
+			else
+				effectsFinal.add(prev = eb);
+		}
+		if(getDetails().getAilments().stream().anyMatch(a -> a.getEffects().stream().anyMatch(e -> e.effectId == Ailment.EffectType.E44.getId())))
+			effectsFinal.add(new EffectBuilder(Ailment.EffectType.E44.getBaseDescription(), false, false, -1));
 		for(Integer d : damage) {
 			if(d > 0)
 				totalPotency += d;
@@ -855,9 +910,19 @@ public class Ability {
 			effectsFinal.add(new EffectBuilder("", false, false, -1));
 			effectsFinal.add(new EffectBuilder(potency, false, false, -1));
 		}
-		return effectsFinal.stream()
-					.map(s -> s.toString())
-					.map(s -> (s.startsWith("HP") || s.startsWith("AoE HP") ? "Followed by an " : "") + s)
-					.reduce((s1, s2) -> s1 + System.lineSeparator() + s2).orElse("");
+		List<String> endResult = new LinkedList<String>();
+//		for(Ailment a : this.details.getAilments().stream().distinct().collect(Collectors.toList())) {
+//			String str = //(a.isBuff() ? "Grants " : "Applies ") + 
+//					(a.getMaxStacks() > 1 && a.getArgs().length > 0 ? a.getArgs()[0] + (a.getArgs()[0] == 1 ? " stack of " : " stacks of ") : "")
+//					+ ImageUtils.getEmoteText(a.getIconEmote()) + "「**" + a.getName() + "**」 to " + a.getTarget().getDesc();
+//			if(a.getDuration() > 0)
+//				str += " for " + a.getDuration() + (a.getDuration() > 1 ? " turns" : " turn");
+//			endResult.add(str);
+//		}
+		return Streams.concat(	endResult.stream(), 
+								effectsFinal.stream()
+									.map(s -> s.toString())
+									.map(s -> (s.startsWith("HP") || s.startsWith("AoE HP") ? "Followed by an " : "") + s))
+										.reduce((s1, s2) -> s1 + System.lineSeparator() + s2).orElse("");
 	}
 }

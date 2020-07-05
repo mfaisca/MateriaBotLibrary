@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import com.materiabot.GameElements.Ability;
+import com.materiabot.GameElements.Ability.Type;
 import com.materiabot.GameElements.Ailment;
 import com.materiabot.GameElements.Artifact;
 import com.materiabot.GameElements.Crystal;
@@ -39,14 +40,14 @@ public class UnitParser {
 		try{
 			Unit u = UNITS.stream()
 						.filter(uu -> uu.getNicknames().contains(name.replace("_", " ").toLowerCase()))
-						.map(uu -> uu.clone())
+						//.map(uu -> uu.clone())
 						.findFirst().orElse(new Unit(name));
 			File f = new File("./resources/units/db_" + Methods.urlizeDB(u.getName()).toLowerCase() + ".json");
 			if(!f.exists()) return null;
 			MyJSONObject obj = JSONParser.loadContent(f.getAbsolutePath(), false);
 			parseProfile(u, obj);
-			parseBaseAbilities(u, obj);
 			parseCompleteListAbilities(u, obj);
+			parseBaseAbilities(u, obj);
 			parseDefaultAilments(u, obj);
 			parseOptionalAbilities(u, obj);
 			parsePassives(u, obj);
@@ -69,6 +70,9 @@ public class UnitParser {
 	}
 	private void parseBaseAbilities(Unit u, MyJSONObject obj) {
 		u.setBaseAbilities(obj.getIntArray("defaultAbilities"));
+		int typeIdx = -1;
+		for(int id : u.getBaseAbilities())
+			u.getSpecificAbility(id).setType(Type.values()[++typeIdx]);
 	}
 	private void parseCompleteListAbilities(Unit u, MyJSONObject obj) {
 		new AbilityParser(u).parseAbilities(obj, "completeListOfAbilities");
@@ -175,13 +179,14 @@ public class UnitParser {
 		equip.setRarity(Equipment.Rarity.BS);
 		equip.setUnit(u);
 		MyJSONObject gearPassive = gear.getObject("passive");
-		Passive p = new Passive();
-		p.setId(gearPassive.getInt("id"));
-		p.setName(Methods.getBestText(gearPassive.getStringArray(gearPassive.getObject("name"))));
-		p.setDescription(Methods.getBestText(gearPassive.getStringArray(gearPassive.getObject("desc"))).replace("\\n", System.lineSeparator()));
-		p.setShortDescription(Methods.getBestText(gearPassive.getStringArray(gearPassive.getObject("short_desc"))).replace("\\n", System.lineSeparator()));
-		p.setCpCost(gearPassive.getObject("meta_data").getInt("cp"));
-		equip.getPassives().add(p);
+		equip.getPassives().add(new PassiveParser().parsePassive(gearPassive));
+//		Passive p = new Passive();
+//		p.setId(gearPassive.getInt("id"));
+//		p.setName(Methods.getBestText(gearPassive.getStringArray(gearPassive.getObject("name"))));
+//		p.setDescription(Methods.getBestText(gearPassive.getStringArray(gearPassive.getObject("desc"))).replace("\\n", System.lineSeparator()));
+//		p.setShortDescription(Methods.getBestText(gearPassive.getStringArray(gearPassive.getObject("short_desc"))).replace("\\n", System.lineSeparator()));
+//		p.setCpCost(gearPassive.getObject("meta_data").getInt("cp"));
+//		equip.getPassives().add(p);
 		u.getEquipment().add(equip);
 	}
 	private void parseSpheres(Unit u, MyJSONObject obj) {

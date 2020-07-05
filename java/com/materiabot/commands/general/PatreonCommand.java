@@ -34,8 +34,8 @@ public class PatreonCommand extends _BaseCommand{
 	public static boolean isUserPatreon(User u) {
 		Guild materiaServer = u.getJDA().getGuildById(Constants.MATERIABOT_SERVER_ID);
 		return u.getIdLong() == Constants.QUETZ_ID || 
-				Stream.of(materiaServer.getMembersWithRoles(materiaServer.getRoleById(554660182093987869L)), 
-						materiaServer.getMembersWithRoles(materiaServer.getRoleById(652590168133337098L)))
+				Stream.of(materiaServer.getMembersWithRoles(materiaServer.getRoleById(554660297927819264L)), 
+						materiaServer.getMembersWithRoles(materiaServer.getRoleById(554660182093987869L)))
 							.flatMap(l -> l.stream()).distinct().anyMatch(m -> m.getUser().equals(u));
 	}
 	

@@ -92,7 +92,7 @@ public class Passive{
 		E2(2, "Raises DEF by {0}"),
 		E3(3, "Raises Int BRV by {0}"),
 		E4(4, "Raises Max BRV by {0}"),
-		E5(5, "Raises HP by {0}"),
+		E5(5, "Raises Max HP by {0}"),
 		E11(11, "Deals +{0}% BRV damage when using group attacks on 1 target"),
 		E17(17, "Raises {3}ATK by {0}% up to {1} times"),
 		E19(19, ""), //Basch Only, no parameters, Passive effect is covered fully by other effect ID
@@ -155,6 +155,8 @@ public class Passive{
 		E181(181, "Reduce all enemies speed for {2}"), //Parameters are (100, 1944, 6), no idea what 0 and 1 are used for
 		E187(187, "Raises {3}BRV damage dealt may exceed 9999 by {0}%"), //High Armor Effect - Essence of Offense
 		E188(188, "Raises {3}obtainable BRV and HP damage may exceed 99999 by {0}%"), //High armor Effect - Generic
+		E192(192, "Increases party Gained BRV Overflow limit by {0}%"),
+		E195(195, "Improves 「**{0}**」 effect by {2}%"),
 		;
 		
 		private int id;
@@ -269,6 +271,9 @@ public class Passive{
 					break;
 				case 181:
 					v[2] = v[2].toString().equalsIgnoreCase("-1") ? "" : " for " + v[2] + (v[2].toString().equalsIgnoreCase("1") ? " turn" : " turns");
+					break;
+				case 195:
+					v[0] = u.getSpecificAilment(Integer.parseInt(v[0])).getName();
 					break;
 			}
 			return v;

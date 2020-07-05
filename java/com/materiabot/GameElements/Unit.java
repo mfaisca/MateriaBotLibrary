@@ -52,6 +52,7 @@ public class Unit {
 	public Sphere getWeaponSphere() { return weaponSphere; }
 	public Sphere getBasicSphere() { return basicSphere; }
 	public void setSpheres(Sphere weapon, Sphere basic) { this.basicSphere = basic; this.weaponSphere = weapon; }
+	public Integer[] getBaseAbilities() { return baseAbilities; }
 	public void setBaseAbilities(Integer[] baseAbls) { baseAbilities = baseAbls; }
 
 	public List<Ability> getBaseAbility(Ability.Type type) {

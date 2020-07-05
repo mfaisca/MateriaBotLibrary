@@ -5,20 +5,15 @@ import com.materiabot.GameElements.Unit;
 import Shared.Methods;
 import com.google.common.base.CharMatcher;
 import com.materiabot.GameElements.Ability;
-import com.materiabot.GameElements.Ailment;
 import com.materiabot.GameElements.Ability.Details;
 import com.materiabot.GameElements.Ability.Details.Attack_Type;
 import com.materiabot.GameElements.Ability.Details.Command_Type;
 import com.materiabot.GameElements.Ability.Details.Hit_Data.EffectType;
-import com.materiabot.GameElements.Ailment.Target;
 import com.materiabot.GameElements.Ability.Details.Target_Type;
 import com.materiabot.GameElements.Element;
 import com.materiabot.IO.JSON.JSONParser.MyJSONObject;
 
 public class AbilityParser {
-	public static class AilmentParser{
-		
-	}
 	private Unit unit;
 	
 	public AbilityParser(Unit u) { unit = u; }
@@ -76,22 +71,22 @@ public class AbilityParser {
 				System.out.println("SEVT" + data.getInt("effect_value_type") + " | " + a.getName() + "(" + a.getId() + ") | HD ID: " + hd.getId());
 			d.getHits().add(hd);
 		}
-		for(MyJSONObject ailment : ab.getObjectArray("ailments")) {
-			Ailment ail = new Ailment();
-			ail.setId(ailment.getInt("id"));
-			ail.setCastId(ailment.getInt("cast_id"));
-			ail.setName(Methods.getBestText(ailment.getStringArray(ailment.getObject("name"))));
-			ail.setDescription(Methods.getBestText(ailment.getStringArray(ailment.getObject("desc"))).replace("\\n", System.lineSeparator()));
-			ail.setRate(ailment.getObject("meta_data").getInt("rate"));
-			ail.setRank(ailment.getObject("meta_data").getInt("rank"));
-			ail.setTarget(Target.get(ailment.getObject("meta_data").getInt("target")));
-			ail.setDuration(ailment.getObject("meta_data").getInt("duration"));
-			ail.setArgs(Arrays.asList(ailment.getObject("meta_data").getIntArray("arguments")).stream().mapToInt(i->i).toArray());
-			//TODO Parse Ailments here
-			d.getAilments().add(ail);
-			unit.getAilments().put(ail.getId(), ail);
-		}
-		//a.generateDescription();
+		d.getAilments().addAll(new AilmentParser(unit).parseAilments(ab, "ailments"));
+//		for(MyJSONObject ailment : ab.getObjectArray("ailments")) {
+//			Ailment ail = new Ailment();
+//			ail.setId(ailment.getInt("id"));
+//			ail.setCastId(ailment.getInt("cast_id"));
+//			ail.setName(Methods.getBestText(ailment.getStringArray(ailment.getObject("name"))));
+//			ail.setDescription(Methods.getBestText(ailment.getStringArray(ailment.getObject("desc"))).replace("\\n", System.lineSeparator()));
+//			ail.setRate(ailment.getObject("meta_data").getInt("rate"));
+//			ail.setRank(ailment.getObject("meta_data").getInt("rank"));
+//			ail.setTarget(Target.get(ailment.getObject("meta_data").getInt("target")));
+//			ail.setDuration(ailment.getObject("meta_data").getInt("duration"));
+//			ail.setArgs(Arrays.asList(ailment.getObject("meta_data").getIntArray("arguments")).stream().mapToInt(i->i).toArray());
+//			//TODO Parse Ailments here
+//			d.getAilments().add(ail);
+//			unit.getAilments().put(ail.getId(), ail);
+//		}
 		return a;
 	}
 }

@@ -35,6 +35,10 @@ public class JSONParser {
 			}
 		}
 		@SuppressWarnings("unchecked")
+		@Deprecated
+		/**
+		 * To be used only in names and descriptions to make it easier to find a valid text, following the order: GL > EN > JP
+		 */
 		public String[] getStringArray(MyJSONObject obj) {
 			String[] ret = new String[obj.json.keySet().size()];
 			int i = 0;
@@ -61,7 +65,7 @@ public class JSONParser {
 					ret[i] = new MyJSONObject(arr.getJSONObject(i));
 				return ret;
 			} catch(Exception e) {
-				return null; 
+				return null;
 			}
 		}
 		public MyJSONObject[][] getArrayArray(String name) {

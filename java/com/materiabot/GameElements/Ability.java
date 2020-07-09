@@ -265,6 +265,8 @@ public class Ability {
 				E44(44, null, false), //HP Splash Damage - (% of splash)
 				E46(46, "Delays {t} by {0}"), //(# of turns)
 				E48(48, "{1}% chance to steal {0} buffs from {t}"), //(# of buffs, ?(-1), success%, ?(-1)) OR (# of buffs, success%, ?(-1)) OR (# of buffs, success%, ?(-1))
+				E48_2(48, "{1}% chance to steal {0} buffs from {t}" + System.lineSeparator() + 
+						  "Extend stolen buff by 1 turn"),
 				E50(50, null), //Yuri Only
 				E51(51, "Transfer own debuffs to all enemies" + System.lineSeparator() + 
 						"Extends transferred debuff duration by {0}"), //(Duration extended, ?, ?, ?) OR (Duration extended, ?, ?) - It always transfers to all, even though target is 1
@@ -291,10 +293,10 @@ public class Ability {
 		/**/	E99(99, "Restores {t} HP by {0}% of {evt}, up to {1}% Max HP"), 	//(Potency[, MaxHP%Healed, ?]) EffectValueType = What damage it is based on
 				E100(100, "Restores {t} HP by {0}% of {evt}, up to {1}% Max HP" + System.lineSeparator() + 
 						  "{2}% of excess healing is converted to BRV"), //(Potency, MaxHP%Healed, XXX100, ?, ?) XXX = 100(%) / 300(%)
-				E102(102, ""),		//Cait Sith Only
-				E103(103, ""),		//Cait Sith Only	//I have no fucking idea how the arguments work
-				E104(104, ""),  	//Cait Sith Only  //EffectValueType
-				E105(105, ""),  	//Cait Sith Only  //EffectValueType
+				E102(102, null),		//Cait Sith Only
+				E103(103, null),		//Cait Sith Only	//I have no fucking idea how the arguments work
+				E104(104, null), //Cheating Andy 	//Cait Sith Only  //EffectValueType
+				E105(105, "(25% potency + 5% per Total Dice Value)"),  	//Cait Sith Only  //EffectValueType
 				E106(106, null, true, false), //(Overflow%) - Mentions overflow through an argument instead of the regular field, older model perhaps?
 				E107(107, null, true), // 100% AoE HP Damage
 				E110(110, "Doesn't increase turn count"),
@@ -327,6 +329,7 @@ public class Ability {
 				E156(156, "Lower {t} BRV by {0}% of {evt}, battery self for {0}% of {evt}{1}"),
 				E157(157, "Lower {t} BRV by {0}% of {evt}, battery party for {0}% of {evt}"),
 				E186(186, null), //Cloud BT Unknown Effect
+				E200(200, "Restores {t} HP by {0}% of {evt}, up to {1}% Max HP"),
 				;
 
 				private int id;
@@ -397,19 +400,22 @@ public class Ability {
 							if(h.getEffect().getEffectValueType() == 46)
 								v[0] = v[Shared.Methods.RNG.nextInt(4)];
 						case 43:
+						case 54:
 						case 65: //(Potency, MaxHP%Healed)
 						case 99:
 						case 122:
 						case 124:
+						case 200:
 							ret.effectValueType = BasedOnStat.get(h.getEffect().getEffectValueType()).getStat();
 							break;
+						case 48:
+						case 48_2:
+							v[1] = v.length == 3 ? v[2] : v[1]; 
+							//Not Breaking on purpose
 						case 46:
 						case 51:
 						case 113:
 							v[0] = (v[0].equals("1") ? "1 turn" : v[0] + " turns");
-							break;
-						case 48:
-							v[1] = v.length == 3 ? v[2] : v[1];
 							break;
 						case 58:
 							v[0] = v[0] + "0";
@@ -719,14 +725,16 @@ public class Ability {
 	public void setUnit(Unit unit) { this.unit = unit; }
 	public Details getDetails() { return this.details; }
 	public void setDetails(Details details) { this.details = details; }
+	public Hit_Data getHitDataById(int hitDataId) {
+		return getDetails().getHits().stream().filter(hdd -> hdd.getId() == hitDataId).findFirst().orElse(null);
+	}
 	public void removeHitDataById(int hitDataId) {
-		Hit_Data hd = getDetails().getHits().stream().filter(hdd -> hdd.getId() == hitDataId).findFirst().orElse(null);
+		Hit_Data hd = getHitDataById(hitDataId);
 		if(hd != null)
 			getDetails().getHits().remove(hd);
 	}
 	public Ailment getAilmentById(int ailmentId) {
-		Ailment a = getDetails().getAilments().stream().filter(ai -> ai.getId() == ailmentId).findFirst().orElse(null);
-		return a;
+		return getDetails().getAilments().stream().filter(ai -> ai.getId() == ailmentId).findFirst().orElse(null);
 	}
 	public void removeAilmentById(int ailmentId) {
 		Ailment a = getAilmentById(ailmentId);
@@ -750,6 +758,7 @@ public class Ability {
 		int attackTypeId;
 		List<Element> elements = null;
 		
+		public EffectBuilder(String d) { desc = d; merge = false; hp = false; attackTypeId = -1; }
 		public EffectBuilder(String d, boolean m, boolean hpp, int at) { desc = d; merge = m; hp = hpp; attackTypeId = at; }
 		public void increase() { count++; }
 		
@@ -771,7 +780,7 @@ public class Ability {
 	public String generateDescription() {
 		List<Integer> damage = new LinkedList<Integer>();
 		List<EffectBuilder> effects = new LinkedList<EffectBuilder>();
-		int stolenOverflow = 0, gainedOverflow = 0;
+		int stolenOverflow = 0, gainedOverflow = 0, stBRVRate = 0;
 		boolean fullAoE = false;
 		int splash = -1;
 		for(Hit_Data hd : details.getHits()) {
@@ -786,16 +795,18 @@ public class Ability {
 		}
 		for(Hit_Data hd : details.getHits()) {
 			if(hd.getFakeDesc() != null) {
-				effects.add(new EffectBuilder(hd.getFakeDesc(), false, false, -1));
+				effects.add(new EffectBuilder(hd.getFakeDesc()));
 				continue;
 			}
 			if(hd.getEffect().getEffect() == null) {
-				effects.add(new EffectBuilder("**Unknown Hit_Data " + hd.getId() + "**", false, false, -1));
+				effects.add(new EffectBuilder("**Unknown Hit_Data " + hd.getId() + "**"));
 				continue;
 			}
 			if(hd.getEffect().getEffect().isAbilityPower()) {
 				if(stolenOverflow <= 100)
 					stolenOverflow = hd.getMaxBrvOverflow();
+				if(stBRVRate == 0 && hd.getSingleTargetBrvRate() > 0)
+					stBRVRate = hd.getSingleTargetBrvRate();
 				if(hd.getType() == Hit_Data.Type.BRV || hd.getType() == Hit_Data.Type.BRVIgnoreDEF) {
 					damage.add(hd.getBrvRate());
 					EffectBuilder eb = new EffectBuilder(hd.target.name() + "12345" + " BRV", true, false, hd.getAttackType().getId());
@@ -839,13 +850,17 @@ public class Ability {
 		}
 		List<EffectBuilder> effectsFinal = new LinkedList<EffectBuilder>();
 		if(gainedOverflow > 100)
-			effectsFinal.add(new EffectBuilder("Gained BRV may exceed Max BRV up to " + gainedOverflow + "%", false, false, -1));
-		if(this.getDetails().getChaseDmg() >= 50)
-			effectsFinal.add(new EffectBuilder("Initiates a chase sequence (" + this.getDetails().getChaseDmg() + ")", false, false, -1));
-		else if(this.getDetails().getChaseDmg() > 3)
-			effectsFinal.add(new EffectBuilder("Easier to initiate a chase sequence (" + this.getDetails().getChaseDmg() + ")", false, false, -1));
-		else if(this.getDetails().getChaseDmg() == 0)
-			effectsFinal.add(new EffectBuilder("Cannot initiate a chase sequence", false, false, -1));
+			effectsFinal.add(new EffectBuilder("Gained BRV may exceed Max BRV up to " + gainedOverflow + "%"));
+		if(stBRVRate > 0)
+			effectsFinal.add(new EffectBuilder("Raises BRV Damage by " + (int)((((damage.get(0)+stBRVRate)/((float)damage.get(0)))-1) * 100) + "% against ST"));
+		if(damage.size() > 0) {
+			if(this.getDetails().getChaseDmg() >= 50)
+				effectsFinal.add(new EffectBuilder("Initiates a chase sequence (" + this.getDetails().getChaseDmg() + ")"));
+			else if(this.getDetails().getChaseDmg() > 3)
+				effectsFinal.add(new EffectBuilder("Easier to initiate a chase sequence (" + this.getDetails().getChaseDmg() + ")"));
+			else if(this.getDetails().getChaseDmg() == 0)
+				effectsFinal.add(new EffectBuilder("Cannot initiate a chase sequence"));
+		}
 		String last = null, potency = null; 
 		int count = 1, totalPotency = 0;
 		EffectBuilder prev = null;
@@ -880,13 +895,13 @@ public class Ability {
 		effectsFinal = new LinkedList<EffectBuilder>();
 		for(EffectBuilder eb : effects) {
 			if(prev == null) { effectsFinal.add(prev = eb); continue; }
-			if(prev.equals(eb))
+			if(prev.equals(eb) && !eb.hp)
 				prev.increase();
 			else
 				effectsFinal.add(prev = eb);
 		}
 		if(getDetails().getAilments().stream().anyMatch(a -> a.getEffects().stream().anyMatch(e -> e.effectId == Ailment.EffectType.E44.getId())))
-			effectsFinal.add(new EffectBuilder(Ailment.EffectType.E44.getBaseDescription(), false, false, -1));
+			effectsFinal.add(new EffectBuilder(Ailment.EffectType.E44.getBaseDescription()));
 		for(Integer d : damage) {
 			if(d > 0)
 				totalPotency += d;
@@ -907,18 +922,10 @@ public class Ability {
 		}
 		if(potency != null && totalPotency > 0) {
 			potency = "BRV Potency: " + potency.replace(" + -1%", "") + " = " + totalPotency + "%" + (stolenOverflow > 100 ? " (" + stolenOverflow + "% overflow)" : "");
-			effectsFinal.add(new EffectBuilder("", false, false, -1));
-			effectsFinal.add(new EffectBuilder(potency, false, false, -1));
+			effectsFinal.add(new EffectBuilder(""));
+			effectsFinal.add(new EffectBuilder(potency));
 		}
 		List<String> endResult = new LinkedList<String>();
-//		for(Ailment a : this.details.getAilments().stream().distinct().collect(Collectors.toList())) {
-//			String str = //(a.isBuff() ? "Grants " : "Applies ") + 
-//					(a.getMaxStacks() > 1 && a.getArgs().length > 0 ? a.getArgs()[0] + (a.getArgs()[0] == 1 ? " stack of " : " stacks of ") : "")
-//					+ ImageUtils.getEmoteText(a.getIconEmote()) + "「**" + a.getName() + "**」 to " + a.getTarget().getDesc();
-//			if(a.getDuration() > 0)
-//				str += " for " + a.getDuration() + (a.getDuration() > 1 ? " turns" : " turn");
-//			endResult.add(str);
-//		}
 		return Streams.concat(	endResult.stream(), 
 								effectsFinal.stream()
 									.map(s -> s.toString())

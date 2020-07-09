@@ -1,4 +1,5 @@
 package com.materiabot.GameElements;
+import Shared.Methods;
 import com.materiabot.Utils.ImageUtils;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -10,6 +11,10 @@ import org.apache.commons.lang3.StringUtils;
 public class Ailment {
 	public static enum Emotes{
 		BUFF_INVISIBLE("buffInvisible"),
+		BUFF_BT("buffBT"),
+		BUFF_AA("buffAA"),
+		BUFF_CA("buffCA"),
+		BUFF_CALD("buffCALD"),
 		BUFF_GENERIC("buffGeneric"),
 		DEBUFF_GENERIC("debuffGeneric"),
 		;
@@ -48,76 +53,104 @@ public class Ailment {
 	}
 
 	public static enum EffectType{
-		E1(1, "{3}ATK{4} {0}%"),
-		E2(2, "{3}DEF{4} {0}%"),
-		E3(3, "{3}Speed{4} {0}%"),
-		E4(4, "{3}Int BRV{4} {0}%"),
-		E5(5, "{3}Max BRV{4} {0}%"),
-		E6(6, "{3}Max HP{4} {0}%"),
-		E7(7, "{3}HP Regen({0}% HP)"),
-		E8(8, "{3}BRV Regen({0}% IBRV)"),
-		E9(9, "{3}BRV Regen({0}% MBRV)"),
-		E10(10, "{0} {3}Fire Resist"), //0 = Lowers/Increases
-		E11(11, "{0} {3}Ice Resist"),  //3 = Party
-		E12(12, "{0} {3}Thunder Resist"),
-		E13(13, "{0} {3}Wind Resist"),
-		E14(14, "{0} {3}Water Resist"),
-		E15(15, "{0} {3}Earth Resist"),
-		E16(16, "{0} {3}Holy Resist"),
-		E17(17, "{0} {3}Dark Resist"),
-		E18(18, "{0} {3}ALL Resistances"),
-		E19(19, "{0} {3}Magic Resist"),
-		E20(20, "{0} {3}Melee Resist"),
-		E21(21, "{0} {3}Ranged Resist"),
-		E22(22, "{0}% {3}Debuff Evasion"),
-		E23(23, "{3}Fire Enchant"),
-		E24(24, "{3}Ice Enchant"),
-		E25(25, "{3}Thunder Enchant"),
-		E26(26, "{3}Wind Enchant"),
-		E27(27, "{3}Water Enchant"),
-		E28(28, "{3}Earth Enchant"),
-		E29(29, "{3}Holy Enchant"),
-		E30(30, "{3}Dark Enchant"),
+		E1(1, "{t}ATK {0}%"),
+		E2(2, "{t}DEF {0}%"),
+		E3(3, "{t}Speed {0}%"),
+		E4(4, "{t}Int BRV {0}%"),
+		E5(5, "{t}Max BRV {0}%"),
+		E6(6, "{t}Max HP {0}%"),
+		E7(7, "{t}HP Regen({0}% HP)"),
+		E8(8, "{t}BRV Regen({0}% IBRV)"),
+		E9(9, "{t}BRV Regen({0}% MBRV)"),
+		E10(10, "{0} {t}Fire Resist", null), //0 = Lowers/Increases
+		E11(11, "{0} {t}Ice Resist", null),  //3 = Party
+		E12(12, "{0} {t}Thunder Resist", null),
+		E13(13, "{0} {t}Wind Resist", null),
+		E14(14, "{0} {t}Water Resist", null),
+		E15(15, "{0} {t}Earth Resist", null),
+		E16(16, "{0} {t}Holy Resist", null),
+		E17(17, "{0} {t}Dark Resist", null),
+		E18(18, "{0} {t}ALL Resistances", null),
+		E19(19, "{0} {t}Magic Resist", null),
+		E20(20, "{0} {t}Melee Resist", null),
+		E21(21, "{0} {t}Ranged Resist", null),
+		E22(22, "{0}% {t}Debuff Evasion"),
+		E23(23, "{t}Fire Enchant"),
+		E24(24, "{t}Ice Enchant"),
+		E25(25, "{t}Thunder Enchant"),
+		E26(26, "{t}Wind Enchant"),
+		E27(27, "{t}Water Enchant"),
+		E28(28, "{t}Earth Enchant"),
+		E29(29, "{t}Holy Enchant"),
+		E30(30, "{t}Dark Enchant"),
 		E31(31, "Unable to act"),
 		E40(40, "Unable to switch target"),
 		E44(44, "Free ability use next turn(except LD)"),
 		E45(45, "Turn Rate {0}%"),
-		E46(46, "Critical Hit Rate {0}%"),
-		E50(50, "Magic Damage {0}%"),
-		E51(51, "Melee Damage {0}%"),
-		E52(52, "Ranged Damage {0}%"),
+		E46(46, "{t} Critical Hit Rate {0}%"),
+		E49(49, "{t} Sap by {0}% Max BRV"),
+		E50(50, "{t} Magic Damage dealt {0}%"),
+		E51(51, "{t} Melee Damage dealt {0}%"),
+		E52(52, "{t} Ranged Damage dealt {0}%"),
+		E58(58, "{t} BRV Damage taken {0}%", true),
 		E60(60, "Aura (Separate Parsing)"),
-		E67(67, "{0}% Stolen BRV Overflow"),
+		E61(61, "{0}% BRV Damage per debuff on enemy"),
+		E67(67, "{0}% {t}Stolen BRV Overflow"),
 		E103(103, "Unable to act"),
-		E114(114, "Unable to act"),
-		E199(199, "Raises critical BRV damage dealt by {0}%"),
+		E112(112, "Critical Hit Damage {0}%"),
+		E114(114, "Party BRV damage dealt by {0}%"),
+		E122(122, "{t} Melee Damage taken {0}%", true),
+		E123(123, "{t} Ranged Damage taken {0}%", true),
+		E139(139, "New debuffs duration {0} turns"),
+		E150(150, "{0}% {t}Gained BRV Overflow"),
+		E164(164, "{t} unable to gain buffs"),
+		E165(165, "{t} unable to battery"),
+		E199(199, "Party critical BRV damage dealt by {0}%"),
 		E216(216, "Nulls BRV damage under {0}% Int BRV"),
-		E257(257, null), //Unknown Cloud BT Buff Effect
+		E235(235, "Party Maximum BRV damage limit {0}%"),
+		E257(257, null), //BT Buff Effect
+		E311(311, "{0}% of {t} excess healing is converted to BRV"),
+		E317(317, "After any turn, sets {t} BRV to {0}", null),
+		E320(320, "Delay target by {0}T after a physical attack"),
+		E331(331, "Cannot deal BRV damage"),
+		E335(335, "Cannot deal HP damage"),
+		E327(327, "Cannot inflict debuffs"),
+		E329(329, "Cancelled after using BRV, HP or debuffing skill"),
 		;
 
 		private int id;
 		private String baseDescription;
+		private Boolean defaultNegative = false;
 
 		private EffectType(int id, String desc) { this.id = id; baseDescription = desc; }
+		private EffectType(int id, String desc, Boolean dN) { this.id = id; baseDescription = desc; defaultNegative = dN; }
 
 		public int getId() { return id; }
 		public String getBaseDescription() { return baseDescription; }
+		public Boolean isDefaultNegative() { return defaultNegative; }
 
-		public String getDescription(Integer h, int rankDataIndex, String...extra) {
+		public String getDescription(String h, int rankDataIndex, int val_specify, Target target, String...extra) {
 			if(h == null)
-				return getDescription(new String[0], extra);
-			return getDescription(Arrays.asList(splitRankData(h, rankDataIndex)).stream()
+				return getDescription(new String[0], val_specify, target, extra);
+			int val = splitRankData(h, rankDataIndex) * 
+						(isDefaultNegative() == null ? 1 : 
+							((extra.length > 0 && extra[0].equals("0") ? -1 : 1) * (isDefaultNegative() ? -1 : 1)));
+			return getDescription(Arrays.asList(val).stream()
 					.map(i -> i.toString())
-					.collect(Collectors.toList()).toArray(new String[0]), extra);
+					.collect(Collectors.toList()).toArray(new String[0]), val_specify, target, extra);
 		}
-		
-		private String getDescription(String[] values, String... extra) {
+		public String getDescription(String stackingNumber, Target target, String... extra) {
+			return getDescription(new String[] {stackingNumber}, -1, target, extra);
+		}		
+		private String getDescription(String[] values, int val_specify, Target target, String... extra) {
 			values = fix(values, extra);
 			String r = baseDescription;
 			if(values.length > 0)
 				for(int i = 0; i < values.length; i++)
-					r = r.replace("{" + i + "}", values[i]);
-			r = r.replace("{3}", "");
+					r = r.replace("{" + i + "}", (isDefaultNegative() != null ? (values[i].contains("-") ? "" : "+") : "") + values[i]);
+			else
+				r = r.replace("{0}", ""+val_specify);
+			r = r.replace("{t}", target != null ? target.getDesc() + " " : "");
 			return r;
 		}
 		private String[] fix(String[] v, String[] extra) {
@@ -152,7 +185,7 @@ public class Ailment {
 	
 	public static class EffectGrouping{
 		public int effectId, val_type, val_specify;
-		public Integer[] rankData;
+		public String[] rankData;
 
 		public EffectGrouping() {}
 		public EffectGrouping(int eid) { effectId = eid; }
@@ -162,7 +195,7 @@ public class Ailment {
 		public Integer[] requiredConditions, requiredValues;
 		
 		public int effect, ailmentEffect, target, valType, typeId;
-		public Integer[] rankData;
+		public String[] rankData;
 	}
 	
 	private int id, castId;
@@ -291,6 +324,12 @@ public class Ailment {
 	public boolean isDebuff() {
 		return target == Target.ST || target == Target.AoE;
 	}
+	public boolean isBTBuff() {
+		return this.getEffects().stream().anyMatch(e -> e.effectId == Ailment.EffectType.E257.id);
+	}
+	public boolean isStackingBuff() {
+		return getMaxStacks() > 1;
+	}
 	public boolean equals(Object o) {
 		if(o == null || !o.getClass().equals(this.getClass()))
 			return false;
@@ -307,25 +346,33 @@ public class Ailment {
 	}
 	public String getIconEmote() {
 		if(fakeEmote != null) return fakeEmote;
-		return (isBuff() ? Ailment.Emotes.BUFF_GENERIC.get() : Ailment.Emotes.DEBUFF_GENERIC.get()) + (isFramed() ? "Framed" : "");
+		return (isBTBuff() ? Ailment.Emotes.BUFF_BT.get() : 
+				(isBuff() ? Ailment.Emotes.BUFF_GENERIC.get() : 
+							Ailment.Emotes.DEBUFF_GENERIC.get()) + (isFramed() ? "Framed" : ""));
 	}
 	
-	private static Integer splitRankData(int i, int idxx) {
-		int oI = i;
-		try {
-			Integer[] result = new Integer[(int)Math.ceil((""+i).toString().length()/3f)];
-			int idx = result.length-1;
-			while(i > 0) {
-				result[idx--] = i % 1000;
-				i /= 1000;
-			}
-			if(result.length == 1 && result[0] == null)
-				return 0;
-			return result[idxx];
-		} catch(Exception e) {
-			if (idxx == -1) throw e;
-			return splitRankData(oI, idxx-1);
-		}
+//	private static Integer splitRankData(String v, int idxx) {
+//		//int i = Integer.parseInt(v.replace("-", ""));
+//		String oV = ""+v;
+//		try {
+//			Integer[] result = new Integer[(int)Math.ceil((v).toString().length()/3f)];
+//			int idx = result.length-1;
+//			while(v.length() > 0) {
+//				int ii = Integer.parseInt(v.split("(?<=\\G...)")[v.split("(?<=\\G...)").length - 1]);
+//				result[idx--] = ii % 1000;
+//				v = v.substring(0, v.length() < 4 ? 0 : (v.length()-3));
+//			}
+//			if(result.length == 1 && result[0] == null)
+//				return 0;;
+//			return result[idxx];
+//		} catch(Exception e) {
+//			if (idxx == -1) throw e;
+//			return splitRankData(oV, idxx-1);
+//		}
+//	}
+	private static Integer splitRankData(String v, int idxx) {
+		String[] r = Methods.splitRankData(v);;
+		return r != null ? Integer.parseInt(r[idxx]) : null;
 	}
 	
 	public String generateDescription() {
@@ -335,52 +382,67 @@ public class Ailment {
 		if(this.rate < 100)
 			ret.add(rate + "% chance");
 		String str = //(isBuff() ? "Grants " : "Applies ") + 
-				(getMaxStacks() > 1 && getArgs().length > 0 ? getArgs()[0] + (getArgs()[0] == 1 ? " stack to " : " stacks to ") : "")
+				(getMaxStacks() > 1 && getArgs().length > 0 ? 
+						"+" + (getArgs()[0] == 1 ? "1 stack to " : getArgs()[0] + " stacks to ") : 
+						"")
 				+ getTarget().getDesc();
 		if(getDuration() > 0)
 			str += " for " + getDuration() + (getDuration() > 1 ? " turns" : " turn");
 		ret.add(str);
 		int rankDataIndex = 0;
-		EffectGrouping last = null;
 		for(EffectGrouping eff : effects) {
 			EffectType e = EffectType.get(eff.effectId);
 			if(e == null) {
 				ret.add("Unknown Effect " + eff.effectId); continue; }
-			if(e.getBaseDescription() == null) return "";
+			if(e.getBaseDescription() == null) continue;
 			String desc = null;
-			Integer data = eff.rankData == null ? null : eff.rankData[this.rank];
-			if(last != null) {
-				if(eff.effectId <= 6 && last.effectId <= 6){
-					if(splitRankData(data, rankDataIndex).intValue() == splitRankData(data, rankDataIndex-1).intValue()) {
-						String r = ret.get(ret.size()-1);
-						ret.remove(ret.size()-1);
-						desc = e.getDescription(data, rankDataIndex, ""+(this.isBuff() ? 1 : 0));
-						rankDataIndex = (data != null && ((1000^(rankDataIndex+1)) >= data)) ? rankDataIndex + 1 : rankDataIndex;
-						desc = r.replace("{4}", ", " + desc.substring(0, desc.lastIndexOf("}")+1));
-						ret.add(desc);
-						last = eff;
-						continue;
-					}
-				}else if(eff.effectId == 60){
-					desc = "";
-					for(Aura a : getAuras().values()) {
-						EffectType ae = EffectType.get(a.effect);
-						desc += System.lineSeparator() + ae.getDescription(data, 0, ""+(this.isBuff() ? 1 : 0));
-					}
-					desc = desc.trim();
-				}else {
-					desc = e.getDescription(data, rankDataIndex, ""+(this.isBuff() ? 1 : 0));
-					rankDataIndex = (data != null && ((1000^(rankDataIndex+1)) >= data)) ? rankDataIndex + 1 : rankDataIndex;
+			String data;
+			if(this.rank >= 0)
+				data = eff.rankData == null ? null : eff.rankData[this.rank];
+			else
+				data = null;
+			if(eff.effectId == 60){
+				desc = "";
+				rankDataIndex = 0;
+				for(Aura a : getAuras().values()) {
+					EffectType ae = EffectType.get(a.ailmentEffect);
+					if(ae == null)
+						desc += System.lineSeparator() + ("Unknown Effect " + a.ailmentEffect);
+					else if(isStackingBuff()) {
+						String stackingNumber = null;
+						for(int i = 0; i < getMaxStacks() && i < a.rankData.length; i++){
+							stackingNumber = (stackingNumber == null ? "" : stackingNumber + "/") + splitRankData(a.rankData[i], rankDataIndex);
+						}
+						desc += System.lineSeparator() + StringUtils.capitalize(ae.getDescription(stackingNumber, Target.get(a.target), ""+(this.isBuff() ? 1 : 0)));
+					}else
+						desc += System.lineSeparator() + StringUtils.capitalize(ae.getDescription(a.rankData[this.rank], 0, -1, Target.get(a.target), ""+(this.isBuff() ? 1 : 0)));
+					rankDataIndex = (data != null && ((Math.pow(1000, (rankDataIndex+1))) <= Integer.parseInt(data.replace("-", "")))) ? rankDataIndex + 1 : rankDataIndex;
 				}
+				desc = desc.trim();
+			}else if(data == null && isStackingBuff()) {
+				String stackingNumber = null;
+				for(int i = 0; i < getMaxStacks(); i++){
+					stackingNumber = (stackingNumber == null ? "" : stackingNumber + "/") + splitRankData(eff.rankData[i], rankDataIndex);
+				}
+				desc = e.getDescription(stackingNumber, this.target, ""+(this.isBuff() ? 1 : 0));
+				//TODO Falta incrementar o rankDataIndex para quando a data for stacking buffs
+				rankDataIndex = eff.rankData[0].length() > 3 ? rankDataIndex+1 : rankDataIndex;
 			}else {
-				desc = e.getDescription(data, rankDataIndex, ""+(this.isBuff() ? 1 : 0));
-				rankDataIndex = (data != null && ((1000^(rankDataIndex+1)) >= data)) ? rankDataIndex + 1 : rankDataIndex;
+				desc = e.getDescription(data, rankDataIndex, eff.val_specify, this.target, ""+(this.isBuff() ? 1 : 0));
+				rankDataIndex = (data != null && ((Math.pow(1000, (rankDataIndex+1))) <= Integer.parseInt(data.replace("-", "")))) ? rankDataIndex + 1 : rankDataIndex;
 			}
 			ret.add(desc);
-			last = eff;
 		}
 		return StringUtils.capitalize(ret.stream().distinct()
-				.map(s -> s == null ? s : s.replace("{4}", ""))
+				.map(s -> s == null ? s : StringUtils.capitalize(s))
 				.reduce((s1, s2) -> s1 + System.lineSeparator() + s2).orElse(""));
+	}
+	public void removeEffect(int... effectIds) {
+		java.util.Iterator<EffectGrouping> iter = getEffects().iterator();
+		while(iter.hasNext()) {
+			EffectGrouping eg = iter.next();
+			if(Arrays.stream(effectIds).anyMatch(a -> a == eg.effectId))
+				iter.remove();
+		}
 	}
 }

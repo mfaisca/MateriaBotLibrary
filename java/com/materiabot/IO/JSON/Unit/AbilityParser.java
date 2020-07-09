@@ -72,21 +72,6 @@ public class AbilityParser {
 			d.getHits().add(hd);
 		}
 		d.getAilments().addAll(new AilmentParser(unit).parseAilments(ab, "ailments"));
-//		for(MyJSONObject ailment : ab.getObjectArray("ailments")) {
-//			Ailment ail = new Ailment();
-//			ail.setId(ailment.getInt("id"));
-//			ail.setCastId(ailment.getInt("cast_id"));
-//			ail.setName(Methods.getBestText(ailment.getStringArray(ailment.getObject("name"))));
-//			ail.setDescription(Methods.getBestText(ailment.getStringArray(ailment.getObject("desc"))).replace("\\n", System.lineSeparator()));
-//			ail.setRate(ailment.getObject("meta_data").getInt("rate"));
-//			ail.setRank(ailment.getObject("meta_data").getInt("rank"));
-//			ail.setTarget(Target.get(ailment.getObject("meta_data").getInt("target")));
-//			ail.setDuration(ailment.getObject("meta_data").getInt("duration"));
-//			ail.setArgs(Arrays.asList(ailment.getObject("meta_data").getIntArray("arguments")).stream().mapToInt(i->i).toArray());
-//			//TODO Parse Ailments here
-//			d.getAilments().add(ail);
-//			unit.getAilments().put(ail.getId(), ail);
-//		}
 		return a;
 	}
 }

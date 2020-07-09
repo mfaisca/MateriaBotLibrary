@@ -2,6 +2,7 @@ package com.materiabot.IO.JSON.Unit;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 import com.materiabot.GameElements.Unit;
 import Shared.Methods;
 import com.materiabot.GameElements.Ailment;
@@ -25,6 +26,8 @@ public class AilmentParser {
 	private Ailment parseAilment(MyJSONObject ailment) {
 		Ailment ail = new Ailment();
 		ail.setId(ailment.getInt("id"));
+//		if(ail.getId() == 523)
+//			System.out.println();
 		ail.setCastId(ailment.getInt("cast_id"));
 		ail.setName(Methods.getBestText(ailment.getStringArray(ailment.getObject("name"))));
 		ail.setDescription(Methods.getBestText(ailment.getStringArray(ailment.getObject("desc"))).replace("\\n", System.lineSeparator()));
@@ -46,7 +49,8 @@ public class AilmentParser {
 			eff.effectId = effects[i];
 			eff.val_type = ailment.getObject("type_data").getIntArray("val_types")[i];
 			eff.val_specify = ailment.getObject("type_data").getIntArray("val_specify")[i];
-			eff.rankData = ailment.getObject("rank_data").getIntArray(""+ailment.getObject("type_data").getIntArray("rank_tables")[i]);
+			Integer[] temp = ailment.getObject("rank_data").getIntArray(""+ailment.getObject("type_data").getIntArray("rank_tables")[i]);
+			eff.rankData = temp != null ? Arrays.stream(temp).map(iii -> ""+iii).collect(Collectors.toList()).toArray(new String[0]) : null;
 			ail.getEffects().add(eff);
 		}
 		for(MyJSONObject aura : ailment.getObjectArray("auras")) {
@@ -59,7 +63,8 @@ public class AilmentParser {
 			a.target = aura.getObject("effect_data").getInt("target_id");
 			a.valType = aura.getObject("effect_data").getInt("value_type");
 			a.typeId = aura.getObject("effect_data").getInt("type_id");
-			a.rankData = aura.getObject("effect_data").getIntArray("rank_data");
+			a.rankData = Arrays.stream(aura.getObject("effect_data").getIntArray("rank_data")).map(iii -> ""+iii).collect(Collectors.toList()).toArray(new String[0]);;
+			ail.getAuras().put(a.id, a);
 		}
 		unit.getAilments().put(ail.getId(), ail);
 		//ail.generateDescription();

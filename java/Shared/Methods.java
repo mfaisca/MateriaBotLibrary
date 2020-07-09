@@ -57,6 +57,18 @@ public class Methods {
 	    else
 	        return string;
 	}
+	
+	public static final String[] splitRankData(String rd) {
+		int size = (int)Math.ceil(rd.length()/3f);
+		String[] ret = new String[size];
+		int i2 = ret.length-1; 
+		for(int i = rd.length()-1; i >= 0; i--) {
+			ret[i2] = rd.charAt(i) + (ret[i2] == null ? "" : ret[i2]);
+			if(ret[i2].length() == 3)
+				i2--;
+		}
+		return ret;
+	}
 
 	@Deprecated
 	/**

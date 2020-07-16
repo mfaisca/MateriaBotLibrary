@@ -1,6 +1,8 @@
 package com.materiabot.GameElements;
 import com.google.common.collect.Streams;
 import com.materiabot.GameElements.Ability.Details.Hit_Data;
+import com.materiabot.GameElements.Ability.Details.Hit_Data.EffectType;
+import com.materiabot.GameElements.Ability.Details.Hit_Data.Target;
 import com.materiabot.Utils.ImageUtils;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -148,12 +150,12 @@ public class Ability {
 			}
 		}
 		
-		public static class Hit_Data {
+		public static class Hit_Data implements Cloneable{
 			public static enum BasedOnStat{
 				Stat1(1, "???"),
 				Stat2(2, "Attack"),
 				Stat3(3, "Initial BRV"),
-				Stat4(4, "Total Party Max BRV"), //Unique to Steiner
+				Stat4(4, "total Max BRV"), //Unique to Steiner
 				Stat6(6, "Max HP"),
 				Stat7(7, "Current BRV"),
 				Stat8(8, "Initial BRV"),
@@ -167,7 +169,8 @@ public class Ability {
 				Stat21(21, "highest current BRV"),
 				Stat29(29, "Unknown"), //Jecht unused skill?
 				Stat36(36, "HP Damage Dealt"), //Serah EX only?
-				Stat37(37, "Total Party Current HP"), //Unique to Ignis?
+				Stat37(37, "total Current HP"), //Unique to Ignis?
+				Stat41(41, "gravity damage dealt"), //Unique to Zidane Mug?
 				Stat42(42, "HP Damage Dealt"),
 				Stat46(46, "Attack"), //Wakka EX only, Random between 4 values on arguments
 				Stat49(49, "Attack"),
@@ -253,7 +256,7 @@ public class Ability {
 				E1(1, null, true), //Basic Hits
 				E7(7, "Removes {0} debuffs from {t}"),//(#ofRemovedDebuffs[, ?]) First can be -1 for all
 				E8(8, "Removes {0} buffs from {t}"),//(#ofRemovedBuffs[, ?, ?])  First can be -1 for all
-				E25(25, "BRV Hits are guaranted hits"),
+				E25(25, "BRV Hits are guaranted hits", true, false),
 				E33(33, "Give turn to selected ally"),//(-1) Argument unknown
 				E34(34, "{0}"),//Angel Wing Unique Buff - ([1]) No value = remove, Value = give
 				E37(37, "Dispels 「**{0}**」", false, false),//(ID of buff)
@@ -302,9 +305,9 @@ public class Ability {
 				E110(110, "Doesn't increase turn count"),
 				E111(111, null), //Old Data? Barret Counter
 				E113(113, "Extends self-buffs by {0}"), //Prishe Only? (X, 1, -1)
-				E114(114, "Initiates a chase sequence if the target is broken"), //TODO Fang EX (50, -1)
+				E114(114, "Initiates a chase sequence ({0} CU) if the target is broken"),
 				E115(115, "Raises BRV Damage by {0}% against ST"), //(X, -1)
-				E116(116, ""), //TODO
+				E116(116, null), //TODO
 				E117(117, "Raises BRV Damage by {0}% against Broken Targets", true, false), //(X)
 				E120(120, "Raises BRV Damage by {1}% against target with 「**Turn Rate Down**」 or 「**SPD Down**」", true, false), //(1, X)
 				E121(121, "{0}"), //(X, buffId) || (X, 2, -1)
@@ -313,21 +316,24 @@ public class Ability {
 						  "{1}% of excess healing is added to allies HP, up to {3}% Max HP"),
 				E125(125, "Cancels {t} BREAK status"),
 				E126(126, "Restores {t} HP by {0}% of {evt}" + System.lineSeparator() + "Allows overhealing up to {1}%"), //Porom only (X, Y, ?)
-				E128(128, "123"), //Alphinaud Only - Something related to his summon?
+				E128(128, null), //Alphinaud Only - Something related to his summon?
 				E129(129, "Release pet when broken???"), //Alphinaud Only
 				E131(131, "Raises {t} BRV by {0}% of {evt} (except the one with highest current BRV)"), //(X) || EffectValueType = 21 ||| Setzer Only
-				E132(132, "123"), //(X) || Unique to Ignis Regroup - Unknown Effect, others are accounted for
+				E132(132, null), //(X) || Unique to Ignis Regroup - Unknown Effect, others are accounted for
 				E135(135, "Raises Critical BRV Damage by {0}%", true, false),
-				E136(136, "Recover {0} of {2}"), //(#ofUses, 100, skillID)
+				E136(136, "Recover {0} of 「**{2}**」"), //(#ofUses, 100, skillID)
 				E137(137, "Deals HP damage to {t} equal to party current BRV"), //(100) / (1, 100) || Sherlotta Only
 				E139(139, "Delays {t} by {0} delay if 「**{1}**」 is active"), //(X, Y) || Garland Only
-				E140(140, "123"), //TODO
-				E141(141, "123"), //TODO
-				E142(142, "Reduce target's BRV by {0}% based on own {evt}", true), //(X) - Y = effect_value_type = based on stat X
-				E147(147, "123"), //Ignis EX Only - Dead skill
-				E154(154, "123"), //TODO
+				E140(140, null), //TODO
+				E141(141, null), //TODO
+				E142(142, "Reduce target's BRV by {0}% based on own {evt}"), //(X) - Y = effect_value_type = based on stat X
+				E147(147, null), //Ignis EX Only - Dead skill
+				E153(153, "Resets 「**{1}**」 to {0}"),
+				E154(154, null), //TODO
+				E155(155, null), //TODO
 				E156(156, "Lower {t} BRV by {0}% of {evt}, battery self for {0}% of {evt}{1}"),
 				E157(157, "Lower {t} BRV by {0}% of {evt}, battery party for {0}% of {evt}"),
+				E159(159, null), //Aphmau / Ulti BT
 				E186(186, null), //Cloud BT Unknown Effect
 				E200(200, "Restores {t} HP by {0}% of {evt}, up to {1}% Max HP"),
 				;
@@ -359,7 +365,7 @@ public class Ability {
 					FixReturn ret = fix(u, d, h, values);
 					String r = baseDescription;
 					for(int i = 0; i < ret.values.length; i++)
-						r = r.replace("{" + i + "}", ret.values[i]);
+						r = r.replace("{" + i + "}", ret.values[i] != null ? ret.values[i] : "");
 					if(r.contains("{t}"))
 						r = r.replace("{t}", ret.target);
 					if(r.contains("{evt}"))
@@ -392,9 +398,9 @@ public class Ability {
 								ret.values[i] = i < v.length ? v[i] : null;
 							v = ret.values;
 							if(v[0].equals("-1")) //King S2
-								v[0] = "all uses"; v[2] = "「**" + u.getBaseAbility(Ability.Type.S1) + "**」, 「**" + u.getBaseAbility(Ability.Type.AA) + "**」";
+								v[0] = "all uses"; v[2] = "「**" + u.getBaseAbility(Ability.Type.S1).get(0).getName() + "**」, 「**" + u.getBaseAbility(Ability.Type.AA).get(0).getName() + "**」";
 							if(v[0].equals("1")) //Selphie AA
-								v[0] = "1 use"; v[2] = "「**" + u.getBaseAbility(Ability.Type.S1) + "**」, 「**" + u.getBaseAbility(Ability.Type.S2) + "**」";
+								v[0] = "1 use"; v[2] = "「**" + u.getBaseAbility(Ability.Type.S1).get(0).getName() + "**」, 「**" + u.getBaseAbility(Ability.Type.S2).get(0).getName() + "**」";
 							break;
 						case 41: //Doesn't have break ON PURPOSE, Wakka effect that makes a random 1/4 potency, then goes to BasedByStat
 							if(h.getEffect().getEffectValueType() == 46)
@@ -435,8 +441,8 @@ public class Ability {
 						case 89:{ //Increases 「**{1}**」 stacks by {0} - (# of stacks to increase, buffID)
 							Ailment ail = u.getSpecificAilment(Integer.parseInt(v[1]));
 							v[1] = v[1].toString().equalsIgnoreCase("-1") ? "all" : ((ail != null ? ail.getName() : "Unknown Ailment ID: " + v[1]));
-							if(!d.getAilments().contains(ail))
-								d.getAilments().add(ail);
+//							if(!d.getAilments().contains(ail))
+//								d.getAilments().add(ail);
 							break; }
 						case 93:
 							ret.values = new String[] {u.getSpecificAilment(358).getName()};
@@ -478,6 +484,11 @@ public class Ability {
 						case 142:
 							ret.effectValueType = BasedOnStat.get(h.getEffect().getEffectValueType()).getStat();
 							break;
+						case 153:{
+							v[0] = (v[0].equals("1") ? "1 stack" : v[0] + " stacks");
+							Ailment ail = u.getSpecificAilment(Integer.parseInt(v[1]));
+							v[1] = v[1].toString().equalsIgnoreCase("-1") ? "all" : ((ail != null ? ail.getName() : "Unknown Ailment ID: " + v[1]));
+							break;}
 						case 156:{
 							if(v[0].length() > 4) { //ExDeath S2
 								v[1] = v[0].substring(0, 3) + v[1].substring(3, 9);
@@ -506,7 +517,7 @@ public class Ability {
 				private int effectValueType;
 
 				public Effect() {}
-				public Effect(EffectType effect, int effectValueType, int brvRate) {
+				public Effect(EffectType effect, int effectValueType) {
 					this.effect = effect;
 					this.effectValueType = effectValueType;
 				}
@@ -617,6 +628,13 @@ public class Ability {
 							((Hit_Data)other).getFakeDesc().equals(this.getFakeDesc()) : 
 							super.equals(other);
 			}
+			public Hit_Data clone() {
+			    try {
+					return (Hit_Data)super.clone();
+				} catch (CloneNotSupportedException e) {
+					return null;
+				}
+			}
 		}
 		
 		private int movementCost;
@@ -708,7 +726,7 @@ public class Ability {
 	public String getDescription() { return description; }
 	public void setDescription(String description) { this.description = description; }
 	public int getUseCount() { 
-		return unit.getBaseAbility(type).get(0).useCount + Streams.concat(
+		return unit.getBaseAbility(type) == null ? 0 : unit.getBaseAbility(type).get(0).useCount + Streams.concat(
 								unit.getEquipment().stream().flatMap(e -> e.getPassives().stream()),
 								unit.getPassives().values().stream())
 							.flatMap(e -> e.getEffects().stream())
@@ -749,6 +767,49 @@ public class Ability {
 			.peek(hd -> hd.getEffect().setEffect(Ability.Details.Hit_Data.EffectType.E135))
 			.forEach(hd -> hd.setArguments(new Integer[]{critDamagePercentage}));
 	}
+	public Ailment fixMissingAuraAilment(int ailmentId, int auraId, Ailment.EffectType ailmentEffect, Ailment.Target ailmentTarget) {
+		Ailment ail = this.getAilmentById(ailmentId);
+		if(ail == null) return null;
+		Ailment.Aura aura = ail.getAuras().get(auraId);
+		if(aura == null) return null;
+		if(ailmentEffect != null)
+			aura.ailmentEffect = ailmentEffect.getId();
+		if(ailmentTarget != null)
+			aura.target = ailmentTarget.getId();
+		return ail;
+	}
+	public Ailment addStaticAilmentEffect(int ailmentId, String text) {
+		Ailment ail = getAilmentById(ailmentId);
+		ail.getEffects().add(new Ailment.EffectGrouping(text));
+		return ail;
+	}
+	public Hit_Data addStaticHit(String text) {
+		return addStaticHit(text, null);
+	}
+	public Hit_Data addStaticHit(String text, Integer order) {
+		Hit_Data adh = new Ability.Details.Hit_Data(text);
+		if(!getDetails().getHits().contains(adh)) {
+			if(order != null)
+				getDetails().getHits().add(order, adh);
+			else
+				getDetails().getHits().add(adh);
+		}
+		return adh;
+	}
+	public Hit_Data addHits(Details.Hit_Data.Attack_Type attackType, Hit_Data.Type type, Target target) {
+		return addHits(attackType, type, target, 0, 0);
+	}
+	public Hit_Data addHits(Details.Hit_Data.Attack_Type attackType, Hit_Data.Type type, Target target, int potency, int overflow) {
+		Hit_Data adh = new Hit_Data();
+		adh.setAttackType(attackType);
+		adh.setBrvRate(potency);
+		adh.setEffect(new Hit_Data.Effect(EffectType.E1, 0));
+		adh.setMaxBrvOverflow(overflow);
+		adh.setTarget(target);
+		adh.setType(type);
+		getDetails().getHits().add(adh);
+		return adh;
+	}
 	
 	private static class EffectBuilder{
 		int count = 1;
@@ -781,7 +842,7 @@ public class Ability {
 		List<Integer> damage = new LinkedList<Integer>();
 		List<EffectBuilder> effects = new LinkedList<EffectBuilder>();
 		int stolenOverflow = 0, gainedOverflow = 0, stBRVRate = 0;
-		boolean fullAoE = false;
+		boolean fullAoE = false, ignoreDefense = false;
 		int splash = -1;
 		for(Hit_Data hd : details.getHits()) {
 			if(hd.getEffect() == null) continue;
@@ -807,6 +868,8 @@ public class Ability {
 					stolenOverflow = hd.getMaxBrvOverflow();
 				if(stBRVRate == 0 && hd.getSingleTargetBrvRate() > 0)
 					stBRVRate = hd.getSingleTargetBrvRate();
+				if(hd.getType() == Hit_Data.Type.BRVIgnoreDEF)
+					ignoreDefense = true;
 				if(hd.getType() == Hit_Data.Type.BRV || hd.getType() == Hit_Data.Type.BRVIgnoreDEF) {
 					damage.add(hd.getBrvRate());
 					EffectBuilder eb = new EffectBuilder(hd.target.name() + "12345" + " BRV", true, false, hd.getAttackType().getId());
@@ -851,16 +914,24 @@ public class Ability {
 		List<EffectBuilder> effectsFinal = new LinkedList<EffectBuilder>();
 		if(gainedOverflow > 100)
 			effectsFinal.add(new EffectBuilder("Gained BRV may exceed Max BRV up to " + gainedOverflow + "%"));
+		if(ignoreDefense)
+			effectsFinal.add(new EffectBuilder("BRV Hits ignore target's defense"));
 		if(stBRVRate > 0)
 			effectsFinal.add(new EffectBuilder("Raises BRV Damage by " + (int)((((damage.get(0)+stBRVRate)/((float)damage.get(0)))-1) * 100) + "% against ST"));
 		if(damage.size() > 0) {
 			if(this.getDetails().getChaseDmg() >= 50)
-				effectsFinal.add(new EffectBuilder("Initiates a chase sequence (" + this.getDetails().getChaseDmg() + ")"));
+				effectsFinal.add(new EffectBuilder("Initiates a chase sequence (" + this.getDetails().getChaseDmg() + " CU)"));
 			else if(this.getDetails().getChaseDmg() > 3)
-				effectsFinal.add(new EffectBuilder("Easier to initiate a chase sequence (" + this.getDetails().getChaseDmg() + ")"));
+				effectsFinal.add(new EffectBuilder("Easier to initiate a chase sequence (" + this.getDetails().getChaseDmg() + " CU)"));
 			else if(this.getDetails().getChaseDmg() == 0)
 				effectsFinal.add(new EffectBuilder("Cannot initiate a chase sequence"));
 		}
+		if(this.getDetails().getMovementCost() == 0)
+			effectsFinal.add(new EffectBuilder("Instant turn rate"));
+		else if(this.getDetails().getMovementCost() < 30)
+			effectsFinal.add(new EffectBuilder("High turn rate"));
+		else if(this.getDetails().getMovementCost() > 30)
+			effectsFinal.add(new EffectBuilder("Low turn rate"));
 		String last = null, potency = null; 
 		int count = 1, totalPotency = 0;
 		EffectBuilder prev = null;

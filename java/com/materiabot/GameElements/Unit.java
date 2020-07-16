@@ -56,7 +56,9 @@ public class Unit {
 	public void setBaseAbilities(Integer[] baseAbls) { baseAbilities = baseAbls; }
 
 	public List<Ability> getBaseAbility(Ability.Type type) {
-		return Arrays.asList(abilities.get(baseAbilities[type.ordinal()]));
+		if(type != null && type.ordinal() < baseAbilities.length)
+			return Arrays.asList(abilities.get(baseAbilities[type.ordinal()]));
+		return null;
 	}
 	public List<Ability> getAbility(Ability.Type type) {
 		return getAbility(type, null);

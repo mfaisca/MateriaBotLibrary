@@ -153,8 +153,8 @@ public class Passive{
 		E170(170, "Raises BRV overflow limit by {0}%"),
 		E171(171, "Raises BRV overflow limit by {0}%{1}"),
 		E181(181, "Reduce all enemies speed for {2}"), //Parameters are (100, 1944, 6), no idea what 0 and 1 are used for
-		E187(187, "Raises {3}BRV damage dealt may exceed 9999 by {0}%"), //High Armor Effect - Essence of Offense
-		E188(188, "Raises {3}obtainable BRV and HP damage may exceed 99999 by {0}%"), //High armor Effect - Generic
+		E187(187, "{3}BRV damage dealt can exceed 9999 by {0}%"), //High Armor Effect - Essence of Offense
+		E188(188, "{3}obtainable BRV and HP damage can exceed 99999 by {0}%"), //High armor Effect - Generic
 		E192(192, "Increases party Gained BRV Overflow limit by {0}%"),
 		E195(195, "Improves 「**{0}**」 effect by {2}%"),
 		;

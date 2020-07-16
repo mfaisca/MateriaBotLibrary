@@ -1,4 +1,5 @@
 package Shared;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Random;
 
@@ -64,10 +65,15 @@ public class Methods {
 		int i2 = ret.length-1; 
 		for(int i = rd.length()-1; i >= 0; i--) {
 			ret[i2] = rd.charAt(i) + (ret[i2] == null ? "" : ret[i2]);
-			if(ret[i2].length() == 3)
+			if(ret[i2].length() == 3) {
+				if(i > 0 && rd.charAt(i-1) == '-') {
+					i--;
+					ret[i2] = "-" + ret[i2];
+				}
 				i2--;
+			}
 		}
-		return ret;
+		return Arrays.stream(ret).filter(o -> o != null).toArray(String[]::new);
 	}
 
 	@Deprecated

@@ -15,7 +15,7 @@ public class AboutCommand extends _BaseCommand{
 		EmbedBuilder builder = new EmbedBuilder();
 		builder.setAuthor("About MateriaBot", "https://discord.gg/XCTC7jY");
 		builder.addField("Developer", 
-				"**Quetz** - Owner and creator of [MateriaBot](https://discord.gg/XCTC7jY)", false);
+				"**Quetz** - Owner and developer of [MateriaBot](https://discord.gg/XCTC7jY)", false);
 		builder.addField("Main Contributors", 
 				"**Rem** - Owner of [DissidiaDB](https://dissidiadb.com/) - For giving all the information that the bot is based on, the bot wouldn't be as it is now without him" + System.lineSeparator() +
 				"**Safeena** - [Safeena Spreadsheet](https://docs.google.com/spreadsheets/d/1T4_urW_OLF754oWGZ1SxL99cRpA_-fcGE_Q75OFJXZY) - Even though the bot no longer is based on this info, this was used for a long time and was invaluable to the bot" + System.lineSeparator() + 
@@ -23,9 +23,9 @@ public class AboutCommand extends _BaseCommand{
 				"", false);
 		builder.addField("Friends & Other Contributors", 
 				"**Tonberry Troupe** - [Infographs and more](https://www.tonberrytroupe.com/) - Testers of the bot during development, did a lot of ideas bouncing on them to figure out the best way to present information" + System.lineSeparator() + 
-				"**The Crystal Chronicles** - [Podcast](https://thecrystalchronicles.simplecast.com/) - Testers of the bot during development" + System.lineSeparator() + 
 				"**Macnol** - [Call to Arms and more](http://dissidiainfo.com/) - Tester of the bot during development" + System.lineSeparator() + 
-				"**Caius, Eons, Shinri** - Monster Info - These are the guys that provide all the information regarding the monsters" + System.lineSeparator() + 
+				"**The Crystal Chronicles** - [Podcast](https://thecrystalchronicles.simplecast.com/) - Testers of the bot during development" + System.lineSeparator() + 
+				"**Caius**, **Shinri** - Monster Info - These are the guys that provide all the information regarding the monsters" + System.lineSeparator() + 
 				"**Moyama** - Schedule Updating - Administrator of [Maincord](http://discord.gg/dffoo), he's usually the person that updates and adds all the new content to the $schedule" + System.lineSeparator() + 
 				"", false);
 		builder.addField("Friends & Other Contributors", 

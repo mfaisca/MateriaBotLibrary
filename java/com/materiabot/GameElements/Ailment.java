@@ -10,11 +10,11 @@ import org.apache.commons.lang3.StringUtils;
 
 public class Ailment {
 	public static enum Emotes{
-		BUFF_INVISIBLE("buffInvisible"),
-		BUFF_BT("buffBT"),
-		BUFF_AA("buffAA"),
-		BUFF_CA("buffCA"),
-		BUFF_CALD("buffCALD"),
+		BUFF_INVISIBLE("ailmentInvisible"),
+		BUFF_BT("ailmentBT"),
+		BUFF_AA("ailmentAA"),
+		BUFF_CA("ailmentCA"),
+		BUFF_CALD("ailmentCALD"),
 		BUFF_GENERIC("buffGeneric"),
 		DEBUFF_GENERIC("debuffGeneric"),
 		;
@@ -59,7 +59,7 @@ public class Ailment {
 		E4(4, "{t}Int BRV {0}%"),
 		E5(5, "{t}Max BRV {0}%"),
 		E6(6, "{t}Max HP {0}%"),
-		E7(7, "{t}HP Regen({0}% HP)"),
+		E7(7, "{t}HP Regen({0}% Max HP)"),
 		E8(8, "{t}BRV Regen({0}% IBRV)"),
 		E9(9, "{t}BRV Regen({0}% MBRV)"),
 		E10(10, "{0} {t}Fire Resist", null), //0 = Lowers/Increases
@@ -74,7 +74,7 @@ public class Ailment {
 		E19(19, "{0} {t}Magic Resist", null),
 		E20(20, "{0} {t}Melee Resist", null),
 		E21(21, "{0} {t}Ranged Resist", null),
-		E22(22, "{0}% {t}Debuff Evasion"),
+		E22(22, "{t}Debuff Evasion {0}%"),
 		E23(23, "{t}Fire Enchant"),
 		E24(24, "{t}Ice Enchant"),
 		E25(25, "{t}Thunder Enchant"),
@@ -92,22 +92,42 @@ public class Ailment {
 		E50(50, "{t} Magic Damage dealt {0}%"),
 		E51(51, "{t} Melee Damage dealt {0}%"),
 		E52(52, "{t} Ranged Damage dealt {0}%"),
+		E53(53, "Raises {t} BRV by BRV damage prevented"),
+		E54(54, "{t} {0}% Debuff Success Rate"),
 		E58(58, "{t} BRV Damage taken {0}%", true),
 		E60(60, "Aura (Separate Parsing)"),
-		E61(61, "{0}% BRV Damage per debuff on enemy"),
-		E67(67, "{0}% {t}Stolen BRV Overflow"),
+		E61(61, "BRV Damage {0}% per debuff on target"),
+		E65(65, "BRV Damage on debuffed targets {0}%"),
+		E67(67, "{t} Stolen BRV Overflow {0}%"),
+		//E68 - Zell Duel - Effect not needed
+		//E85 - Selphie Aura - Unknown effect
 		E103(103, "Unable to act"),
+		E106(106, "{t} EX Recast {0}%"),
+		E111(111, null), //Aphmau 2T dolls
 		E112(112, "Critical Hit Damage {0}%"),
-		E114(114, "Party BRV damage dealt by {0}%"),
+		E114(114, "Party BRV Damage dealt by {0}%"),
+		E115(115, "{t} HP Damage dealt on abilities with splash {0}%"),
+		E119(119, "Instant turn rate"),
+		E120(120, "Doesn't increase turn count"),
 		E122(122, "{t} Melee Damage taken {0}%", true),
 		E123(123, "{t} Ranged Damage taken {0}%", true),
 		E139(139, "New debuffs duration {0} turns"),
-		E150(150, "{0}% {t}Gained BRV Overflow"),
+		E140(140, "New buffs duration {0} turns"),
+		E150(150, "{t} Gained BRV Overflow {0}%"),
+		E151(151, "Triggers 「**Wind Slash**」 at end of turn"),
+		E169(169, "{t} Ranged BRV Overflow {0}%"),
 		E164(164, "{t} unable to gain buffs"),
 		E165(165, "{t} unable to battery"),
+		E180(180, "Sets {t} HP Damage taken to 0"),
+		E190(190, "Last stand on {t} when {0}% Max HP or higher", null),
+		E197(197, "Raises stack by 1 every action you take"),
 		E199(199, "Party critical BRV damage dealt by {0}%"),
+		E210(210, "Sets {t} BRV Damage dealt to 0", null),
 		E216(216, "Nulls BRV damage under {0}% Int BRV"),
+		E229(229, "{0}% HP damage taken from Eald'narche", true),
+		E234(234, "Cannot act when targetting Eald'narche"),
 		E235(235, "Party Maximum BRV damage limit {0}%"),
+		E252(252, "After HP attack, raises BRV by {0}% of HP Damage Dealt"),
 		E257(257, null), //BT Buff Effect
 		E311(311, "{0}% of {t} excess healing is converted to BRV"),
 		E317(317, "After any turn, sets {t} BRV to {0}", null),
@@ -116,6 +136,7 @@ public class Ailment {
 		E335(335, "Cannot deal HP damage"),
 		E327(327, "Cannot inflict debuffs"),
 		E329(329, "Cancelled after using BRV, HP or debuffing skill"),
+		E336(336, "Deletes target next turn with abilities"),
 		;
 
 		private int id;
@@ -186,9 +207,11 @@ public class Ailment {
 	public static class EffectGrouping{
 		public int effectId, val_type, val_specify;
 		public String[] rankData;
+		public String fakeDesc;
 
 		public EffectGrouping() {}
 		public EffectGrouping(int eid) { effectId = eid; }
+		public EffectGrouping(String fd) { fakeDesc = fd; }
 	}
 	public static class Aura{
 		public int id;
@@ -371,7 +394,7 @@ public class Ailment {
 //		}
 //	}
 	private static Integer splitRankData(String v, int idxx) {
-		String[] r = Methods.splitRankData(v);;
+		String[] r = Methods.splitRankData(v);
 		return r != null ? Integer.parseInt(r[idxx]) : null;
 	}
 	
@@ -381,8 +404,8 @@ public class Ailment {
 		List<String> ret = new LinkedList<String>();
 		if(this.rate < 100)
 			ret.add(rate + "% chance");
-		String str = //(isBuff() ? "Grants " : "Applies ") + 
-				(getMaxStacks() > 1 && getArgs().length > 0 ? 
+		String str = 
+				(getMaxStacks() > 1 && getArgs().length > 0 && getArgs()[0] > 0? 
 						"+" + (getArgs()[0] == 1 ? "1 stack to " : getArgs()[0] + " stacks to ") : 
 						"")
 				+ getTarget().getDesc();
@@ -391,6 +414,8 @@ public class Ailment {
 		ret.add(str);
 		int rankDataIndex = 0;
 		for(EffectGrouping eff : effects) {
+			if(eff.fakeDesc != null) {
+				ret.add(eff.fakeDesc); continue; }
 			EffectType e = EffectType.get(eff.effectId);
 			if(e == null) {
 				ret.add("Unknown Effect " + eff.effectId); continue; }
@@ -408,24 +433,28 @@ public class Ailment {
 					EffectType ae = EffectType.get(a.ailmentEffect);
 					if(ae == null)
 						desc += System.lineSeparator() + ("Unknown Effect " + a.ailmentEffect);
-					else if(isStackingBuff()) {
+					else if(isStackingBuff() && a.rankData != null) {
 						String stackingNumber = null;
 						for(int i = 0; i < getMaxStacks() && i < a.rankData.length; i++){
-							stackingNumber = (stackingNumber == null ? "" : stackingNumber + "/") + splitRankData(a.rankData[i], rankDataIndex);
+							Integer iv = splitRankData(a.rankData[i], rankDataIndex);
+							if(iv != 0 || stackingNumber == null || stackingNumber.length() == 0)
+								stackingNumber = (stackingNumber == null ? "" : stackingNumber + "/") + iv;
 						}
 						desc += System.lineSeparator() + StringUtils.capitalize(ae.getDescription(stackingNumber, Target.get(a.target), ""+(this.isBuff() ? 1 : 0)));
 					}else
 						desc += System.lineSeparator() + StringUtils.capitalize(ae.getDescription(a.rankData[this.rank], 0, -1, Target.get(a.target), ""+(this.isBuff() ? 1 : 0)));
 					rankDataIndex = (data != null && ((Math.pow(1000, (rankDataIndex+1))) <= Integer.parseInt(data.replace("-", "")))) ? rankDataIndex + 1 : rankDataIndex;
+					desc = desc + " (" + a.id + ")";
 				}
 				desc = desc.trim();
-			}else if(data == null && isStackingBuff()) {
+			}else if(data == null && isStackingBuff() && eff.rankData != null) {
 				String stackingNumber = null;
 				for(int i = 0; i < getMaxStacks(); i++){
-					stackingNumber = (stackingNumber == null ? "" : stackingNumber + "/") + splitRankData(eff.rankData[i], rankDataIndex);
+					Integer iv = splitRankData(eff.rankData[i], rankDataIndex);
+					if(iv != 0 || stackingNumber == null || stackingNumber.length() == 0)
+						stackingNumber = (stackingNumber == null ? "" : stackingNumber + "/") + iv;
 				}
 				desc = e.getDescription(stackingNumber, this.target, ""+(this.isBuff() ? 1 : 0));
-				//TODO Falta incrementar o rankDataIndex para quando a data for stacking buffs
 				rankDataIndex = eff.rankData[0].length() > 3 ? rankDataIndex+1 : rankDataIndex;
 			}else {
 				desc = e.getDescription(data, rankDataIndex, eff.val_specify, this.target, ""+(this.isBuff() ? 1 : 0));

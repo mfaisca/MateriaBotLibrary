@@ -53,15 +53,15 @@ public class Ailment {
 	}
 
 	public static enum EffectType{
-		E1(1, "{t}ATK {0}%"),
-		E2(2, "{t}DEF {0}%"),
-		E3(3, "{t}Speed {0}%"),
-		E4(4, "{t}Int BRV {0}%"),
-		E5(5, "{t}Max BRV {0}%"),
-		E6(6, "{t}Max HP {0}%"),
-		E7(7, "{t}HP Regen({0}% Max HP)"),
-		E8(8, "{t}BRV Regen({0}% IBRV)"),
-		E9(9, "{t}BRV Regen({0}% MBRV)"),
+		E1(1, "{0}% {t}ATK"),
+		E2(2, "{0}% {t}DEF"),
+		E3(3, "{0}% {t}Speed"),
+		E4(4, "{0}% {t}Int BRV"),
+		E5(5, "{0}% {t}Max BRV"),
+		E6(6, "{0}% {t}Max HP"),
+		E7(7, "{t}HP Regen({0}% Max HP)", null),
+		E8(8, "{t}BRV Regen({0}% IBRV)", null),
+		E9(9, "{t}BRV Regen({0}% MBRV)", null),
 		E10(10, "{0} {t}Fire Resist", null), //0 = Lowers/Increases
 		E11(11, "{0} {t}Ice Resist", null),  //3 = Party
 		E12(12, "{0} {t}Thunder Resist", null),
@@ -84,6 +84,7 @@ public class Ailment {
 		E29(29, "{t}Holy Enchant"),
 		E30(30, "{t}Dark Enchant"),
 		E31(31, "Unable to act"),
+		E32(32, "{t} Poison by {0}% of Int BRV", null),
 		E40(40, "Unable to switch target"),
 		E44(44, "Free ability use next turn(except LD)"),
 		E45(45, "Turn Rate {0}%"),
@@ -94,13 +95,17 @@ public class Ailment {
 		E52(52, "{t} Ranged Damage dealt {0}%"),
 		E53(53, "Raises {t} BRV by BRV damage prevented"),
 		E54(54, "{t} {0}% Debuff Success Rate"),
+		E56(56, "{0}% {t} BRV Damage when hitting elemental weakness"),
 		E58(58, "{t} BRV Damage taken {0}%", true),
 		E60(60, "Aura (Separate Parsing)"),
 		E61(61, "BRV Damage {0}% per debuff on target"),
+		E62(62, "Shields BRV for {0}% of caster Int BRV"),
 		E65(65, "BRV Damage on debuffed targets {0}%"),
-		E67(67, "{t} Stolen BRV Overflow {0}%"),
+		E67(67, "{0}% {t} Stolen BRV Overflow"),
 		//E68 - Zell Duel - Effect not needed
 		//E85 - Selphie Aura - Unknown effect
+		E97(97, "{0}% {t} BRV Damage when hitting weakness"),
+		E101(101, null), //Unknown Poison second effect
 		E103(103, "Unable to act"),
 		E106(106, "{t} EX Recast {0}%"),
 		E111(111, null), //Aphmau 2T dolls
@@ -111,24 +116,30 @@ public class Ailment {
 		E120(120, "Doesn't increase turn count"),
 		E122(122, "{t} Melee Damage taken {0}%", true),
 		E123(123, "{t} Ranged Damage taken {0}%", true),
+		E125(125, "Prevents use of Magic attacks"),
 		E139(139, "New debuffs duration {0} turns"),
 		E140(140, "New buffs duration {0} turns"),
-		E150(150, "{t} Gained BRV Overflow {0}%"),
+		E150(150, "{0}% {t} Gained BRV Overflow"),
 		E151(151, "Triggers 「**Wind Slash**」 at end of turn"),
 		E169(169, "{t} Ranged BRV Overflow {0}%"),
 		E164(164, "{t} unable to gain buffs"),
 		E165(165, "{t} unable to battery"),
 		E180(180, "Sets {t} HP Damage taken to 0"),
 		E190(190, "Last stand on {t} when {0}% Max HP or higher", null),
+		E195(195, null), //WoL LD unknown HitData
 		E197(197, "Raises stack by 1 every action you take"),
-		E199(199, "Party critical BRV damage dealt by {0}%"),
+		E199(199, "{0}% Party critical BRV damage dealt"),
+		E205(205, null), //Extra Garland LD effect?
 		E210(210, "Sets {t} BRV Damage dealt to 0", null),
 		E216(216, "Nulls BRV damage under {0}% Int BRV"),
 		E229(229, "{0}% HP damage taken from Eald'narche", true),
 		E234(234, "Cannot act when targetting Eald'narche"),
-		E235(235, "Party Maximum BRV damage limit {0}%"),
+		E235(235, "{0}% party Maximum BRV damage limit"),
+		E245(245, "+1 stack after attacking"),
 		E252(252, "After HP attack, raises BRV by {0}% of HP Damage Dealt"),
 		E257(257, null), //BT Buff Effect
+		E284(284, "Raises BRV by {0}% of remaining 「**Shield**」", null),
+		E293(293, "{t} 「**Shield**」 protects HP damage as well"),
 		E311(311, "{0}% of {t} excess healing is converted to BRV"),
 		E317(317, "After any turn, sets {t} BRV to {0}", null),
 		E320(320, "Delay target by {0}T after a physical attack"),
@@ -365,7 +376,7 @@ public class Ailment {
 	}
 	
 	public String getTitle() {
-		return ImageUtils.getEmoteText(getIconEmote()) + " " + getName() + (getMaxStacks() > 1 ? " (" + getMaxStacks() + " max stacks)" : "") + " (" + this.getId() + ")";
+		return ImageUtils.getEmoteText(getIconEmote()) + " " + getName() + " (" + this.getId() + ")" + (getMaxStacks() > 1 ? System.lineSeparator() + "(" + getMaxStacks() + " max stacks)" : "");
 	}
 	public String getIconEmote() {
 		if(fakeEmote != null) return fakeEmote;
@@ -374,25 +385,6 @@ public class Ailment {
 							Ailment.Emotes.DEBUFF_GENERIC.get()) + (isFramed() ? "Framed" : ""));
 	}
 	
-//	private static Integer splitRankData(String v, int idxx) {
-//		//int i = Integer.parseInt(v.replace("-", ""));
-//		String oV = ""+v;
-//		try {
-//			Integer[] result = new Integer[(int)Math.ceil((v).toString().length()/3f)];
-//			int idx = result.length-1;
-//			while(v.length() > 0) {
-//				int ii = Integer.parseInt(v.split("(?<=\\G...)")[v.split("(?<=\\G...)").length - 1]);
-//				result[idx--] = ii % 1000;
-//				v = v.substring(0, v.length() < 4 ? 0 : (v.length()-3));
-//			}
-//			if(result.length == 1 && result[0] == null)
-//				return 0;;
-//			return result[idxx];
-//		} catch(Exception e) {
-//			if (idxx == -1) throw e;
-//			return splitRankData(oV, idxx-1);
-//		}
-//	}
 	private static Integer splitRankData(String v, int idxx) {
 		String[] r = Methods.splitRankData(v);
 		return r != null ? Integer.parseInt(r[idxx]) : null;

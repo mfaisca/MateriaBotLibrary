@@ -276,7 +276,7 @@ public class Ability {
 				E52(52, "Reduce {t} HP by {0}%"), //(%, ?) - Cecil, Rinoa, Yuri
 				E54(54, "Revive {t} with {0}% of {evt}"), //(% of effectValueType, ?)
 				E55(55, null), //TODO (100) - Balthier Great Aim and Yuffie I dont need this, but unknown what it refers to
-				E57(57, "{0}% chance to Break {t}"), //(success%)
+				E57(57, "{0}% chance to Break {t}", true), //(success%)
 				E58(58, "BRV hits have a random potency between {0}% and {1}%", true, false), //(minPower, maxPower, ?(3), ?(-1)) - Shadow Exclusive - minPower and maxPower are in tens(4, 6 = 40%, 60%)
 				E61(61, "Raises party BRV by {0}% of {t} {evt}"), //(copy%)
 				E65(65, "Restores {t} HP by {0}% of {evt}, up to {1}% Max HP"), //(Potency, MaxHP%Healed) EffectValueType = What damage it is based on
@@ -291,7 +291,7 @@ public class Ability {
 				E89(89, "Increases 「**{1}**」 stacks by {0}"), //(# of stacks to increase, buffID)
 				E90(90, "Moves own next turn to just before the target's next turn"),
 				E93(93, "Adds an extra hit with 30% ~ 120% BRV potency based on 「**{0}**」 stacks"), //([-1]) Noctis unique hit (30/60/80/100/120)
-				E94(94, "Raises BRV potency by {0}% per 1750? {1} amount on the party"), //(10, -1) Unknown how to formulate it
+				E94(94, "Raises BRV potency by {0}% per 1750? {1} amount on the party", true, false), //(10, -1) Unknown how to formulate it
 				E97(97, "Increases BRV hits potency up to {0}% based on how much HP you're missing", true, false), //(Potency, -1) Terra EX
 		/**/	E99(99, "Restores {t} HP by {0}% of {evt}, up to {1}% Max HP"), 	//(Potency[, MaxHP%Healed, ?]) EffectValueType = What damage it is based on
 				E100(100, "Restores {t} HP by {0}% of {evt}, up to {1}% Max HP" + System.lineSeparator() + 
@@ -767,6 +767,13 @@ public class Ability {
 			.peek(hd -> hd.getEffect().setEffect(Ability.Details.Hit_Data.EffectType.E135))
 			.forEach(hd -> hd.setArguments(new Integer[]{critDamagePercentage}));
 	}
+	public void fixAddAuraEffect(int ailmentId) {
+		Ailment a = this.getAilmentById(ailmentId);
+		if(a != null) {
+			if(a.getEffects().stream().noneMatch(e -> e.effectId == Ailment.EffectType.E60.getId()))
+				a.getEffects().add(new Ailment.EffectGrouping(Ailment.EffectType.E60.getId()));
+		}
+	}
 	public Ailment fixMissingAuraAilment(int ailmentId, int auraId, Ailment.EffectType ailmentEffect, Ailment.Target ailmentTarget) {
 		Ailment ail = this.getAilmentById(ailmentId);
 		if(ail == null) return null;
@@ -778,9 +785,22 @@ public class Ability {
 			aura.target = ailmentTarget.getId();
 		return ail;
 	}
+	public void fixDelayHitData(int hitDataId) {
+		Ability.Details.Hit_Data hd = getHitDataById(hitDataId);
+		if(hd != null) {
+			getDetails().getHits().remove(hd);
+			getDetails().getHits().add(hd);
+		}
+	}
 	public Ailment addStaticAilmentEffect(int ailmentId, String text) {
+		return addStaticAilmentEffect(ailmentId, text, null);
+	}
+	public Ailment addStaticAilmentEffect(int ailmentId, String text, Integer order) {
 		Ailment ail = getAilmentById(ailmentId);
-		ail.getEffects().add(new Ailment.EffectGrouping(text));
+		if(order != null)
+			ail.getEffects().add(order, new Ailment.EffectGrouping(text));
+		else
+			ail.getEffects().add(new Ailment.EffectGrouping(text));
 		return ail;
 	}
 	public Hit_Data addStaticHit(String text) {
@@ -863,6 +883,15 @@ public class Ability {
 				effects.add(new EffectBuilder("**Unknown Hit_Data " + hd.getId() + "**"));
 				continue;
 			}
+			if(hd.getEffect().getEffect().getBaseDescription() != null) {
+				if(hd.getEffect().getEffect().allowRepeats())
+					effects.add(new EffectBuilder(hd.getEffect().getEffect().getDescription(getUnit(), getDetails(), hd), false, false, hd.getAttackType() == null ? -1 : hd.getAttackType().getId()));
+				else {
+					EffectBuilder bb = new EffectBuilder(hd.getEffect().getEffect().getDescription(getUnit(), getDetails(), hd), false, false, hd.getAttackType() == null ? -1 : hd.getAttackType().getId());
+					if(effects.stream().noneMatch(h -> h.equals(bb)))
+						effects.add(0, bb);
+				}
+			}
 			if(hd.getEffect().getEffect().isAbilityPower()) {
 				if(stolenOverflow <= 100)
 					stolenOverflow = hd.getMaxBrvOverflow();
@@ -888,14 +917,6 @@ public class Ability {
 			}else {
 				if(gainedOverflow <= 100)
 					gainedOverflow = hd.getMaxBrvOverflow();
-			}
-			if(hd.getEffect().getEffect().getBaseDescription() == null) continue;
-			if(hd.getEffect().getEffect().allowRepeats())
-				effects.add(new EffectBuilder(hd.getEffect().getEffect().getDescription(getUnit(), getDetails(), hd), false, false, hd.getAttackType() == null ? -1 : hd.getAttackType().getId()));
-			else {
-				EffectBuilder bb = new EffectBuilder(hd.getEffect().getEffect().getDescription(getUnit(), getDetails(), hd), false, false, hd.getAttackType() == null ? -1 : hd.getAttackType().getId());
-				if(effects.stream().noneMatch(h -> h.equals(bb)))
-					effects.add(0, bb);
 			}
 		}
 		boolean replaceAttackType = false;
@@ -992,7 +1013,7 @@ public class Ability {
 			potency = potency == null ? out : (potency + " + " + out);
 		}
 		if(potency != null && totalPotency > 0) {
-			potency = "BRV Potency: " + potency.replace(" + -1%", "") + " = " + totalPotency + "%" + (stolenOverflow > 100 ? " (" + stolenOverflow + "% overflow)" : "");
+			potency = "BRV Potency: " + potency.replace(" + -1%", "").replace("-1% + ", "") + " = " + totalPotency + "%" + (stolenOverflow > 100 ? " (" + stolenOverflow + "% overflow)" : "");
 			effectsFinal.add(new EffectBuilder(""));
 			effectsFinal.add(new EffectBuilder(potency));
 		}

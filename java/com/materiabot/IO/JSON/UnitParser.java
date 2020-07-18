@@ -46,9 +46,9 @@ public class UnitParser {
 			if(!f.exists()) return null;
 			MyJSONObject obj = JSONParser.loadContent(f.getAbsolutePath(), false);
 			parseProfile(u, obj);
+			parseDefaultAilments(u, obj);
 			parseCompleteListAbilities(u, obj);
 			parseBaseAbilities(u, obj);
-			parseDefaultAilments(u, obj);
 			parseOptionalAbilities(u, obj);
 			parsePassives(u, obj);
 			parseCharaBoards(u, obj);

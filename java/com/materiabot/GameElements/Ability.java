@@ -230,6 +230,7 @@ public class Ability {
 				Alternating(11, 18, "split between enemies"),
 				Ally(13, "ally"),
 				Traps(18, "traps???"), //Emperor only(S2 / EX)
+				AOE(23, "traps???"), //Emperor only
 				Caller(29, "caller"),
 				
 				;private int id, id2;
@@ -288,7 +289,7 @@ public class Ability {
 				E80(80, "Copy {0} random buff and extend its duration by 1"), //(?, ?, ?, ?) - Yuffie Snatch
 				E81(81, "Increase BRV potency by {0}% when targetted", true, false), //(Base Multiplier(100), Targetted Multipler(300), ?, ?, ?) - Zack
 				E84(84, null), //Old Vanille Data
-				E89(89, "Increases 「**{1}**」 stacks by {0}"), //(# of stacks to increase, buffID)
+				E89(89, "{2} 「**{1}**」 stacks by {0}"), //(# of stacks to increase, buffID)
 				E90(90, "Moves own next turn to just before the target's next turn"),
 				E93(93, "Adds an extra hit with 30% ~ 120% BRV potency based on 「**{0}**」 stacks"), //([-1]) Noctis unique hit (30/60/80/100/120)
 				E94(94, "Raises BRV potency by {0}% per 1750? {1} amount on the party", true, false), //(10, -1) Unknown how to formulate it
@@ -327,6 +328,7 @@ public class Ability {
 				E140(140, null), //TODO
 				E141(141, null), //TODO
 				E142(142, "Reduce target's BRV by {0}% based on own {evt}"), //(X) - Y = effect_value_type = based on stat X
+				E143(143, "{2} 「**{1}**」 stacks by {0} when breaking target", true, false), //(New Cost[, ?(-1)]))
 				E147(147, null), //Ignis EX Only - Dead skill
 				E153(153, "Resets 「**{1}**」 to {0}"),
 				E154(154, null), //TODO
@@ -438,11 +440,11 @@ public class Ability {
 						case 81:
 							v[0] = ""+(Integer.parseInt(v[1]) / Integer.parseInt(v[0]))*100;
 							break;
-						case 89:{ //Increases 「**{1}**」 stacks by {0} - (# of stacks to increase, buffID)
+						case 89:
+						case 143:{ //Increases 「**{1}**」 stacks by {0} - (# of stacks to increase, buffID)
 							Ailment ail = u.getSpecificAilment(Integer.parseInt(v[1]));
 							v[1] = v[1].toString().equalsIgnoreCase("-1") ? "all" : ((ail != null ? ail.getName() : "Unknown Ailment ID: " + v[1]));
-//							if(!d.getAilments().contains(ail))
-//								d.getAilments().add(ail);
+							ret.values = new String[]{v[0].replace("-", ""), v[1], v[0].contains("-") ? "Decreases" : "Increases"};
 							break; }
 						case 93:
 							ret.values = new String[] {u.getSpecificAilment(358).getName()};
@@ -754,10 +756,11 @@ public class Ability {
 	public Ailment getAilmentById(int ailmentId) {
 		return getDetails().getAilments().stream().filter(ai -> ai.getId() == ailmentId).findFirst().orElse(null);
 	}
-	public void removeAilmentById(int ailmentId) {
+	public Ailment removeAilmentById(int ailmentId) {
 		Ailment a = getAilmentById(ailmentId);
 		if(a != null)
 			getDetails().getAilments().remove(a);
+		return a;
 	}
 	public void fixStupidCriticalDamage(int hitDataId, int ailmentId, int critDamagePercentage) {
 		removeHitDataById(hitDataId);
@@ -773,6 +776,17 @@ public class Ability {
 			if(a.getEffects().stream().noneMatch(e -> e.effectId == Ailment.EffectType.E60.getId()))
 				a.getEffects().add(new Ailment.EffectGrouping(Ailment.EffectType.E60.getId()));
 		}
+	}
+	public Ailment removeTemporaryEffect(int ailmentId) {
+		Ailment a = this.removeAilmentById(ailmentId);
+		if(a != null) {
+			Hit_Data hdd = this.getDetails().getHits().stream()
+							.filter(hd -> hd.getEffect().getEffect().equals(Ability.Details.Hit_Data.EffectType.E37) && hd.getArguments()[0] == ailmentId)
+							.findFirst().orElse(null);
+			if(hdd != null)
+				this.removeHitDataById(hdd.id);
+		}
+		return a;
 	}
 	public Ailment fixMissingAuraAilment(int ailmentId, int auraId, Ailment.EffectType ailmentEffect, Ailment.Target ailmentTarget) {
 		Ailment ail = this.getAilmentById(ailmentId);
@@ -827,6 +841,18 @@ public class Ability {
 		adh.setMaxBrvOverflow(overflow);
 		adh.setTarget(target);
 		adh.setType(type);
+		getDetails().getHits().add(adh);
+		return adh;
+	}
+	public Hit_Data addEffectHit(EffectType effectType, Target target, Integer... args) {
+		Hit_Data adh = new Hit_Data();
+		adh.arguments = args;
+		adh.setAttackType(Details.Hit_Data.Attack_Type.None);
+		adh.setBrvRate(0);
+		adh.setEffect(new Hit_Data.Effect(effectType, 0));
+		adh.setMaxBrvOverflow(100);
+		adh.setTarget(target == null ? Target.Self : target);
+		adh.setType(Hit_Data.Type.Other); 
 		getDetails().getHits().add(adh);
 		return adh;
 	}

@@ -45,8 +45,8 @@ public abstract class ImageUtils {
 	}
 	
 	public static Emote getEmoteClassByName(String name) {
-		String name2 = name.replaceAll(" ", "").replaceAll("'", "").replaceAll("&", "");
-		return Constants.getClient().getGuilds().stream()
+		final String name2 = name.replaceAll(" ", "").replaceAll("'", "").replaceAll("&", "");
+		Emote emo = Constants.getClient().getGuilds().stream()
 				.filter(s -> {
 					return s.getOwnerIdLong() == Constants.QUETZ_ID && s.getIdLong() != Constants.MATERIABOT_SERVER_ID;
 				})
@@ -57,10 +57,11 @@ public abstract class ImageUtils {
 					return e.getName().equalsIgnoreCase(name2);
 				})
 				.findFirst()
-				.orElse(null);
+				.orElse(name2.equalsIgnoreCase(ImageUtils.Emotes.UNKNOWN_EMOTE.get()) ? null : getEmoteClassByName(ImageUtils.Emotes.UNKNOWN_EMOTE.get()));
+		return emo;
 	}
 	public static final String getEmoteText(String name) {
 		Optional<Emote> o = Optional.ofNullable(getEmoteClassByName(name));
-		return o.isPresent() ? "<:" + o.get().getName() + ":" + o.get().getId() + ">" : null;
+		return o.isPresent() ? "<:" + o.get().getName() + ":" + o.get().getId() + ">" : (name.equalsIgnoreCase(ImageUtils.Emotes.UNKNOWN_EMOTE.get()) ? null : getEmoteText(ImageUtils.Emotes.UNKNOWN_EMOTE.get()));
 	}
 }

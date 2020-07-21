@@ -24,12 +24,36 @@ public class Ailment {
 		
 		public String get() { return emote; }
 	}
+	public static enum ValType {
+		V6(6, "HP Damage"),
+		;
+		
+		private int id;
+		private String desc;
+		
+		private ValType(int id, String desc) {this.id = id; this.desc = desc; }
+
+		public int getId() {
+			return id;
+		}
+		public String getDesc() {
+			return desc;
+		}
+		
+		public static ValType get(int id) {
+			for(ValType t : values())
+				if(t.getId() == id)
+					return t;
+			return null;
+		}
+	}
 	public static enum Target {
+		Same(0, ""),
 		ST(1, "target"),
 		Self(2, "self"),
 		AoE(5, "all enemies"),
 		Party(6, "party"),
-		Party2(7, "party"),
+		Allies(7, "allies"),
 		Ally(13, "ally");
 		
 		private int id;
@@ -74,7 +98,7 @@ public class Ailment {
 		E19(19, "{0} {t}Magic Resist", null),
 		E20(20, "{0} {t}Melee Resist", null),
 		E21(21, "{0} {t}Ranged Resist", null),
-		E22(22, "{t}Debuff Evasion {0}%"),
+		E22(22, "{0}% {t}Debuff Evasion"),
 		E23(23, "{t}Fire Enchant"),
 		E24(24, "{t}Ice Enchant"),
 		E25(25, "{t}Thunder Enchant"),
@@ -84,63 +108,68 @@ public class Ailment {
 		E29(29, "{t}Holy Enchant"),
 		E30(30, "{t}Dark Enchant"),
 		E31(31, "Unable to act"),
-		E32(32, "{t} Poison by {0}% of Int BRV", null),
+		E32(32, "{t}Poison by {0}% of Int BRV", null),
 		E40(40, "Unable to switch target"),
 		E44(44, "Free ability use next turn(except LD)"),
-		E45(45, "Turn Rate {0}%"),
-		E46(46, "{t} Critical Hit Rate {0}%"),
-		E49(49, "{t} Sap by {0}% Max BRV"),
-		E50(50, "{t} Magic Damage dealt {0}%"),
-		E51(51, "{t} Melee Damage dealt {0}%"),
-		E52(52, "{t} Ranged Damage dealt {0}%"),
-		E53(53, "Raises {t} BRV by BRV damage prevented"),
-		E54(54, "{t} {0}% Debuff Success Rate"),
-		E56(56, "{0}% {t} BRV Damage when hitting elemental weakness"),
-		E58(58, "{t} BRV Damage taken {0}%", true),
+		E45(45, "{0}% Turn Rate"),
+		E46(46, "{t}Critical Hit Rate {0}%"),
+		E49(49, "{t}Sap by {0}% Max BRV"),
+		E50(50, "{0}% {t}Magic Damage dealt"),
+		E51(51, "{0}% {t}Melee Damage dealt"),
+		E52(52, "{0}% {t}Ranged Damage dealt"),
+		E53(53, "Raises {t}BRV by BRV damage prevented"),
+		E54(54, "{0}% {t}Debuff Success Rate"),
+		E56(56, "{0}% {t}BRV Damage when hitting elemental weakness"),
+		E57(57, "{0}% {t}HP Damage taken", true),
+		E58(58, "{0}% {t}BRV Damage taken", true),
 		E60(60, "Aura (Separate Parsing)"),
-		E61(61, "BRV Damage {0}% per debuff on target"),
+		E61(61, "{0}% BRV Damage per debuff on target"),
 		E62(62, "Shields BRV for {0}% of caster Int BRV"),
-		E65(65, "BRV Damage on debuffed targets {0}%"),
+		E65(65, "{0}% BRV Damage on debuffed targets"),
 		E67(67, "{0}% {t} Stolen BRV Overflow"),
 		//E68 - Zell Duel - Effect not needed
+		E69(69, "Counter {vt} with 「**{vs}**」"),
+		E80(80, null), //CoD S1 Random Effect
 		//E85 - Selphie Aura - Unknown effect
-		E97(97, "{0}% {t} BRV Damage when hitting weakness"),
+		E97(97, "{0}% {t}BRV Damage when hitting weakness"),
 		E101(101, null), //Unknown Poison second effect
 		E103(103, "Unable to act"),
 		E106(106, "{t} EX Recast {0}%"),
 		E111(111, null), //Aphmau 2T dolls
-		E112(112, "Critical Hit Damage {0}%"),
-		E114(114, "Party BRV Damage dealt by {0}%"),
-		E115(115, "{t} HP Damage dealt on abilities with splash {0}%"),
+		E112(112, "{0}% {t}Critical Hit Damage"),
+		E114(114, "{0}% Party BRV Damage dealt"),
+		E115(115, "{0}% {t}HP Damage dealt on abilities with splash"),
 		E119(119, "Instant turn rate"),
 		E120(120, "Doesn't increase turn count"),
-		E122(122, "{t} Melee Damage taken {0}%", true),
-		E123(123, "{t} Ranged Damage taken {0}%", true),
+		E122(122, "{0}% {t}Melee Damage taken", true),
+		E123(123, "{0}% {t}Ranged Damage taken", true),
 		E125(125, "Prevents use of Magic attacks"),
 		E139(139, "New debuffs duration {0} turns"),
 		E140(140, "New buffs duration {0} turns"),
 		E150(150, "{0}% {t} Gained BRV Overflow"),
-		E151(151, "Triggers 「**Wind Slash**」 at end of turn"),
-		E169(169, "{t} Ranged BRV Overflow {0}%"),
+		E151(151, "Triggers 「**{0}**」 at end of turn", null),
+		E169(169, "{0}% {t}Ranged BRV Overflow"),
 		E164(164, "{t} unable to gain buffs"),
 		E165(165, "{t} unable to battery"),
-		E180(180, "Sets {t} HP Damage taken to 0"),
+		E180(180, "Reduces {t} HP damage taken to 0"),
 		E190(190, "Last stand on {t} when {0}% Max HP or higher", null),
 		E195(195, null), //WoL LD unknown HitData
 		E197(197, "Raises stack by 1 every action you take"),
-		E199(199, "{0}% Party critical BRV damage dealt"),
+		E199(199, "{0}% {t} critical BRV damage dealt"),
 		E205(205, null), //Extra Garland LD effect?
 		E210(210, "Sets {t} BRV Damage dealt to 0", null),
+		E211(211, "{0}% HP Damage to non-targets"),
 		E216(216, "Nulls BRV damage under {0}% Int BRV"),
+		E226(226, "After an ally turn, raise BRV by {0}% of caster Max BRV", null),
 		E229(229, "{0}% HP damage taken from Eald'narche", true),
 		E234(234, "Cannot act when targetting Eald'narche"),
-		E235(235, "{0}% party Maximum BRV damage limit"),
+		E235(235, "{0}% {t} Maximum BRV damage limit"),
 		E245(245, "+1 stack after attacking"),
 		E252(252, "After HP attack, raises BRV by {0}% of HP Damage Dealt"),
 		E257(257, null), //BT Buff Effect
 		E284(284, "Raises BRV by {0}% of remaining 「**Shield**」", null),
 		E293(293, "{t} 「**Shield**」 protects HP damage as well"),
-		E311(311, "{0}% of {t} excess healing is converted to BRV"),
+		E311(311, "{0}% of {t}excess healing is converted to BRV"),
 		E317(317, "After any turn, sets {t} BRV to {0}", null),
 		E320(320, "Delay target by {0}T after a physical attack"),
 		E331(331, "Cannot deal BRV damage"),
@@ -161,31 +190,35 @@ public class Ailment {
 		public String getBaseDescription() { return baseDescription; }
 		public Boolean isDefaultNegative() { return defaultNegative; }
 
-		public String getDescription(String h, int rankDataIndex, int val_specify, Target target, String...extra) {
+		public String getDescription(Unit u, String h, int rankDataIndex, int val_type, int val_specify, Target target, String...extra) {
 			if(h == null)
-				return getDescription(new String[0], val_specify, target, extra);
+				return getDescription(u, new String[0], val_type, val_specify, target, extra);
 			int val = splitRankData(h, rankDataIndex) * 
 						(isDefaultNegative() == null ? 1 : 
 							((extra.length > 0 && extra[0].equals("0") ? -1 : 1) * (isDefaultNegative() ? -1 : 1)));
-			return getDescription(Arrays.asList(val).stream()
+			return getDescription(u, Arrays.asList(val).stream()
 					.map(i -> i.toString())
-					.collect(Collectors.toList()).toArray(new String[0]), val_specify, target, extra);
+					.collect(Collectors.toList()).toArray(new String[0]), val_type, val_specify, target, extra);
 		}
-		public String getDescription(String stackingNumber, Target target, String... extra) {
-			return getDescription(new String[] {stackingNumber}, -1, target, extra);
+		public String getDescription(Unit u, String stackingNumber, Target target, String... extra) {
+			return getDescription(u, new String[] {stackingNumber}, -1, -1, target, extra);
 		}		
-		private String getDescription(String[] values, int val_specify, Target target, String... extra) {
-			values = fix(values, extra);
+		private String getDescription(Unit u, String[] values, int val_type, int val_specify, Target target, String... extra) {
 			String r = baseDescription;
+			if(this == EffectType.E69)
+				r = r.replace("{vs}", val_specify > 0 ? u.getSpecificAbility(val_specify).getName() : "Unknown Abilty ID: " + val_specify);
+			values = fix(u, values, extra);
 			if(values.length > 0)
 				for(int i = 0; i < values.length; i++)
 					r = r.replace("{" + i + "}", (isDefaultNegative() != null ? (values[i].contains("-") ? "" : "+") : "") + values[i]);
 			else
 				r = r.replace("{0}", ""+val_specify);
 			r = r.replace("{t}", target != null ? target.getDesc() + " " : "");
+			if(r.contains("{vt}"))
+				r = r.replace("{vt}", val_type > 0 ? Ailment.ValType.get(val_type).getDesc() + " " : "");
 			return r;
 		}
-		private String[] fix(String[] v, String[] extra) {
+		private String[] fix(Unit u, String[] v, String[] extra) {
 			//if(v.length > 0) return;
 			switch(id) {
 				case 10:
@@ -202,6 +235,14 @@ public class Ailment {
 				case 21:
 					v = new String[1];
 					v[0] = extra[0].equals("1") ? "Raises" : "Lowers";
+					break;
+				case 69:
+					v = new String[1];
+					v[0] = extra[0].equals("1") ? "Raises" : "Lowers";
+					break;
+				case 151:
+					v = new String[1];
+					v[0] = u.getSpecificAbility(Integer.parseInt(extra[1])).getName();
 					break;
 			}
 			return v;
@@ -240,8 +281,9 @@ public class Ailment {
 	private boolean stackable, extendable, framed;
 	private List<EffectGrouping> effects = new LinkedList<EffectGrouping>();
 	private HashMap<Integer, Aura> auras = new HashMap<Integer, Aura>();
+	private Unit unit;
 	
-	public Ailment() {}
+	public Ailment(Unit u) { unit = u; }
 	public Ailment(String fE, String fN, String fD) { fakeEmote = fE; fakeName = fN; fakeDesc = fD; }
 	
 	public int getId() {
@@ -432,9 +474,9 @@ public class Ailment {
 							if(iv != 0 || stackingNumber == null || stackingNumber.length() == 0)
 								stackingNumber = (stackingNumber == null ? "" : stackingNumber + "/") + iv;
 						}
-						desc += System.lineSeparator() + StringUtils.capitalize(ae.getDescription(stackingNumber, Target.get(a.target), ""+(this.isBuff() ? 1 : 0)));
+						desc += System.lineSeparator() + StringUtils.capitalize(ae.getDescription(unit, stackingNumber, Target.get(a.target), ""+(this.isBuff() ? 1 : 0)));
 					}else
-						desc += System.lineSeparator() + StringUtils.capitalize(ae.getDescription(a.rankData[this.rank], 0, -1, Target.get(a.target), ""+(this.isBuff() ? 1 : 0)));
+						desc += System.lineSeparator() + StringUtils.capitalize(ae.getDescription(unit, a.rankData[this.rank], 0, -1, -1, Target.get(a.target), ""+(this.isBuff() ? 1 : 0)));
 					rankDataIndex = (data != null && ((Math.pow(1000, (rankDataIndex+1))) <= Integer.parseInt(data.replace("-", "")))) ? rankDataIndex + 1 : rankDataIndex;
 					desc = desc + " (" + a.id + ")";
 				}
@@ -442,14 +484,25 @@ public class Ailment {
 			}else if(data == null && isStackingBuff() && eff.rankData != null) {
 				String stackingNumber = null;
 				for(int i = 0; i < getMaxStacks(); i++){
-					Integer iv = splitRankData(eff.rankData[i], rankDataIndex);
-					if(iv != 0 || stackingNumber == null || stackingNumber.length() == 0)
+					Integer iv = i >= eff.rankData.length ? null : splitRankData(eff.rankData[i], rankDataIndex);
+					if(iv != null && (iv != 0 || stackingNumber == null || stackingNumber.length() == 0))
 						stackingNumber = (stackingNumber == null ? "" : stackingNumber + "/") + iv;
 				}
-				desc = e.getDescription(stackingNumber, this.target, ""+(this.isBuff() ? 1 : 0));
+				if(stackingNumber.contains("/")) {
+					boolean same = true;
+					String val = null;
+					for(String v : stackingNumber.split("/")) {
+						same &= val == null ? true : val.equals(v);
+						val = v;
+					}
+					if(same) stackingNumber = val;
+				}
+				desc = e.getDescription(unit, stackingNumber, Target.Same, ""+(this.isBuff() ? 1 : 0));
 				rankDataIndex = eff.rankData[0].length() > 3 ? rankDataIndex+1 : rankDataIndex;
 			}else {
-				desc = e.getDescription(data, rankDataIndex, eff.val_specify, this.target, ""+(this.isBuff() ? 1 : 0));
+				List<String> a = new LinkedList<String>(Arrays.asList(Arrays.stream(getArgs()).mapToObj(String::valueOf).toArray(String[]::new)));
+				a.add(0, ""+(this.isBuff() ? 1 : 0));
+				desc = e.getDescription(unit, data, rankDataIndex, eff.val_type, eff.val_specify, Target.Same, a.toArray(new String[0]));
 				rankDataIndex = (data != null && ((Math.pow(1000, (rankDataIndex+1))) <= Integer.parseInt(data.replace("-", "")))) ? rankDataIndex + 1 : rankDataIndex;
 			}
 			ret.add(desc);

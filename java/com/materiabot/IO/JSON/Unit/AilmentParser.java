@@ -24,7 +24,7 @@ public class AilmentParser {
 		return ret;
 	}
 	private Ailment parseAilment(MyJSONObject ailment) {
-		Ailment ail = new Ailment();
+		Ailment ail = new Ailment(unit);
 		ail.setId(ailment.getInt("id"));
 //		if(ail.getId() == 523)
 //			System.out.println();

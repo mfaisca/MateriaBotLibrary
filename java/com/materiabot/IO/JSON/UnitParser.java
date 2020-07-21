@@ -16,6 +16,7 @@ import com.materiabot.GameElements.Unit;
 import com.materiabot.GameElements.Ailment.Target;
 import com.materiabot.IO.JSON.JSONParser.MyJSONObject;
 import com.materiabot.IO.JSON.Unit.AbilityParser;
+import com.materiabot.IO.JSON.Unit.AilmentParser;
 import com.materiabot.IO.JSON.Unit.PassiveParser;
 import Shared.Methods;
 
@@ -78,21 +79,8 @@ public class UnitParser {
 		new AbilityParser(u).parseAbilities(obj, "completeListOfAbilities");
 	}
 	private void parseDefaultAilments(Unit u, MyJSONObject obj) {
-		for(MyJSONObject ailment : obj.getObjectArray("defaultAilments")) {
-			Ailment ail = new Ailment();
-			ail.setId(ailment.getInt("id"));
-			ail.setCastId(ailment.getInt("cast_id"));
-			if(ailment.getObject("name") == null) continue; //FIXME Temporary Fix for a Prishe bugged DefaultAilment
-			ail.setName(Methods.getBestText(ailment.getStringArray(ailment.getObject("name"))));
-			ail.setDescription(Methods.getBestText(ailment.getStringArray(ailment.getObject("desc"))));
-			ail.setRate(ailment.getObject("meta_data").getInt("rate"));
-			ail.setRank(ailment.getObject("meta_data").getInt("rank"));
-			ail.setTarget(Target.get(ailment.getObject("meta_data").getInt("target")));
-			ail.setDuration(ailment.getObject("meta_data").getInt("duration"));
-			ail.setArgs(Arrays.asList(ailment.getObject("meta_data").getIntArray("arguments")).stream().mapToInt(i->i).toArray());
-			//TODO Parse Ailments here
-			u.getAilments().put(ail.getId(), ail);
-		}
+		for(Ailment a : new AilmentParser(u).parseAilments(obj, "defaultAilments"))
+			u.getAilments().put(a.getId(), a);
 	}
 	private void parseOptionalAbilities(Unit u, MyJSONObject obj) {
 		int typeIdx = -1;

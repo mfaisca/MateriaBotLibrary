@@ -28,9 +28,6 @@ public abstract class MessageUtils {
 
 	public static final String S = "‏‏‎ ";
 	public static final int DISCORD_MESSAGE_LIMIT = 1800;
-	public static final int DISCORD_EMBED_FIELD_LIMIT = 1024;
-	public static final int DISCORD_EMBED_MAX_COLUMN_WIDTH = 30;
-	public static final String UNKNOWN_EMOTE = "<:unknownSpr:647380214820765709>";
 
 	public static final String empty(int l) {
 		String s = "";

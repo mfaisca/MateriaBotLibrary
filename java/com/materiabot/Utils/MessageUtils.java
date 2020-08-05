@@ -71,7 +71,7 @@ public abstract class MessageUtils {
 		return null;
 	}
 	public static final CompletableFuture<Message> sendError(MessageChannel channel, String message) {
-		return sendEmbed(channel, message, null); //TODO Add Moogle Sorry Emote Link
+		return sendEmbed(channel, message, null); 
 	}
 	public static final CompletableFuture<Message> sendEmbed(final MessageChannel channel, String message, String emote) {
 		EmbedBuilder builder = new EmbedBuilder();

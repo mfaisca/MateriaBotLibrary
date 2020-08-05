@@ -3,7 +3,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 import com.materiabot.GameElements.Unit;
 import Shared.Methods;
-import com.google.common.base.CharMatcher;
+//import com.google.common.base.CharMatcher;
 import com.materiabot.GameElements.Ability;
 import com.materiabot.GameElements.Ability.Details;
 import com.materiabot.GameElements.Ability.Details.Attack_Type;
@@ -21,8 +21,8 @@ public class AbilityParser {
 	public void parseAbilities(MyJSONObject obj, String abilityArray) {
 		for(MyJSONObject a : obj.getObjectArray(abilityArray)) {
 			if(a.getInt("error") != null) continue; //Some exception I made???
-			if(!CharMatcher.ascii().matchesAllOf(a.getObject("name").getString("gl"))) //Ignore JP Skills in GL
-				continue;
+//			if(!CharMatcher.ascii().matchesAllOf(a.getObject("name").getString("gl"))) //Ignore JP Skills in GL
+//				continue;
 			parseAbility(a);
 		}
 	}
@@ -58,7 +58,7 @@ public class AbilityParser {
 			hd.setMaxBrvOverflowOnBreak(data.getObject("brv_data").getInt("max_brv_overflow_with_break"));
 			hd.setSingleTargetBrvRate(data.getObject("brv_data").getInt("single_target_brv_rate"));
 			hd.setAttackType(Details.Hit_Data.Attack_Type.get(data.getInt("attack_type")));
-			hd.getElements().addAll(Arrays.asList(data.getIntArray("element")).stream().map(e -> Element.get(e.intValue())).collect(Collectors.toList()));
+			hd.addElements(Arrays.asList(data.getIntArray("element")).stream().map(e -> Element.get(e.intValue())).collect(Collectors.toList()));
 			hd.setTarget(Details.Hit_Data.Target.get(data.getInt("target")));
 			if(hd.getTarget() == null)
 				System.out.println("ST" + data.getInt("target") + " | " + a.getName() + "(" + a.getId() + ") | HD ID: " + hd.getId());

@@ -103,9 +103,9 @@ public class Summon{
 				chars[i++] = _Library.L.getUnit(ch);
 		return chars;
 	}
-	public String getEmoteFrame() { return getName() + "Frame"; }
-	public String getEmoteCrystal() { return getName() + "Crystal"; }
-	public String getEmoteFace() { return getName() + "Face"; }
+	public String getEmoteFrame() { return getName().replace(" ", "").toLowerCase() + "Frame"; }
+	public String getEmoteCrystal() { return getName().replace(" ", "").toLowerCase() + "Crystal"; }
+	public String getEmoteFace() { return getName().replace(" ", "").toLowerCase() + "Face"; }
 
 	public static final Summon getSummonFromWoIWeapon(Unit u) {
 		Summon s = null;

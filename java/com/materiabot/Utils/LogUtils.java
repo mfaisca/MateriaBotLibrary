@@ -15,7 +15,7 @@ import net.dv8tion.jda.api.entities.Message;
 public class LogUtils{
 	private static class SQLHandler extends Handler{
 		@Override
-		public void publish(LogRecord arg0) { // TODO Auto-generated method stub
+		public void publish(LogRecord arg0) {
 			try {
 				SQLAccess.executeInsert("INSERT INTO Error_Logs(messageId, level, myMessage, logMessage) VALUES (?, ?, ?, ?)", arg0.getParameters()[0], arg0.getLevel().intValue(), arg0.getParameters()[1], arg0.getParameters()[2]);
 			} catch (BotException e) {
@@ -30,7 +30,7 @@ public class LogUtils{
 
 	static {
 		log = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME); //TODO Make lots of logs everywhere
-		log.setLevel(Level.WARNING); //TODO Make a command that allows changing logging levels dynamically
+		log.setLevel(Level.WARNING); 					   //Make a command that allows changing logging levels dynamically
 		try {
 			FileHandler fileTxt = new FileHandler("logger.txt");
 			fileTxt.setFormatter(new SimpleFormatter());

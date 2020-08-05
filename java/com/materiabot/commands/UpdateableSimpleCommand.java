@@ -45,10 +45,10 @@ public class UpdateableSimpleCommand extends _BaseCommand{
 			if(msg.contains(" ")){
 				msg = msg.substring(msg.indexOf(" ") + 1).trim();
 				if(msg.equalsIgnoreCase("clear")){
-					SQLAccess.executeInsert("UPDATE Commands SET data = NULL WHERE name LIKE '%?%'", triggerWords.get(0));
+					SQLAccess.executeInsert("UPDATE Commands SET data = NULL WHERE name = ?", triggerWords.get(0));
 					MessageUtils.sendMessage(message.getChannel(), "Cleared");
 				}else if(msg.length() > 0){
-					SQLAccess.executeInsert("UPDATE Commands SET data = ? WHERE name LIKE '%?%'", msg, triggerWords.get(0));
+					SQLAccess.executeInsert("UPDATE Commands SET data = ? WHERE name = ?", msg, triggerWords.get(0));
 					MessageUtils.sendMessage(message.getChannel(), "Updated");
 				}else{
 					MessageUtils.sendMessage(message.getChannel(), "Error reading line. Let Quetz know!");

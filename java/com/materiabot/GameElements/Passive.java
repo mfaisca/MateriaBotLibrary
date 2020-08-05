@@ -140,8 +140,8 @@ public class Passive{
 		E91(91, "Removes {0} buff on critical damage dealt"), //Unique? to Cloud WoI Weapon
 		E102(102, "Ignores resistances against ghost-type enemies"), //Unique to Sabin
 		E107(107, "Raises recast speed of 「**{1}**」 by {0}%"),
-		E113(113, "Raises {0}"), //TODO ATK parameter has value 20000000 - Split by 3 - 20|000|000 - According to Rem, these could represent a second index
-															//with order ATK DEF SPD and then IBRV MBRV for a second argument - Look into making a second indexing {0.0~2}?
+		E113(113, "Raises {0}"), //ATK parameter has value 20000000 - Split by 3 - 20|000|000 - According to Rem, these could represent a second index
+									//with order ATK DEF SPD and then IBRV MBRV for a second argument - Look into making a second indexing {0.0~2}?
 		E115(115, "Raises Max HP by {0}%"),
 		E116(116, "May equip ability 「**{0}**」"), //Generic effect for base EX/EX+/LD effect 
 		E117(117, null), //Generic effect for base EX/EX+/LD effect 
@@ -313,8 +313,8 @@ public class Passive{
 		R49(49, "if first to act in each wave"),
 		R50(50, "when using HP Attack(or HP+)"),
 		R51(51, "when dealing fire damage"),
-		R52(52, "after mastering {0} {1}"),  //TODO Used by [Mastery chars]... and Setzer
-		R52_2(52, "after using Freeze Joker 2 times"),  //TODO Used by Mastery chars... and [Setzer]     IF SKILL_ID = 1742 and char = "Setzer"
+		R52(52, "after mastering {0} {1}"),  //Used by [Mastery chars]... and Setzer
+		R52_2(52, "after using Freeze Joker 2 times"),  //Used by Mastery chars... and [Setzer]     IF SKILL_ID = 1742 and char = "Setzer"
 		R53(53, "when using BRV Attack(or BRV+)"),
 		R54(54, "when ally inflicts Break"),
 		R55(55, "when ally kills an enemy"),
@@ -330,17 +330,17 @@ public class Passive{
 		R74(74, "when an ally's BRV is below their Int Brv"), //Krile CL50 Exclusive (3 parameters, but its an exclusive passive, so leaving it hardcoded)
 		R75(75, "After using Darkness:", false), //Cecil Exclusive                 
 		R76(76, "when inflicting a debuff{0}"),
-		R77(77, "when using an ability"), //Has 1 argument, but it doesn't seem to be used for anything //TODO RECHECK THIS ONE
+		R77(77, "when using an ability"), //Has 1 argument, but it doesn't seem to be used for anything
 		R77_2(77, "when using a Cross-Slash or Finishing Touch"), //Cloud NT Sword
 		R78(78, "while 「**{0}**」 is active"), //While buff is active
 		R79(79, "while an enemy is poisoned"), //Thancred Exclusive
-		R81(81, "when using a Call Ability with BRV damage"),  //TODO CL78
+		R81(81, "when using a Call Ability with BRV damage"),  //CL78
 		R82(82, "when 「**{0}**」 is at least {1} stacks"), 
 		R83(83, "while 「**{0}**」 is active"), 
-		R84(84, "while an enemy has 「**{0}**」"), //TODO Recheck ailment IDs with Rem
-		R88(88, "when using a Call Ability with BRV damage"),  //TODO CL78
+		R84(84, "while an enemy has 「**{0}**」"),
+		R88(88, "when using a Call Ability with BRV damage"),  //CL78
 		R89(89, "while 「**{0}**」 is active"), //If required[0] = 6, "Chelinka's Prayer", else if required[0] = 7, "Eblan's Teachings", else 
-		R116(116, "when using a Call Ability with BRV damage"),  //TODO CL78
+		R116(116, "when using a Call Ability with BRV damage"),  //CL78
 		R133(133, "{0}"), 
 		;
 		
@@ -393,7 +393,7 @@ public class Passive{
 					v[1] = v[0].equals("1") ? "mastery" : "masteries";
 					break;}
 				case 76:{
-					v[0] = cl == 78 ? " with a Call Ability" : ""; //TODO CL78
+					v[0] = cl == 78 ? " with a Call Ability" : ""; //CL78
 					break;}
 				case 83:{
 					switch(u.getName()) {
@@ -419,7 +419,7 @@ public class Passive{
 					v[0] = v[0].equals("6") ? "Chelinka's Prayer" : (v[0].equals("7") ? "Eblan's Teachings" : ("Unknown Ailment ID: " + v[0]));
 					break;}
 				case 133:{
-					switch(u.getName()) { //TODO CL78
+					switch(u.getName()) { //CL78
 						case "Krile":
 							v[0] = "when using a Call Ability with a BRV recovery effect";
 						case "Beatrix":

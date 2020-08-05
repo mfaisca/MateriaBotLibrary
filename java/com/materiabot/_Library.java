@@ -122,7 +122,7 @@ public class _Library {
 					new SummonPassive("Physical Resist All", "Lowers Party Physical damage taken by 3%.", "Physical party dmg taken -3%"), 
 					new SummonPassive("Physical Power Up", "Raises Physical BRV damage dealt by 10%.", "Physical dmg dealt +10%"),
 					new SummonPassive("Odin Attack Up", "Raises Attack by 5% when HP > 60%.", "ATK+5% if HP>60%", true), 
-					new SummonPassive("Odin Base&Attack Up", "Raises Initial BRV by 5% and ATK by 2% when HP > 60%.", "IBrv+5% & ATK+5% if HP>60%", true), 
+					new SummonPassive("Odin Base&Attack Up", "Raises Initial BRV by 5% and ATK by 2% when HP > 60%.", "IBrv+5% & ATK+5% if HP>60%"), 
 					new SummonPassive("Odin Sneak Power", "Raises BRV damage dealt by 10% when not being targetted", "BRV dmg dealt +10% if not targetted", true), 
 					new SummonPassive("Odin Receive BRV Heal Up", "Raises BRV gained by 5%", "BRV gained +5%")));
 			SUMMON_LIST.add(new Summon(Arrays.asList("Bahamut", "Baha"), 30, null, "Megaflare", "All enemies 15% Attack Down" + System.lineSeparator() + "Raises BREAK Bonus by 10% after an enemy is broken (up to 100%)", 
@@ -132,7 +132,7 @@ public class _Library {
 					new SummonPassive("Magic Resist All", "Lowers Party Magic damage taken by 3%.", "Magic party dmg taken -3%"), 
 					new SummonPassive("Magic Power Up", "Raises Magic BRV damage dealt by 10%.", "Magic dmg dealt +10%"),
 					new SummonPassive("Bahamut Boost Up", "Raises Max BRV by 10% when HP > 80% Max HP", "MBrv+10% if HP>80%", true), 
-					new SummonPassive("Bahamut Boost Guard Up", "Raises Max BRV by 2% and Defense by 20% when HP > 80% Max HP", "MBrv+2% & DEF+20% if HP>80%", true), 
+					new SummonPassive("Bahamut Boost Guard Up", "Raises Max BRV by 2% and Defense by 20% when HP > 80% Max HP", "MBrv+2% & DEF+20% if HP>80%"), 
 					new SummonPassive("Bahamut Life Up", "Raises Max HP by 10%.", "HP+10%", true), 
 					new SummonPassive("Bahamut Knock Back HP Damage Up", "Raises HP damage dealt during a Chase Sequence by 5%", "Chase HP dmg dealt +5%")));
 			SUMMON_LIST.add(new Summon(Arrays.asList("Spirit Moogle", "Spirit Mog", "Moogle", "Mog"), 20, null, "Don't fluff me, kupo~", "Increases Terra's Affection by 10", 

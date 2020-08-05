@@ -19,15 +19,17 @@ public class AilmentParser {
 	public List<Ailment> parseAilments(MyJSONObject obj, String abilityArray) {
 		List<Ailment> ret = new LinkedList<Ailment>();
 		for(MyJSONObject a : obj.getObjectArray(abilityArray)) {
-			ret.add(parseAilment(a));
+			Ailment aa = parseAilment(a);
+			if(aa != null)
+				ret.add(aa);
 		}
 		return ret;
 	}
 	private Ailment parseAilment(MyJSONObject ailment) {
 		Ailment ail = new Ailment(unit);
 		ail.setId(ailment.getInt("id"));
-//		if(ail.getId() == 523)
-//			System.out.println();
+		if(ail.getId() == -1)
+			return null;
 		ail.setCastId(ailment.getInt("cast_id"));
 		ail.setName(Methods.getBestText(ailment.getStringArray(ailment.getObject("name"))));
 		ail.setDescription(Methods.getBestText(ailment.getStringArray(ailment.getObject("desc"))).replace("\\n", System.lineSeparator()));
@@ -63,6 +65,8 @@ public class AilmentParser {
 			a.target = aura.getObject("effect_data").getInt("target_id");
 			a.valType = aura.getObject("effect_data").getInt("value_type");
 			a.typeId = aura.getObject("effect_data").getInt("type_id");
+			if(a.ailmentEffect == -1)
+				a.ailmentEffect = a.typeId;
 			a.rankData = Arrays.stream(aura.getObject("effect_data").getIntArray("rank_data")).map(iii -> ""+iii).collect(Collectors.toList()).toArray(new String[0]);;
 			ail.getAuras().put(a.id, a);
 		}

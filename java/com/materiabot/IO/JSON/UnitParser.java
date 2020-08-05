@@ -13,7 +13,6 @@ import com.materiabot.GameElements.Passive;
 import com.materiabot.GameElements.Sphere;
 import com.materiabot.GameElements.Sphere.SphereType;
 import com.materiabot.GameElements.Unit;
-import com.materiabot.GameElements.Ailment.Target;
 import com.materiabot.IO.JSON.JSONParser.MyJSONObject;
 import com.materiabot.IO.JSON.Unit.AbilityParser;
 import com.materiabot.IO.JSON.Unit.AilmentParser;

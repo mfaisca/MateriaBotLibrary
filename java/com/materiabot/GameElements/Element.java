@@ -5,8 +5,8 @@ import java.util.List;
 
 public enum Element{
 	Null(0, 0, 0), Fire(221, 47, 41), Ice(4, 223, 238), 
-	Thunder(240, 233, 76), Water(27, 78, 242), 
-	Earth(155, 97, 34), Wind(131, 213, 116), 
+	Thunder(240, 233, 76), Wind(131, 213, 116), 
+	Earth(155, 97, 34), Water(27, 78, 242), 
 	Dark(102, 49, 143), Holy(255, 255, 255);
 	private Color c;
 	

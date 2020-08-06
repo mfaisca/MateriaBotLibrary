@@ -115,7 +115,7 @@ public class Ailment {
 		E41(41, "{0}% {t}BRV Magic Damage dealt", true),
 		E42(42, "{0}% {t}BRV Melee Damage dealt", true),
 		E43(43, "{0}% {t}BRV Ranged Damage dealt", true),
-		E44(44, "Free ability use next turn(except LD)"), //Set CastID to 463 to not merge with description
+		E44(44, "Free ability use next turn(S1/S2/AA only)"), //Set CastID to 463 to not merge with description
 		E45(45, "{0}% Turn Rate"),
 		E46(46, "{0}% {t}Critical Hit Rate"),
 		E47(47, "{0}% {t} Evasion Rate"),
@@ -133,7 +133,7 @@ public class Ailment {
 		E59(59, "{t}Attacks deal +3 [CU](https://www.reddit.com/r/DissidiaFFOO/comments/7x7ffp/chase_mechanic/)"), //Fake Ailment used by Layle EX Buff
 		E60(60, "Aura (Separate Parsing)"),
 		E61(61, "{0}% BRV Damage per debuff on target"),
-		E62(62, "Shields BRV for {0}% of caster Int BRV"),
+		E62(62, "Shields BRV for {0}% of caster Int BRV", null),
 		E63(63, "{0}% {t}BRV Damage taken"), //Fake for Alphi
 		E65(65, "{0}% BRV Damage on debuffed targets"),
 		E67(67, "{0}% {t} Stolen BRV Overflow"),
@@ -194,6 +194,7 @@ public class Ailment {
 		E208(208, "{0}% BRV Damage with ST attacks", null),
 		E210(210, "Sets {t} BRV Damage dealt to 0", null),
 		E211(211, "{0}% HP Damage to non-targets"),
+		E214(214, "Shields BRV for {0}% of damage dealt", null),
 		E215(215, "Raises {t}BRV back to Int BRV when BRV=0 on the turn after theirs"),
 		E216(216, "Nulls BRV damage under {0}% Int BRV"),
 		E217(217, "{0}% HP Damage during a chase"),
@@ -209,7 +210,7 @@ public class Ailment {
 		E239(239, "Trigger BREAK on expiration"),
 		E245(245, "+1 stack after attacking"),
 		E246(246, "{t}BRV will not drop below {0}% of Max BRV", null),
-		E252(252, "After HP attack, raises BRV by {0}% of HP Damage Dealt"),
+		E252(252, "After HP attack, raises BRV by {0}% of HP Damageret.getA Dealt"),
 		E255(255, "When Current HP <= {0}% Max HP, recover HP back to {0}% Max HP"),
 		E257(257, null), //BT Buff Effect
 
@@ -217,6 +218,8 @@ public class Ailment {
 		E266(266, "All BRV hits are Critical Hits"),
 		E268(268, "Cannot be killed"),
 		E276(276, "Move your next turn to just before the target next turn"),
+		E279(279, "-100% Party HP Damage taken"),
+		E280(280, null), //Nine LD ???
 		E282(282, "Sets HP to 1 if at 0 HP when buff expires"),
 		E288(288, "{0} duration when hit"),
 		E284(284, "Raises BRV by {0}% of remaining 「**Shield**」", null),

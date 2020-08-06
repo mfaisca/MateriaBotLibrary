@@ -413,14 +413,16 @@ public class Ability {
 							for(int i = 0; i < ret.values.length; i++)
 								ret.values[i] = i < v.length ? v[i] : null;
 							v = ret.values;
-							if(v[0].equals("-1")) //King S2
-								v[0] = "all uses"; v[2] = "「**" + u.getBaseAbility(Ability.Type.S1).get(0).getName() + "**」, 「**" + u.getBaseAbility(Ability.Type.AA).get(0).getName() + "**」";
-							if(v[0].equals("1")) //Selphie AA
-								v[0] = "1 use"; v[2] = "「**" + u.getBaseAbility(Ability.Type.S1).get(0).getName() + "**」, 「**" + u.getBaseAbility(Ability.Type.S2).get(0).getName() + "**」";
+							if(v[0].equals("-1")) { //King S2
+								v[0] = "all uses"; v[2] = "「**" + u.getBaseAbility(Ability.Type.S1).get(0).getName() + "**」, 「**" + u.getBaseAbility(Ability.Type.AA).get(0).getName() + "**」";}
+							if(v[0].equals("1")) { //Selphie AA
+								v[0] = "1 use"; v[2] = "「**" + u.getBaseAbility(Ability.Type.S1).get(0).getName() + "**」, 「**" + u.getBaseAbility(Ability.Type.S2).get(0).getName() + "**」";}
 							break;
 						case 41: //Doesn't have break ON PURPOSE, Wakka effect that makes a random 1/4 potency, then goes to BasedByStat
 							if(h.getEffect().getEffectValueType() == 46)
 								v[0] = v[0] + "/" + v[1] + "/" + v[2] + "/" + v[3];
+							else if(h.getId() == 6074) //Deuce for her HP+ being based on # of notes
+								v[0] = v[0] + "/" + v[1] + "/" + v[2];
 						case 43:
 						case 54:
 						case 65: //(Potency, MaxHP%Healed)
@@ -794,8 +796,8 @@ public class Ability {
 				.filter(hd -> hd.getEffect() != null)
 				.filter(hd -> hd.getEffect().getEffect().equals(Ability.Details.Hit_Data.EffectType.E37) && hd.getArguments()[0] == ailmentId)
 				.findFirst().orElse(null);
-		if(hdd == null) return;
-		removeHitDataById(hdd.getId());
+		if(hdd != null)
+			removeHitDataById(hdd.getId());
 		removeAilmentById(ailmentId);
 		getDetails().getHits().stream()
 			.filter(hd -> hd.getType().equals(Ability.Details.Hit_Data.Type.BRV) || hd.getType().equals(Ability.Details.Hit_Data.Type.BRVIgnoreDEF))
@@ -1047,7 +1049,7 @@ public class Ability {
 			effectsFinal.add(new EffectBuilder("BRV Hits ignore target's defense"));
 		if(stBRVRate > 0)
 			effectsFinal.add(new EffectBuilder("Raises BRV Damage by " + (int)((((damage.get(0)+stBRVRate)/((float)damage.get(0)))-1) * 100) + "% against ST"));
-		if(damage.size() > 0) {
+		if(damage.size() > 0 || getId() == 8819) { //ID = Amidatelion BRV++
 			if(this.getDetails().getChaseDmg() >= 50)
 				effectsFinal.add(new EffectBuilder("Initiates a chase sequence (" + this.getDetails().getChaseDmg() + " [CU](https://www.reddit.com/r/DissidiaFFOO/comments/7x7ffp/chase_mechanic/))"));
 			else if(this.getDetails().getChaseDmg() > 3)

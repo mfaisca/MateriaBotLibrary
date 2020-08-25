@@ -88,26 +88,26 @@ public class Passive{
 		}
 	}
 	public static enum Effect{
-		E1(1, "Raises ATK by {0}"),
-		E2(2, "Raises DEF by {0}"),
-		E3(3, "Raises Int BRV by {0}"),
-		E4(4, "Raises Max BRV by {0}"),
-		E5(5, "Raises Max HP by {0}"),
+		E1(1, "Raises {3}ATK by {0}"),
+		E2(2, "Raises {3}DEF by {0}"),
+		E3(3, "Raises {3}Int BRV by {0}"),
+		E4(4, "Raises {3}Max BRV by {0}"),
+		E5(5, "Raises {3}Max HP by {0}"),
 		E11(11, "Deals +{0}% BRV damage when using group attacks on 1 target"),
 		E17(17, "Raises {3}ATK by {0}% up to {1} times"),
 		E19(19, ""), //Basch Only, no parameters, Passive effect is covered fully by other effect ID
 		E19_2(19, "Lowers ATK, INT BRV, MAX BRV by 10% and DEF by 20%"), //High Armor Effect - Essence of Strategy - Yes its constant, for now at least
 		E22(22, "「**{0}**」use +{1}"),
-		E28(28, "Raises {3}ATK{4} by {0}%"),
-		E29(29, "Raises {3}ATK{4} by {0}%{1}"),
-		E30(30, "Raises {3}DEF{4} by {0}%"),
-		E31(31, "Raises {3}DEF{4} by {0}%{1}"),
-		E32(32, "Raises {3}Speed{4} by {0}%"),
-		E33(33, "Raises {3}Speed{4} by {0}%{1}"),
-		E34(34, "Raises {3}Int BRV{4} by {0}%"),
-		E35(35, "Raises {3}Int BRV{4} by {0}%{1}"), //Doesnt Exist, just a guess
-		E36(36, "Raises {3}Max BRV{4} by {0}%"),
-		E37(37, "Raises {3}Max BRV{4} by {0}%{1}"),
+		E28(28, "Raises {3}ATK{4} by {0}%{5}"),
+		E29(29, "Raises {3}ATK{4} by {0}%{5}{1}"),
+		E30(30, "Raises {3}DEF{4} by {0}%{5}"),
+		E31(31, "Raises {3}DEF{4} by {0}%{5}{1}"),
+		E32(32, "Raises {3}Speed{4} by {0}%{5}"),
+		E33(33, "Raises {3}Speed{4} by {0}%{5}{1}"),
+		E34(34, "Raises {3}Int BRV{4} by {0}%{5}"),
+		E35(35, "Raises {3}Int BRV{4} by {0}%{5}{1}"),
+		E36(36, "Raises {3}Max BRV{4} by {0}%{5}"),
+		E37(37, "Raises {3}Max BRV{4} by {0}%{5}{1}"),
 		E38(38, "Raises 「**{1}**」 and 「**{2}**」 by {0}%"),
 		E39(39, "Raises BRV Damage by {0}%"),
 		E40(40, "Raises turn rate"), //Only receives 1 parameter, but I don't know how to have it make sense for the end user
@@ -135,7 +135,7 @@ public class Passive{
 		E79(79, "Counters with a BRV Attack"), //
 		E82(82, "{0}% of HP recovered in excess of MAX HP shared with allies up to {1}% of the ally's Max HP"), 
 		E83(83, "Raises {3}evasion for{1}"),
-		E89(89, "Raises ATK, DEF, Int BRV, Max BRV by {0}%"), //Another one of these
+		E89(89, "Raises {3}ATK, DEF, Int BRV, Max BRV by {0}%"), //Another one of these
 		E90(90, "Raises {3}ATK, DEF, Int BRV, Max BRV by {0}%{1}"), //The second parameter is usually -1 to represent infinite turns, but I'll leave it to be changeable through "fix"
 		E91(91, "Removes {0} buff on critical damage dealt"), //Unique? to Cloud WoI Weapon
 		E102(102, "Ignores resistances against ghost-type enemies"), //Unique to Sabin
@@ -250,13 +250,13 @@ public class Passive{
 						def = Integer.parseInt(v[0].substring(0, 3));
 						spd = Integer.parseInt(v[0].substring(3, 6));
 					}else {
-						spd = Integer.parseInt(v[0]);
+						spd = Integer.parseInt(Methods.splitRankData(v[0])[0]);
 					}
 					if(v[1].length() == 6) {
 						ibrv = Integer.parseInt(v[1].substring(0, 3));
 						mbrv = Integer.parseInt(v[1].substring(3, 6));
 					}else {
-						mbrv = Integer.parseInt(v[1]);
+						mbrv = Integer.parseInt(Methods.splitRankData(v[1])[0]);
 					}
 					v[0] = "";
 					if(atk > 0) 	v[0] += ", ATK by " + atk + "%";
@@ -331,7 +331,8 @@ public class Passive{
 		R75(75, "After using Darkness:", false), //Cecil Exclusive                 
 		R76(76, "when inflicting a debuff{0}"),
 		R77(77, "when using an ability"), //Has 1 argument, but it doesn't seem to be used for anything
-		R77_2(77, "when using a Cross-Slash or Finishing Touch"), //Cloud NT Sword
+		R77_2(77, "when using a 「**Cross-Slash**」 or 「**Finishing Touch**」"), //Cloud NT Sword
+		R77_3(77, "when using a 「**Veraero**」 or 「**Verthunder**」"), //Alisaie CL50
 		R78(78, "while 「**{0}**」 is active"), //While buff is active
 		R79(79, "while an enemy is poisoned"), //Thancred Exclusive
 		R81(81, "when using a Call Ability with BRV damage"),  //CL78
@@ -390,7 +391,7 @@ public class Passive{
 					v[0] = v[0].equals("-1") ? "any" : (ail != null ? ail.getName() : "Unknown Ailment ID: " + v[0]);
 					break;}
 				case 52:{
-					v[1] = v[0].equals("1") ? "mastery" : "masteries";
+					v[1] = v[0].equals("1") ? "ability" : "abilities";
 					break;}
 				case 76:{
 					v[0] = cl == 78 ? " with a Call Ability" : ""; //CL78
@@ -398,11 +399,11 @@ public class Passive{
 				case 83:{
 					switch(u.getName()) {
 						case "Desch":
-							v[0] = u.getSpecificAilment(1579).getName() + "**」 or 「**" + u.getSpecificAilment(1580).getName();
+							v[0] = u.getSpecificAilment(1579).getName() + "**」 or 「**" + u.getSpecificAilment(1580).getName(); break;
 						case "Yuri":
-							v[0] = u.getSpecificAilment(337).getName();
+							v[0] = u.getSpecificAilment(337).getName(); break;
 						case "Edge":
-							v[0] = u.getSpecificAilment(1360).getName();
+							v[0] = u.getSpecificAilment(1360).getName(); break;
 						default:
 							v[0] = "**unknown requirement. Please notify Quetz**";
 					}
@@ -410,9 +411,9 @@ public class Passive{
 				case 84:{
 					switch(u.getName()) {
 						case "Gabranth":
-							v[0] = "Mark of Guilt**」 or 「**Felon's Imprint";
+							v[0] = "Mark of Guilt**」 or 「**Felon's Imprint"; break;
 						default:
-							v[0] = "**unknown requirement. Please notify Quetz**";
+							v[0] = "**unknown requirement. Please notify Quetz**"; break;
 					}
 					break;}
 				case 89:{
@@ -421,11 +422,11 @@ public class Passive{
 				case 133:{
 					switch(u.getName()) { //CL78
 						case "Krile":
-							v[0] = "when using a Call Ability with a BRV recovery effect";
+							v[0] = "when using a Call Ability with a BRV recovery effect"; break;
 						case "Beatrix":
-							v[0] = "when using a Call Ability at Max HP";
+							v[0] = "when using a Call Ability at Max HP"; break;
 						default:
-							v[0] = "**unknown requirement. Please notify Quetz**";
+							v[0] = "**unknown requirement. Please notify Quetz**"; break;
 					}
 				}
 			}
@@ -522,7 +523,7 @@ public class Passive{
 							if(eff.values[0] == previousEff.values[0])
 								r = r.replace("{4}", ", " + eff.type.getShort() + "{4}");
 							else 
-								r = Methods.replaceLast(r, "%", "%, " + eff.type.getShort() + " by " + eff.values[0] + "%");
+								r = r.replace("{5}", ", " + eff.type.getShort() + " by " + eff.values[0] + "%{5}");
 						}
 						else { //For X turns
 							if(eff.values[1] == previousEff.values[1])
@@ -553,7 +554,7 @@ public class Passive{
 				previous = req;
 				previousEff = eff;
 			}
-			return results.stream().map(s -> s.replace("{4}", "")).reduce("", (o1, o2) -> o1 + System.lineSeparator() + o2).trim();
+			return results.stream().map(s -> s.replace("{4}", "").replace("{5}", "")).reduce("", (o1, o2) -> o1 + System.lineSeparator() + o2).trim();
 		} catch(Exception e) {
 			System.out.println("Error parsing " + getUnit().getName() + " effect id " + getId());
 			e.printStackTrace();

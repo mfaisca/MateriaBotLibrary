@@ -29,7 +29,7 @@ public class HelpCommand extends _BaseCommand{
 	}
 
 	public HelpCommand() {
-		super("help");
+		super("help", "commands");
 	}
 
 	@Override

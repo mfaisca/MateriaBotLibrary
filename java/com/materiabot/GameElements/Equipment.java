@@ -45,13 +45,13 @@ public class Equipment{
 		W_EXP(7, "realizedWeapon", "ex+", "100cp", "ex+", "exp", "100", "100cp", "ex+3", "ex+2", "ex+1", "ex+0"), 
 		W_LD(5, "limitedWeapon", "ld", "90cp", "ld", "limited", "90", "90cp", "ld3", "ld2", "ld1"), 
 		W_BT(10, "burstWeapon", "bt", "140cp", "bt", "burst", "130", "130cp"),
-		A_3S(3, "bronzeArmor", "3a", "a1cp", "3a"), 
-		A_4S(4, "silverArmor", "4a", "a10cp", "4a"), 
-		A_35(5, "uniqueArmor", "35a", "armorToken", "35a"), 
-		A_90(5, "exArmor", "hg", "armorTokenP", "90a"), 
-		A_90P(7, "realizedArmor", "hg+", "armorTokenP", "90a+", "130a"), 
-		A_7S(7, "highArmor", "7a", "highArmorToken", "ha", "210a"),
-		BS(0, "bloomStone", "bloom", "bloom", "bloom");
+		A_3S(3, "bronzeArmor", "3a", "a1cp", "3a", "a3"), 
+		A_4S(4, "silverArmor", "4a", "a10cp", "4a", "a4"), 
+		A_35(5, "uniqueArmor", "35a", "armorToken", "35a", "a35"), 
+		A_90(5, "exArmor", "hg", "armorTokenP", "90a", "a90"), 
+		A_90P(7, "realizedArmor", "hg+", "armorTokenP", "90a+", "130a", "a90+", "a130", "90ap", "a90p"), 
+		A_7S(7, "highArmor", "7a", "highArmorToken", "ha", "210a", "a210"),
+		BS(0, "bloomStone", "bloom", "bloom", "bloom", "bs");
 		
 		private int rarity;
 		private String name, imageName, emoteName;

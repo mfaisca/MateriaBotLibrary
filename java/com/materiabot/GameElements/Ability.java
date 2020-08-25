@@ -7,6 +7,7 @@ import com.materiabot.Utils.ImageUtils;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+//import com.google.common.base.CharMatcher;
 import java.util.stream.Collectors;
 
 public class Ability {
@@ -235,6 +236,7 @@ public class Ability {
 				Traps(18, "traps???"), //Emperor only(S2 / EX)
 				Terra(29, "Terra"),
 				AOE(23, "traps???"), //Emperor only
+				Machina(28, "Machina"),
 				Caller(29, "caller"),
 				
 				;private int id, id2;
@@ -292,6 +294,7 @@ public class Ability {
 				E78(78, "BRV Hits apply a stacking IBRV debuff", true, false), //Lenna Rapid Fire mechanic
 				E80(80, "Copy {0} random buff and extend its duration by 1"), //(?, ?, ?, ?) - Yuffie Snatch
 				E81(81, "Increase BRV potency by {0}% when targetted", true, false), //(Base Multiplier(100), Targetted Multipler(300), ?, ?, ?) - Zack
+				E82(82, "BRV Hits are critical hits if target not targetting self", true, false), //([?]) - No params - Jack
 				E84(84, null), //Old Vanille Data
 				E89(89, "{2} 「**{1}**」 stacks by {0}"), //(# of stacks to increase, buffID)
 				E90(90, "Moves own next turn to just before the target's next turn"),
@@ -312,7 +315,7 @@ public class Ability {
 				E111(111, null), //Old Data? Barret Counter
 				E113(113, "Extends self-buffs by {0}"), //Prishe Only? (X, 1, -1)
 				E114(114, "Initiates a chase sequence ({0} [CU](https://www.reddit.com/r/DissidiaFFOO/comments/7x7ffp/chase_mechanic/))) if the target is broken"),
-				E115(115, "Raises BRV Damage by {0}% against ST"), //(X, -1)
+				E115(115, "Raises BRV Damage by {0}% against ST", true, false), //(X, -1)
 				E116(116, null),
 				E117(117, "Raises BRV Damage by {0}% against Broken Targets", true, false), //(X)
 				E120(120, "Raises BRV Damage by {1}% against target with 「**Turn Rate Down**」 or 「**SPD Down**」", true, false), //(1, X)
@@ -336,7 +339,7 @@ public class Ability {
 				E143(143, "{2} 「**{1}**」 stacks by {0} when breaking target", true, false), //(New Cost[, ?(-1)]))
 				E147(147, null), //Ignis EX Only - Dead skill
 				E151(151, "100% chance to BREAK {t}{0}"),
-				E153(153, "Resets 「**{1}**」 to {0}"),
+				E153(153, "Resets 「**{1}**」{0}"),
 				E154(154, null),
 				E155(155, null),
 				E156(156, "Lower {t} BRV by {0}% of {evt}, battery self for {0}% of {evt}{1}"),
@@ -345,10 +348,11 @@ public class Ability {
 				E160(160, "Move your next turn to just before the target next turn"),
 				E164(164, "High Turn Rate when attacking a broken target", true, false),
 				E165(165, "Instant Turn Rate and free ability use next turn(except LD) when breaking target", false, false),
+				E176(176, "Sets HP to {0}"),
 				E177(177, "Reverts base abilities to 「**Concentrate**」 for 1 turn"),
 				E180(180, "Removes {0} buffs from {t} if broken"),
 				E186(186, null), //Cloud BT Unknown Effect
-				E187(187, null), //Gabranth ???
+				E187(187, null, true), //Gabranth ???
 				E197(197, "Extends debuffs duration +{0} turns"),
 				E190(190, "Delete {t} next turn"),
 				E200(200, "Restores {t} HP by {0}% of {evt}, up to {1}% Max HP"),
@@ -509,9 +513,15 @@ public class Ability {
 							v[0] = v[0].equals("2") ? " if BRV is even" : "";
 							break;
 						case 153:{
-							v[0] = (v[0].equals("1") ? "1 stack" : v[0] + " stacks");
-							Ailment ail = u.getSpecificAilment(Integer.parseInt(v[1]));
-							v[1] = v[1].toString().equalsIgnoreCase("-1") ? "all" : ((ail != null ? ail.getName() : "Unknown Ailment ID: " + v[1]));
+							if(v.length == 2) {
+								v[0] = " to " + (v[0].equals("1") ? "1 stack" : v[0] + " stacks");
+								Ailment ail = u.getSpecificAilment(Integer.parseInt(v[1]));
+								v[1] = v[1].toString().equalsIgnoreCase("-1") ? "all" : ((ail != null ? ail.getName() : "Unknown Ailment ID: " + v[1]));
+							}else {
+								ret.values = v = new String[] {" charge", v[0]};
+								Ability ab1 = u.getSpecificAbility(Integer.parseInt(v[1]));
+								v[1] = v[1].toString().equalsIgnoreCase("-1") ? "all" : ((ab1 != null ? ab1.getName() : "Unknown Ability ID: " + v[1]));
+							}
 							break;}
 						case 156:{
 							if(v[0].length() > 4) { //ExDeath S2
@@ -575,6 +585,8 @@ public class Ability {
 			private int maxBrvOverflow = 100;
 			private int maxBrvOverflowOnBreak = 0;
 			private int singleTargetBrvRate = 0;
+			private int brvDamageLimit = 0;
+			private int maxBrvLimit = 0;
 			
 			public Hit_Data() {}
 			public Hit_Data(String desc) { fakeDesc = desc; }
@@ -647,6 +659,19 @@ public class Ability {
 			}
 			public void setSingleTargetBrvRate(int singleTargetBrvRate) {
 				this.singleTargetBrvRate = singleTargetBrvRate;
+			}
+
+			public int getBrvDamageLimit() {
+				return brvDamageLimit;
+			}
+			public void setBrvDamageLimit(int brvDamageLimit) {
+				this.brvDamageLimit = brvDamageLimit;
+			}
+			public int getMaxBrvLimit() {
+				return maxBrvLimit;
+			}
+			public void setMaxBrvLimit(int maxBrvLimit) {
+				this.maxBrvLimit = maxBrvLimit;
 			}
 
 			@Override
@@ -751,7 +776,11 @@ public class Ability {
 
 	public int getId() { return id; }
 	public void setId(int id) { this.id = id; }
-	public String getName() { return name; }
+	public String getName() {
+//		if(CharMatcher.ascii().matchesAllOf(name))
+//			return name;
+		return name;
+	}
 	public void setName(String name) { this.name = name; }
 	public String getDescription() { return description; }
 	public void setDescription(String description) { this.description = description; }
@@ -801,8 +830,9 @@ public class Ability {
 		removeAilmentById(ailmentId);
 		getDetails().getHits().stream()
 			.filter(hd -> hd.getType().equals(Ability.Details.Hit_Data.Type.BRV) || hd.getType().equals(Ability.Details.Hit_Data.Type.BRVIgnoreDEF))
-			.peek(hd -> hd.getEffect().setEffect(Ability.Details.Hit_Data.EffectType.E135))
-			.forEach(hd -> hd.setArguments(new Integer[]{critDamagePercentage}));
+			.peek(hd -> hd.setArguments(new Integer[]{critDamagePercentage}))
+			.limit(1)
+			.forEach(hd -> hd.getEffect().setEffect(Ability.Details.Hit_Data.EffectType.E135));
 	}
 	public void fixAddAuraEffect(int ailmentId) {
 		Ailment a = this.getAilmentById(ailmentId);
@@ -970,7 +1000,7 @@ public class Ability {
 	public String generateDescription() {
 		List<Integer> damage = new LinkedList<Integer>();
 		List<EffectBuilder> effects = new LinkedList<EffectBuilder>();
-		int stolenOverflow = 0, gainedOverflow = 0, stBRVRate = 0;
+		int stolenOverflow = 0, gainedOverflow = 0, stBRVRate = 0, maxBrvDmgLimit = 0, maxBRVHPLimit = 0;
 		boolean fullAoE = false, ignoreDefense = false;
 		int splash = -1, splashBroken = -1;
 		for(Hit_Data hd : details.getHits()) {
@@ -1005,6 +1035,10 @@ public class Ability {
 			if(hd.getEffect().getEffect().isAbilityPower()) {
 				if(stolenOverflow <= 100)
 					stolenOverflow = hd.getMaxBrvOverflow();
+				if(maxBrvDmgLimit == 0)
+					maxBrvDmgLimit = hd.getBrvDamageLimit();
+				if(maxBRVHPLimit == 0)
+					maxBRVHPLimit = hd.getMaxBrvLimit();
 				if(stBRVRate == 0 && hd.getSingleTargetBrvRate() > 0)
 					stBRVRate = hd.getSingleTargetBrvRate();
 				if(hd.getType() == Hit_Data.Type.BRVIgnoreDEF)
@@ -1043,12 +1077,14 @@ public class Ability {
 				replaceElement = true;
 		}
 		List<EffectBuilder> effectsFinal = new LinkedList<EffectBuilder>();
-		if(gainedOverflow > 100)
+		if(gainedOverflow > 100 && gainedOverflow < 400)
 			effectsFinal.add(new EffectBuilder("Gained BRV may exceed Max BRV up to " + gainedOverflow + "%"));
 		if(ignoreDefense)
 			effectsFinal.add(new EffectBuilder("BRV Hits ignore target's defense"));
-		if(stBRVRate > 0)
-			effectsFinal.add(new EffectBuilder("Raises BRV Damage by " + (int)((((damage.get(0)+stBRVRate)/((float)damage.get(0)))-1) * 100) + "% against ST"));
+		if(stBRVRate > 0) {
+			List<Integer> damage2 = damage.stream().filter(i -> i != -1).collect(Collectors.toList());
+			effectsFinal.add(new EffectBuilder("Raises BRV Damage by " + (int)((((damage2.get(0)+stBRVRate)/((float)damage2.get(0)))-1) * 100) + "% against ST"));
+		}
 		if(damage.size() > 0 || getId() == 8819) { //ID = Amidatelion BRV++
 			if(this.getDetails().getChaseDmg() >= 50)
 				effectsFinal.add(new EffectBuilder("Initiates a chase sequence (" + this.getDetails().getChaseDmg() + " [CU](https://www.reddit.com/r/DissidiaFFOO/comments/7x7ffp/chase_mechanic/))"));
@@ -1124,9 +1160,19 @@ public class Ability {
 			potency = potency == null ? out : (potency + " + " + out);
 		}
 		if(potency != null && totalPotency > 0) {
-			potency = "BRV Potency: " + potency.replace(" + -1%", "").replace("-1% + ", "") + " = " + totalPotency + "%" + (stolenOverflow > 100 ? " (" + stolenOverflow + "% overflow)" : "");
+			if(maxBrvDmgLimit > 0)
+				effectsFinal.add(new EffectBuilder("Maximum BRV damage limit +" + maxBrvDmgLimit + "% (up to " + (int)Math.floor(9999 * (1 + (maxBrvDmgLimit/100f))) + ")"));
+			if(maxBRVHPLimit > 0)
+				effectsFinal.add(new EffectBuilder("Maximum obtainable BRV & HP damage limit +" + maxBRVHPLimit + "% (up to " + (int)Math.floor(99999 * (1 + (maxBRVHPLimit/100f))) + ")"));
+			potency = "BRV Potency: " + potency.replace(" + -1%", "").replace("-1% + ", "") + " = " + totalPotency + "%" + (stolenOverflow > 100 && stolenOverflow < 400 ? " (" + stolenOverflow + "% overflow)" : "");
 			effectsFinal.add(new EffectBuilder(""));
 			effectsFinal.add(new EffectBuilder(potency));
+//			if(maxBrvDmgLimit > 0 || maxBRVHPLimit > 0)
+//				effectsFinal.add(new EffectBuilder(""));
+//			if(maxBrvDmgLimit > 0)
+//				effectsFinal.add(new EffectBuilder("Maximum BRV damage limit +" + maxBrvDmgLimit + "% (up to " + (int)Math.floor(9999 * (1 + (maxBrvDmgLimit/100f))) + ")"));
+//			if(maxBRVHPLimit > 0)
+//				effectsFinal.add(new EffectBuilder("Maximum obtainable BRV & HP damage limit +" + maxBRVHPLimit + "% (up to " + (int)Math.floor(99999 * (1 + (maxBRVHPLimit/100f))) + ")"));
 		}
 		List<String> endResult = new LinkedList<String>();
 		return Streams.concat(	endResult.stream(), 

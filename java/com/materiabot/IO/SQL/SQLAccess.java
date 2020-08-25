@@ -23,8 +23,7 @@ import net.dv8tion.jda.api.entities.Guild;
 
 public class SQLAccess {
 	private static MysqlConnectionPoolDataSource dataSource;
-	@SuppressWarnings("unused")
-	public static final String BOT_TOKEN_KEY = false ? "BOT_TOKEN_KEY" : "BOT_TOKEN_KEY_DEBUG";
+	public static final String BOT_TOKEN_KEY = !Constants.isHeaven() ? "BOT_TOKEN_KEY" : "BOT_TOKEN_KEY_DEBUG";
 	public static final String PATREON_ACCESS_TOKEN = "PATREON_ACCESS_TOKEN";
 	public static final String PATREON_TT_ACCESS_TOKEN = "PATREON_TT_ACCESS_TOKEN";
 	public static final String CLEVERBOT_TOKEN_KEY = "CLEVERBOT_TOKEN_KEY"; 
@@ -53,7 +52,7 @@ public class SQLAccess {
 		PreparedStatement statement = SQLAccess.getConnection().prepareStatement(query);
 		for(int i = 0; i < params.length; i++)
 			if(params[i] == null)
-				statement.setInt(i+1, Types.NULL);
+				statement.setNull(i+1, Types.NULL);
 			else if(params[i].getClass().equals(String.class))
 				statement.setString(i+1, (String)params[i]);
 			else if(params[i].getClass().equals(Long.class))
@@ -209,8 +208,8 @@ public class SQLAccess {
 						throw new BotException("You must associate a friend id before setting your unit!", BotException.INFO_CODE);
 					SQLAccess.executeInsert("UPDATE Friend_Codes SET unit = ?, note = ? WHERE userId = ? AND region = ?", unit, note, userId, region);
 				}
-//				else if(unit == null) 			//Only set code
-//					SQLAccess.executeInsert("REPLACE INTO Friend_Codes VALUES(?, ?, ?, ?, ?);", userId, region, fcCode, null, note);
+				else if(unit == null) 			//Only set code
+					SQLAccess.executeInsert("REPLACE INTO Friend_Codes VALUES(?, ?, ?, ?, ?);", userId, region, fcCode, null, note);
 				else { 						//Set both
 					Friend f = getFriendByCode(fcCode, region);
 					if(f != null && f.userId != userId)
@@ -231,7 +230,6 @@ public class SQLAccess {
 					e.setRegion(r.getString("region"));
 					for(String u : r.getString("featuredUnits").split(";"))
 						e.getUnits().add(u);
-					
 					e.setStartDate(r.getTimestamp("startDate"));
 					e.setEndDate(r.getTimestamp("endDate"));
 					ResultSet rr = SQLAccess.executeSelect("SELECT * FROM Event_Details WHERE eventId = ? ORDER BY type DESC, id ASC", e.getId());
@@ -257,9 +255,10 @@ public class SQLAccess {
 			try {
 				if(result.next()) 
 					return 1;
+				String units = event.getUnits().size() > 1 ? event.getUnits().stream().reduce((s1, s2) -> s1 + ";" + s2).orElse(null) : null;
 				SQLAccess.executeInsert("REPLACE INTO Events(name, region, featuredUnits, startDate, endDate) VALUES(?, ?, ?, ?, ?)", 
 						event.getName(), event.getRegion(), 
-						event.getUnits().stream().reduce((s1, s2) -> s1 + ";" + s2).orElse(null),
+						units,
 						event.getStartDate().toString(), event.getEndDate().toString());
 				return 0;
 			} catch (SQLException | BotException e) {
@@ -290,7 +289,7 @@ public class SQLAccess {
 					ResultSet result2 = SQLAccess.executeSelect("SELECT * FROM Event_Details WHERE eventId = ?", result.getInt("id"));
 					if(result2.next())
 						return 2;
-					SQLAccess.executeInsert("DELETE FROM Events WHERE eventId = ?", result.getInt("id"));
+					SQLAccess.executeInsert("DELETE FROM Events WHERE id = ?", result.getInt("id"));
 					return 0;
 				}
 				else 
@@ -309,8 +308,9 @@ public class SQLAccess {
 					e.setId(r.getInt("id"));
 					e.setName(r.getString("name"));
 					e.setRegion(r.getString("region"));
-					for(String u : r.getString("featuredUnits").split(";"))
-						e.getUnits().add(u);
+					if(r.getString("featuredUnits") != null)
+						for(String u : r.getString("featuredUnits").split(";"))
+							e.getUnits().add(u);
 					e.setStartDate(r.getTimestamp("startDate"));
 					e.setEndDate(r.getTimestamp("endDate"));
 					ResultSet rr = SQLAccess.executeSelect("SELECT * FROM Event_Details WHERE eventId = ? ORDER BY type DESC, id ASC", e.getId());

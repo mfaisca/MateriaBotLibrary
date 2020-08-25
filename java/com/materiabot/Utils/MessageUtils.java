@@ -1,5 +1,4 @@
 package com.materiabot.Utils;
-import java.io.File;
 import java.util.concurrent.CompletableFuture;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Emote;
@@ -58,11 +57,11 @@ public abstract class MessageUtils {
 	public static final CompletableFuture<Message> sendImage(final MessageChannel channel, final String imageURL){
 		return sendEmbed(channel, new EmbedBuilder().setImage(imageURL));
 	}
-	public static final Message sendFile(final MessageChannel channel, File f) {
+	public static final Message sendFile(final MessageChannel channel, String name, byte[] f) {
 		long time = System.currentTimeMillis();
 		while(true)
 			try{
-				return channel.sendFile(f).complete();
+				return channel.sendFile(f, name).complete();
 			} catch(Exception e){ 
 				if(System.currentTimeMillis() - time > 30000)
 					break;

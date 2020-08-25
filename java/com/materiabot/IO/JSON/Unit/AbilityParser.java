@@ -57,6 +57,8 @@ public class AbilityParser {
 			hd.setMaxBrvOverflow(data.getObject("brv_data").getInt("max_brv_overflow"));
 			hd.setMaxBrvOverflowOnBreak(data.getObject("brv_data").getInt("max_brv_overflow_with_break"));
 			hd.setSingleTargetBrvRate(data.getObject("brv_data").getInt("single_target_brv_rate"));
+			hd.setBrvDamageLimit(data.getObject("brv_data").getInt("brv_damage_limit_up"));
+			hd.setMaxBrvLimit(data.getObject("brv_data").getInt("max_brv_limit_up"));
 			hd.setAttackType(Details.Hit_Data.Attack_Type.get(data.getInt("attack_type")));
 			hd.addElements(Arrays.asList(data.getIntArray("element")).stream().map(e -> Element.get(e.intValue())).collect(Collectors.toList()));
 			hd.setTarget(Details.Hit_Data.Target.get(data.getInt("target")));

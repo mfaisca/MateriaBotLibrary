@@ -37,6 +37,8 @@ public class PassiveParser {
 				p.getEffects().add(v);
 				continue;
 			}
+			if(p.getTarget() == null || p.getTarget().getId() < e.getInt("effect_target"))
+				p.setTarget(Target.get(e.getInt("effect_target")));
 			Effect eff = Effect.get(e.getInt("effect_id"));
 			Required req = Required.get(e.getInt("required_id"));
 			Integer[] ev = e.getIntArray("effect_values");
@@ -65,12 +67,14 @@ public class PassiveParser {
 			eff = Effect.E19_2; //For High Armor - Essence of Strategy
 		if(p.getId() == 1742 && e.getInt("required_id") == 52)
 			req = Required.R52_2;
-		else if((p.getId() == 296 || p.getId() == 1803 || p.getId() == 5099) && e.getInt("required_id") == 59) //1803 5099
+		else if((p.getId() == 296 || p.getId() == 1803 || p.getId() == 5099) && e.getInt("required_id") == 59)
 			req = Required.R59_2;
 		else if(p.getId() == 1000 && e.getInt("required_id") == 30)
 			req = Required.R1;
 		else if(p.getId() == 201 && e.getInt("required_id") == 77) //Cloud NT
 			req = Required.R77_2;
+		else if(p.getId() == 988 && e.getInt("required_id") == 77) //Alisaie CL50
+			req = Required.R77_3;
 		///////////////////////////////////////////////////////
 		if(eff == null && req == null)
 			return null;

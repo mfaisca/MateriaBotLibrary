@@ -1,5 +1,6 @@
 package com.materiabot.GameElements;
 import Shared.Methods;
+import com.materiabot.Utils.Constants;
 import com.materiabot.Utils.ImageUtils;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -27,6 +28,7 @@ public class Ailment {
 	public static enum ValType {
 		V1(1, "All Attacks"),
 		V2(2, "Evaded Attacks"), //Made Up (Shadow)
+		V3(3, "BRV Attacks"), //Made Up (Machina)
 		V6(6, "HP Damage"),
 		;
 		
@@ -56,7 +58,8 @@ public class Ailment {
 		AoE(5, "all enemies"),
 		Party(6, "party"),
 		Allies(7, "allies"),
-		Ally(13, "ally");
+		Ally(13, "ally"),
+		Random(14, "random");
 		
 		private int id;
 		private String desc;
@@ -180,7 +183,9 @@ public class Ailment {
 		E165(165, "{t} Unable to battery"),
 		E180(180, "{0}% {t} HP damage taken", true),
 		E181(181, "{vs} joins you in battle"),
+		E183(183, null), //Both Eight Counterbuffs have this
 		E184(184, "{0}% {t} BRV damage taken", true), //Manually Made
+		E185(185, null), //Kurasame useless effect?
 		E186(186, "{t} Unable to gain BRV"),
 		E190(190, "Last stand on {t} when {0}% Max HP or higher", null),
 		E191(191, "Sets {t} HP Damage dealt to 0"),
@@ -198,19 +203,25 @@ public class Ailment {
 		E215(215, "Raises {t}BRV back to Int BRV when BRV=0 on the turn after theirs"),
 		E216(216, "Nulls BRV damage under {0}% Int BRV"),
 		E217(217, "{0}% HP Damage during a chase"),
+		E223(223, "Recover HP by {0}% of HP damage dealt up to {1}% Max HP", null),
 		E224(224, "{0}% {t}HP Damage when attacking a broken target"),
 		E226(226, "After an ally turn, raise BRV by {0}% of caster Max BRV", null),
 		E227(227, "{0}% {t}Max HP overflow limit"),
+		E228(228, "{0}% {t}BRV Damage taken if broken", true),
 		E229(229, "{0}% HP damage taken from caster", true),
+		E230(230, "Triggers 「**{0}**」 at end of every turn" + System.lineSeparator()
+					+ "Lowers duration at the end of every turn", null),
+		E232(232, "All BRV Attacks will inflict BREAK if not broken", true),
 		E233(233, "Caster takes a free instant turn after target's turn"),
 		E234(234, "Cannot act when targetting Eald'narche"),
 		E235(235, "{0}% {t} Maximum BRV damage limit"),
 		E236(236, "{0}% {t} Maximum obtainable BRV & HP damage limit"),
 		E238(238, "Guaranteed Launch with next attack"),
 		E239(239, "Trigger BREAK on expiration"),
+		E244(244, "{0}% {t}BRV Damage taken if broken", true),
 		E245(245, "+1 stack after attacking"),
 		E246(246, "{t}BRV will not drop below {0}% of Max BRV", null),
-		E252(252, "After HP attack, raises BRV by {0}% of HP Damageret.getA Dealt"),
+		E252(252, "After HP attack, raises BRV by {0}% of HP Damage Dealt"),
 		E255(255, "When Current HP <= {0}% Max HP, recover HP back to {0}% Max HP"),
 		E257(257, null), //BT Buff Effect
 
@@ -218,7 +229,7 @@ public class Ailment {
 		E266(266, "All BRV hits are Critical Hits"),
 		E268(268, "Cannot be killed"),
 		E276(276, "Move your next turn to just before the target next turn"),
-		E279(279, "-100% Party HP Damage taken"),
+		E279(279, "-100% HP Damage taken"),
 		E280(280, null), //Nine LD ???
 		E282(282, "Sets HP to 1 if at 0 HP when buff expires"),
 		E288(288, "{0} duration when hit"),
@@ -227,6 +238,7 @@ public class Ailment {
 		E294(294, "Triggers 「**{0}**」 after party member turn", null),
 		E295(295, "Caster takes the hit for ally"),
 		E300(300, "{0}% {t}BRV Damage when attacking a broken target"),
+		E309(309, null), //Kurasame useless effect?
 		E311(311, "{0}% of {t}excess healing is converted to BRV"),
 		E317(317, "After any turn, sets {t} BRV to {0}", null),
 		E320(320, "Delay target by {0}T after a physical attack"),
@@ -238,6 +250,7 @@ public class Ailment {
 		E334(334, "{0}% {t}HP Damage taken", true),
 		E336(336, "Deletes target next turn with abilities"),
 		E347(347, "{t}BRV Regen ({0}% Current HP)"),
+		E359(359, "Unbreaks target before attack"),
 		;
 
 		private int id;
@@ -266,8 +279,11 @@ public class Ailment {
 		}		
 		private String getDescription(Unit u, String[] values, int val_type, int val_specify, Target target, String... extra) {
 			String r = baseDescription;
-			if(this == EffectType.E69 || this == EffectType.E194)
+			if(this == EffectType.E69 || this == EffectType.E194) {
+				if(val_type == 1)
+					val_specify = Integer.parseInt(extra[1]);
 				r = r.replace("{vs}", val_specify > 0 ? u.getSpecificAbility(val_specify).getName() : "Unknown Abilty ID: " + val_specify);
+			}
 			values = fix(u, values, extra);
 			if(values.length > 0)
 				for(int i = 0; i < values.length; i++)
@@ -280,7 +296,6 @@ public class Ailment {
 			return r;
 		}
 		private String[] fix(Unit u, String[] v, String[] extra) {
-			//if(v.length > 0) return;
 			switch(id) {
 				case 10:
 				case 11:
@@ -302,8 +317,13 @@ public class Ailment {
 					v[0] = extra[0].equals("1") ? "Raises" : "Lowers";
 					break;
 				case 151:
+				case 230:
+				case 294:
 					v = new String[1];
 					v[0] = u.getSpecificAbility(Integer.parseInt(extra[1])).getName();
+					break;
+				case 223:
+					v = new String[] {v[0], "35"};
 					break;
 			}
 			return v;
@@ -479,7 +499,7 @@ public class Ailment {
 	}
 	
 	public String getTitle() {
-		return ImageUtils.getEmoteText(getIconEmote()) + " " + getName() + " (" + this.getId() + ")" + (getMaxStacks() > 1 ? System.lineSeparator() + "(" + getMaxStacks() + " max stacks)" : "");
+		return ImageUtils.getEmoteText(getIconEmote()) + " " + getName() + (Constants.DEBUG ? " (" + this.getId() + ")" : "") + (getMaxStacks() > 1 ? System.lineSeparator() + "(" + getMaxStacks() + " max stacks)" : "");
 	}
 	public String getIconEmote() {
 		if(fakeEmote != null) return fakeEmote;
@@ -550,7 +570,8 @@ public class Ailment {
 					}else
 						desc += System.lineSeparator() + StringUtils.capitalize(ae.getDescription(unit, a.rankData[this.rank], 0, -1, -1, Target.get(a.target), aa.toArray(new String[0])));
 					rankDataIndex = (data != null && ((Math.pow(1000, (rankDataIndex+1))) <= Integer.parseInt(data.replace("-", "")))) ? rankDataIndex + 1 : rankDataIndex;
-					desc = desc + " (" + a.id + ")";
+					if(Constants.DEBUG)
+						desc = desc + " (" + a.id + ")";
 				}
 				desc = desc.trim();
 			}else if(data == null && isStackingBuff() && eff.rankData != null) {

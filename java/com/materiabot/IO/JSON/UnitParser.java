@@ -124,6 +124,7 @@ public class UnitParser {
 		}
 	}
 	private void parseArtifacts(Unit u, MyJSONObject obj) {
+		u.getArtifacts().clear();
 		for(MyJSONObject pass : obj.getObjectArray("artifactList")) {
 			Artifact a = new Artifact();
 			a.setId(pass.getInt("id"));

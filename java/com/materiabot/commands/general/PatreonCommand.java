@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
+import Shared.BotException;
 import com.materiabot.IO.SQL.SQLAccess;
 import com.materiabot.Utils.Constants;
 import com.materiabot.Utils.ImageUtils;
@@ -85,13 +85,13 @@ public class PatreonCommand extends _BaseCommand{
 			final Role tonberryKing = materiaServer.getRoleById(682232684466274307L);
 			for(final Member m : materiaServer.getMembersWithRoles(tonberryKing)) {
 				if(!patreonDiscordIdsT3.contains(m.getId())) {
-					MessageUtils.sendWhisper(290867157435416577L, m.getEffectiveName() + " is no longer a Tonberry King.");
+					MessageUtils.sendWhisper(Constants.INK_ID, m.getEffectiveName() + " is no longer a Tonberry King.");
 					materiaServer.removeRoleFromMember(m, tonberryKing).submit();
 				}
 			}
 			for(final Member m : materiaServer.getMembersWithRoles(tonberry)) {
 				if(!patreonDiscordIdsT2.contains(m.getId())) {
-					MessageUtils.sendWhisper(290867157435416577L, m.getEffectiveName() + " is no longer a Tonberry.");
+					MessageUtils.sendWhisper(Constants.INK_ID, m.getEffectiveName() + " is no longer a Tonberry.");
 					materiaServer.removeRoleFromMember(m, tonberry).submit();
 				}
 			}
@@ -99,7 +99,7 @@ public class PatreonCommand extends _BaseCommand{
 				Member m = materiaServer.getMemberById(mm);
 				if(m == null) continue;
 				if(!m.getRoles().contains(tonberry)) {
-					MessageUtils.sendWhisper(290867157435416577L, m.getEffectiveName() + " is a new Tonberry.");
+					MessageUtils.sendWhisper(Constants.INK_ID, m.getEffectiveName() + " is a new Tonberry.");
 					materiaServer.addRoleToMember(m, tonberry).submit();
 				}
 			}
@@ -107,12 +107,15 @@ public class PatreonCommand extends _BaseCommand{
 				final Member m = materiaServer.getMemberById(mm);
 				if(m == null) continue;
 				if(!m.getRoles().contains(tonberryKing)) {
-					MessageUtils.sendWhisper(290867157435416577L, m.getEffectiveName() + " is a new Tonberry King.");
+					MessageUtils.sendWhisper(Constants.INK_ID, m.getEffectiveName() + " is a new Tonberry King.");
 					materiaServer.addRoleToMember(m, tonberry).submit();
 					materiaServer.addRoleToMember(m, tonberryKing).submit();
 				}
 			}
 		} catch (IOException e) {
+			MessageUtils.sendWhisper(Constants.INK_ID, "Patreon Key is dead, please refresh." + System.lineSeparator() + "https://www.patreon.com/portal/registration/register-clients");
+			MessageUtils.sendWhisper(Constants.DREAMY_ID, "Patreon Key is dead, please refresh." + System.lineSeparator() + "https://www.patreon.com/portal/registration/register-clients");
+			MessageUtils.sendWhisper(Constants.QUETZ_ID, "**Tonberry Troupe** Patreon Key is dead, please refresh." + System.lineSeparator() + "https://www.patreon.com/portal/registration/register-clients");
 			e.printStackTrace();
 		}
 	}
@@ -121,24 +124,37 @@ public class PatreonCommand extends _BaseCommand{
 	public void doStuff(Message message) {
 		try {
 			PatreonAPI apiClient = new PatreonAPI(SQLAccess.getKeyValue(SQLAccess.PATREON_ACCESS_TOKEN));
-			final SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
-			Campaign campaign = apiClient.fetchCampaigns().get().get(0);
-			List<Pledge> pledges = apiClient.fetchAllPledges(campaign.getId());
-			int totalPatrons = pledges.size();
-			String mostRecent = pledges.stream().sorted((p1, p2) -> {
-				try { return f.parse(p2.getCreatedAt()).compareTo(f.parse(p1.getCreatedAt())); }
-				catch (ParseException e) { ; } return 0;
-				}).findFirst().map(p -> (p.getReward() == null ? ImageUtils.getEmoteText(Emotes.UNKNOWN_EMOTE.get()) : ImageUtils.getEmoteText(p.getReward().getTitle())) + " " + p.getPatron().getFullName()).orElse(null);
-			String oldest = pledges.stream().sorted((p1, p2) -> {
-				try { return f.parse(p1.getCreatedAt()).compareTo(f.parse(p2.getCreatedAt()));}
-				catch (ParseException e) { ; } return 0;
-				}).findFirst().map(p -> (p.getReward() == null ? ImageUtils.getEmoteText(Emotes.UNKNOWN_EMOTE.get()) : ImageUtils.getEmoteText(p.getReward().getTitle())) + " " + p.getPatron().getFullName()).orElse(null);
-			List<String> patrons = pledges.stream().sorted((p1, p2) -> 
-				p2.getAmountCents() - p1.getAmountCents()
-				).map(p -> (p.getReward() == null ? ImageUtils.getEmoteText(Emotes.UNKNOWN_EMOTE.get()) : ImageUtils.getEmoteText(p.getReward().getTitle())) + " " + p.getPatron().getFullName() + " - " + (p.getReward() == null ? "No Tier" : p.getReward().getTitle())).collect(Collectors.toList());
-			MessageUtils.sendEmbed(message.getChannel(), build(campaign.getImageUrl(), patrons, oldest, mostRecent, totalPatrons));
-		} catch (IOException e) {
-			e.printStackTrace();;
+			if(message.getGuild().getIdLong() == Constants.MATERIABOT_SERVER_ID && message.getAuthor().getIdLong() == Constants.QUETZ_ID && message.getContentRaw().contains(" ")) {
+				SQLAccess.executeInsert("UPDATE Configs SET value = ? WHERE keyy = 'PATREON_ACCESS_TOKEN'", message.getContentRaw().split(" ")[1]);
+				MessageUtils.sendMessage(message.getChannel(), "Patreon API Key Updated");
+				message.delete();
+			}
+			else if(message.getGuild().getIdLong() == Constants.MATERIABOT_SERVER_ID && (message.getAuthor().getIdLong() == Constants.INK_ID || message.getAuthor().getIdLong() == Constants.DREAMY_ID) && message.getContentRaw().contains(" ")) {
+				SQLAccess.executeInsert("UPDATE Configs SET value = ? WHERE keyy = 'PATREON_TT_ACCESS_TOKEN'", message.getContentRaw().split(" ")[1]);
+				MessageUtils.sendMessage(message.getChannel(), "Patreon API Key Updated");
+				message.delete();
+			}else {
+				final SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
+				Campaign campaign = apiClient.fetchCampaigns().get().get(0);
+				List<Pledge> pledges = apiClient.fetchAllPledges(campaign.getId());
+				int totalPatrons = pledges.size();
+				String mostRecent = pledges.stream().sorted((p1, p2) -> {
+					try { return f.parse(p2.getCreatedAt()).compareTo(f.parse(p1.getCreatedAt())); }
+					catch (ParseException e) { ; } return 0;
+					}).findFirst().map(p -> (p.getReward() == null ? ImageUtils.getEmoteText(Emotes.UNKNOWN_EMOTE.get()) : ImageUtils.getEmoteText(p.getReward().getTitle())) + " " + p.getPatron().getFullName()).orElse(null);
+				String oldest = pledges.stream().sorted((p1, p2) -> {
+					try { return f.parse(p1.getCreatedAt()).compareTo(f.parse(p2.getCreatedAt()));}
+					catch (ParseException e) { ; } return 0;
+					}).findFirst().map(p -> (p.getReward() == null ? ImageUtils.getEmoteText(Emotes.UNKNOWN_EMOTE.get()) : ImageUtils.getEmoteText(p.getReward().getTitle())) + " " + p.getPatron().getFullName()).orElse(null);
+				List<String> patrons = pledges.stream().sorted((p1, p2) -> 
+					p2.getAmountCents() - p1.getAmountCents()
+					).map(p -> (p.getReward() == null ? ImageUtils.getEmoteText(Emotes.UNKNOWN_EMOTE.get()) : ImageUtils.getEmoteText(p.getReward().getTitle())) + " " + p.getPatron().getFullName() + " - " + (p.getReward() == null ? "No Tier" : p.getReward().getTitle())).collect(Collectors.toList());
+				MessageUtils.sendEmbed(message.getChannel(), build(campaign.getImageUrl(), patrons, oldest, mostRecent, totalPatrons));
+			}
+		} catch (IOException | BotException e) {
+			MessageUtils.sendWhisper(Constants.QUETZ_ID, "Patreon Key is dead, please refresh." + System.lineSeparator() + "https://www.patreon.com/portal/registration/register-clients");
+			MessageUtils.sendMessage(message.getChannel(), "Error connecting with Patreon API. Try again later.");
+			e.printStackTrace();
 		}
 	}
 }

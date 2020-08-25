@@ -101,9 +101,9 @@ public class _Library {
 					new SummonPassive("Holy Resist Up", "Lowers Holy damage taken by 10%.", "Holy dmg taken -10%"),
 					new SummonPassive("Holy Resist All", "Lowers Party Holy damage taken by 3%.", "Holy party dmg taken -3%"), 
 					new SummonPassive("Holy Power Up", "Raises Holy BRV damage dealt by 10%.", "Holy dmg dealt +10%"),
-					new SummonPassive("Alexander Boost Up", "Raises Max BRV by 5% after hitting HP<60% once", "MBrv+5% if HP<60% once"), 
-					new SummonPassive("Alexander Base Attack Up", "Raises Initial BRV by 5% and Attack by 2% after hitting HP<60% once", "IBrv+5% & ATK+2% if HP<60% once"), 
-					new SummonPassive("Alexander Target Power", "When attacking an enemy targeting self:\n- Increases BRV damage dealt by 10%", "BRV dmg dealt +10% if enemy targetting self"), 
+					new SummonPassive("Alexander Boost Up", "Raises Max BRV by 5% after hitting HP<60% once", "MBrv+5% if HP<60% once", true), 
+					new SummonPassive("Alexander Base Attack Up", "Raises Initial BRV by 5% and Attack by 2% after hitting HP<60% once", "IBrv+5% & ATK+2% if HP<60% once", true), 
+					new SummonPassive("Alexander Target Power", "When attacking an enemy targeting self:\n- Increases BRV damage dealt by 10%", "BRV dmg dealt +10% if enemy targetting self", true), 
 					new SummonPassive("Alexander Receive Heal Up", "When BRV < 50% Max BRV- Increases HP recovered by 5%", "HP recovered +5% if MaxBRV<50%")));
 			SUMMON_LIST.add(new Summon(Arrays.asList("Diabolos", "Diablos", "Dia"), 30, Element.Dark, "Dark Messenger", "Raises Initial BRV by 30%" + System.lineSeparator()
 					+ "Permanently boosts Elemental Weakness Attacks by 30% when HP < 80%", "4000 Dark BRV Magical damage" + System.lineSeparator() + "Grants Dark attribute and faster Chase to the party", 
@@ -118,19 +118,19 @@ public class _Library {
 			SUMMON_LIST.add(new Summon(Arrays.asList("Odin"), 30, null, "Zantetsuken", "Decreases DEF of all enemies by 15%" + System.lineSeparator() + "After HP drops below 80%, permanently increases ATK by 30%.", 
 					"4000 Melee BRV Melee damage with a low BREAK chance" + System.lineSeparator() + "Raises Attack of Swords and Greatswords users by 25%", 
 					"8|6|10|12|14", "Noctis|Cecil Paladin|Fang|Irvine|Seven|Fran", 6, 6000, "Moderately Fast", 
-					new SummonPassive("Physical Resist Up", "Lowers Physical damage taken by 10%.", "Physical dmg taken -10%"),
+					new SummonPassive("Physical Resist Up", "Lowers Physical damage taken by 10%.", "Physical dmg taken -10%", true),
 					new SummonPassive("Physical Resist All", "Lowers Party Physical damage taken by 3%.", "Physical party dmg taken -3%"), 
-					new SummonPassive("Physical Power Up", "Raises Physical BRV damage dealt by 10%.", "Physical dmg dealt +10%"),
+					new SummonPassive("Physical Power Up", "Raises Physical BRV damage dealt by 10%.", "Physical dmg dealt +10%", true),
 					new SummonPassive("Odin Attack Up", "Raises Attack by 5% when HP > 60%.", "ATK+5% if HP>60%", true), 
-					new SummonPassive("Odin Base&Attack Up", "Raises Initial BRV by 5% and ATK by 2% when HP > 60%.", "IBrv+5% & ATK+5% if HP>60%"), 
+					new SummonPassive("Odin Base&Attack Up", "Raises Initial BRV by 5% and ATK by 2% when HP > 60%.", "IBrv+5% & ATK+2% if HP>60%"), 
 					new SummonPassive("Odin Sneak Power", "Raises BRV damage dealt by 10% when not being targetted", "BRV dmg dealt +10% if not targetted", true), 
-					new SummonPassive("Odin Receive BRV Heal Up", "Raises BRV gained by 5%", "BRV gained +5%")));
+					new SummonPassive("Odin Receive BRV Heal Up", "Raises BRV gained by 5%", "BRV gained +5%", true)));
 			SUMMON_LIST.add(new Summon(Arrays.asList("Bahamut", "Baha"), 30, null, "Megaflare", "All enemies 15% Attack Down" + System.lineSeparator() + "Raises BREAK Bonus by 10% after an enemy is broken (up to 100%)", 
 					"6000 BRV Magical damage" + System.lineSeparator() + "Raises non-elemental BRV damage by 100%", 
 					"6|12|8|14|10", "Kuja|Rydia|Garnet|Lulu|Papalymo|Porom", 6, 6000, "Moderately Fast", 
-					new SummonPassive("Magic Resist Up", "Lowers Magic damage taken by 10%.", "Magic dmg taken -10%"),
+					new SummonPassive("Magic Resist Up", "Lowers Magic damage taken by 10%.", "Magic dmg taken -10%", true),
 					new SummonPassive("Magic Resist All", "Lowers Party Magic damage taken by 3%.", "Magic party dmg taken -3%"), 
-					new SummonPassive("Magic Power Up", "Raises Magic BRV damage dealt by 10%.", "Magic dmg dealt +10%"),
+					new SummonPassive("Magic Power Up", "Raises Magic BRV damage dealt by 10%.", "Magic dmg dealt +10%", true),
 					new SummonPassive("Bahamut Boost Up", "Raises Max BRV by 10% when HP > 80% Max HP", "MBrv+10% if HP>80%", true), 
 					new SummonPassive("Bahamut Boost Guard Up", "Raises Max BRV by 2% and Defense by 20% when HP > 80% Max HP", "MBrv+2% & DEF+20% if HP>80%"), 
 					new SummonPassive("Bahamut Life Up", "Raises Max HP by 10%.", "HP+10%", true), 
@@ -144,9 +144,7 @@ public class _Library {
 	public Unit getUnit(String u) {
 		try {
 			return UNIT_CACHE.get(u);
-		} catch (Exception e) {
-			//System.out.println("Failed to register unit " + u); //FIXME 
-		}
+		} catch (Exception e) {}
 		return null;
 	}
 	public static Summon getSummon(String summonName) {

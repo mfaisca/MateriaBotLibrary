@@ -3,10 +3,10 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.materia</groupId>
-	<artifactId>MateriaBot</artifactId>
-	<packaging>jar</packaging>
-	<version>0.0-Initial</version>
-	<name>MateriaBot</name>
+  <artifactId>MateriaBotLibrary</artifactId>
+  <version>2.0.0</version>
+  <packaging>jar</packaging>
+  <name>MateriaBotLibrary</name>
 	<url>https://www.patreon.com/MateriaBot</url>
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>

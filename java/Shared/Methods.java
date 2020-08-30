@@ -1,7 +1,11 @@
 package Shared;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class Methods {
 	public static final Random RNG = new Random();
@@ -15,7 +19,7 @@ public class Methods {
 		if(s.equalsIgnoreCase("lann&reynn")) s = "lann-reynn";
 		return s.substring(0, s.contains("(") ? s.indexOf("(") : s.length()).replace("'", "").trim().replace(" ", "-");
 	}
-	
+
 	public static final LinkedList<String> splitString(String s, int size) {
 		LinkedList<String> split = new LinkedList<String>();
 		int spaceIndex = s.indexOf(" ");
@@ -50,13 +54,18 @@ public class Methods {
 	}
 
 	public static final String replaceLast(String string, String toReplace, String replacement) {
-	    int pos = string.lastIndexOf(toReplace);
-	    if (pos > -1)
-	        return string.substring(0, pos)
-	             + replacement
-	             + string.substring(pos + toReplace.length(), string.length());
-	    else
-	        return string;
+		int pos = string.lastIndexOf(toReplace);
+		if (pos > -1)
+			return string.substring(0, pos)
+					+ replacement
+					+ string.substring(pos + toReplace.length(), string.length());
+		else
+			return string;
+	}
+	
+	public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+		Map<Object, Boolean> seen = new ConcurrentHashMap<>(); 
+		return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null; 
 	}
 	
 	public static final String[] splitRankData(String rd) {

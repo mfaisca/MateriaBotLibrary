@@ -123,7 +123,7 @@ public class Ailment {
 		E46(46, "{0}% {t}Critical Hit Rate"),
 		E47(47, "{0}% {t} Evasion Rate"),
 		E48(48, "{0}% {t} Hit Rate", null),
-		E49(49, "{t}Sap by {0}% Max BRV"),
+		E49(49, "{t}Sap by {0}% Max BRV", null),
 		E50(50, "{0}% {t}Magic ATK"),
 		E51(51, "{0}% {t}Melee ATK"),
 		E52(52, "{0}% {t}Ranged ATK"),
@@ -250,6 +250,7 @@ public class Ailment {
 		E334(334, "{0}% {t}HP Damage taken", true),
 		E336(336, "Deletes target next turn with abilities"),
 		E347(347, "{t}BRV Regen ({0}% Current HP)"),
+		E348(348, "Raises party BRV by {0}% of Total Chase HP Damage Dealt", null),
 		E359(359, "Unbreaks target before attack"),
 		;
 
@@ -340,6 +341,7 @@ public class Ailment {
 	public static class EffectGrouping{
 		public int effectId, val_type, val_specify;
 		public String[] rankData;
+		public int rank;
 		public String fakeDesc;
 
 		public EffectGrouping() {}

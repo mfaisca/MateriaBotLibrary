@@ -1,4 +1,5 @@
 package com.materiabot.GameElements;
+import Shared.Methods;
 import com.google.common.collect.Streams;
 import com.materiabot.GameElements.Ability.Details.Hit_Data;
 import com.materiabot.GameElements.Ability.Details.Hit_Data.EffectType;
@@ -738,7 +739,7 @@ public class Ability {
 	public static enum Type{
 		BRV("brv", "brv+", "brv++", "brv+++", "brv++++"), HP("hp", "hp+", "hp++", "hp+++", "hp++++"), 
 		S1("s1", "1"), S2("s2", "2"), AA("aa", "additional"), EX("ex", "ex+"), 
-		LD("ld"), BT("bt"), CA("ca", "call");
+		LD("ld", "limited"), BT("bt", "burst"), CA("ca", "call");
 		private List<String> names = new LinkedList<String>();
 		
 		private Type(String... skillNames) { 
@@ -789,6 +790,7 @@ public class Ability {
 		return unit.getBaseAbility(type) == null ? 0 : unit.getBaseAbility(type).get(0).useCount + Streams.concat(
 								unit.getEquipment().stream().flatMap(e -> e.getPassives().stream()),
 								unit.getPassives().values().stream())
+							.filter(Methods.distinctByKey(p -> p.getId()))
 							.flatMap(e -> e.getEffects().stream())
 							.map(e -> e.getValue1())
 							.filter(e -> e.type == Passive.Effect.E22 

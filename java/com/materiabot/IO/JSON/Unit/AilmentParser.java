@@ -49,6 +49,7 @@ public class AilmentParser {
 			if(effects[i] == -1) continue;
 			EffectGrouping eff = new Ailment.EffectGrouping();
 			eff.effectId = effects[i];
+			eff.rank = ail.getRank();
 			eff.val_type = ailment.getObject("type_data").getIntArray("val_types")[i];
 			eff.val_specify = ailment.getObject("type_data").getIntArray("val_specify")[i];
 			Integer[] temp = ailment.getObject("rank_data").getIntArray(""+ailment.getObject("type_data").getIntArray("rank_tables")[i]);

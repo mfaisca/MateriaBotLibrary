@@ -160,7 +160,7 @@ public class Ability {
 				Stat4(4, "Max BRV"),
 				Stat5(5, "Current BRV"),
 				Stat6(6, "Max HP"),
-				Stat7(7, "Current BRV"),
+				Stat7(7, "Current HP"),
 				Stat8(8, "Initial BRV"),
 				Stat9(9, "Max BRV"),
 				Stat10(10, "Current BRV"),

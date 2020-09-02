@@ -37,12 +37,15 @@ public class UnitParser {
 		return createUnit(name);
 	}
 	private Unit createUnit(String name) {
-		try{
+		try{			
 			Unit u = UNITS.stream()
 						.filter(uu -> uu.getNicknames().contains(name.replace("_", " ").toLowerCase()))
 						//.map(uu -> uu.clone())
 						.findFirst().orElse(new Unit(name));
-			File f = new File("./resources/units/db_" + Methods.urlizeDB(u.getName()).toLowerCase() + ".json");
+			String unitName = Methods.urlizeDB(u.getName()).toLowerCase();
+			if(unitName.equals("leon"))
+				unitName = "leonhart";
+			File f = new File("./resources/units/db_" + unitName + ".json");
 			if(!f.exists()) return null;
 			MyJSONObject obj = JSONParser.loadContent(f.getAbsolutePath(), false);
 			parseProfile(u, obj);

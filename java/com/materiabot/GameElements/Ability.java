@@ -1141,7 +1141,7 @@ public class Ability {
 				effectsFinal.add(prev = eb);
 		}
 		if(getDetails().getAilments().stream().filter(a -> a != null && a.getId() != 374 && a.getCastId() != 463)
-				.anyMatch(a -> a.getEffects().stream().anyMatch(e -> e.effectId == Ailment.EffectType.E44.getId())))
+				.anyMatch(a -> a.getDuration() == 1 && a.getEffects().stream().anyMatch(e -> e.effectId == Ailment.EffectType.E44.getId())))
 			effectsFinal.add(new EffectBuilder(Ailment.EffectType.E44.getBaseDescription()));
 		for(Integer d : damage) {
 			if(d > 0)

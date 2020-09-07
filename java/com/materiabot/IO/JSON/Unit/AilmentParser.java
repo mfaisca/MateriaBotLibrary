@@ -72,7 +72,6 @@ public class AilmentParser {
 			ail.getAuras().put(a.id, a);
 		}
 		unit.getAilments().put(ail.getId(), ail);
-		//ail.generateDescription();
 		return ail;
 	}
 }

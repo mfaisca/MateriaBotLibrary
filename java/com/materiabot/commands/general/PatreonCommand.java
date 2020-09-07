@@ -26,7 +26,7 @@ import net.dv8tion.jda.api.entities.User;
 
 public class PatreonCommand extends _BaseCommand{
 	private static final String PATREON_LINK = "https://www.patreon.com/MateriaBot";
-	private static final int NUMBER_OF_VISIBLE_PATRONS = 20;
+	private static final int NUMBER_OF_VISIBLE_PATRONS = 15;
 	
 	public PatreonCommand() { 
 		super("patreon","donate","donation");
@@ -146,9 +146,9 @@ public class PatreonCommand extends _BaseCommand{
 					try { return f.parse(p1.getCreatedAt()).compareTo(f.parse(p2.getCreatedAt()));}
 					catch (ParseException e) { ; } return 0;
 					}).findFirst().map(p -> (p.getReward() == null ? ImageUtils.getEmoteText(Emotes.UNKNOWN_EMOTE.get()) : ImageUtils.getEmoteText(p.getReward().getTitle())) + " " + p.getPatron().getFullName()).orElse(null);
-				List<String> patrons = pledges.stream().sorted((p1, p2) -> 
-					p2.getAmountCents() - p1.getAmountCents()
-					).map(p -> (p.getReward() == null ? ImageUtils.getEmoteText(Emotes.UNKNOWN_EMOTE.get()) : ImageUtils.getEmoteText(p.getReward().getTitle())) + " " + p.getPatron().getFullName() + " - " + (p.getReward() == null ? "No Tier" : p.getReward().getTitle())).collect(Collectors.toList());
+				List<String> patrons = pledges.stream()
+					.sorted((p1, p2) -> p2.getAmountCents() - p1.getAmountCents())
+					.map(p -> (p.getReward() == null ? ImageUtils.getEmoteText(Emotes.UNKNOWN_EMOTE.get()) : ImageUtils.getEmoteText(p.getReward().getTitle())) + " " + p.getPatron().getFullName() + " - " + (p.getReward() == null ? "No Tier" : p.getReward().getTitle())).collect(Collectors.toList());
 				MessageUtils.sendEmbed(message.getChannel(), build(campaign.getImageUrl(), patrons, oldest, mostRecent, totalPatrons));
 			}
 		} catch (IOException | BotException e) {

@@ -1,12 +1,12 @@
 package com.materiabot.commands;
 import java.util.Arrays;
-import org.apache.commons.lang3.text.WordUtils;
 import com.materiabot.Utils.Constants;
 import com.materiabot.Utils.MessageUtils;
 import com.materiabot.commands.general.HelpCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
+import org.apache.commons.lang3.text.WordUtils;
 
 @SuppressWarnings("deprecation")
 public class SimpleCommand extends _BaseCommand{

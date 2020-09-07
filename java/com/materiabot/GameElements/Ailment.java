@@ -222,9 +222,8 @@ public class Ailment {
 		E245(245, "+1 stack after attacking"),
 		E246(246, "{t}BRV will not drop below {0}% of Max BRV", null),
 		E252(252, "After HP attack, raises BRV by {0}% of HP Damage Dealt"),
-		E255(255, "When Current HP <= {0}% Max HP, recover HP back to {0}% Max HP"),
+		E255(255, "When Current HP <= {0}% Max HP, recover HP back to {0}% Max HP", null),
 		E257(257, null), //BT Buff Effect
-
 		E265(265, "{0}% Critical BRV Taken", true),
 		E266(266, "All BRV hits are Critical Hits"),
 		E268(268, "Cannot be killed"),
@@ -242,7 +241,7 @@ public class Ailment {
 		E311(311, "{0}% of {t}excess healing is converted to BRV"),
 		E317(317, "After any turn, sets {t} BRV to {0}", null),
 		E320(320, "Delay target by {0}T after a physical attack"),
-		E325(325, "「**Drop of Myrrh**」 are not consumed"),
+		E325(325, "「**{0}**」 are not consumed", null),
 		E331(331, "Cannot deal BRV damage"),
 		E335(335, "Cannot deal HP damage"),
 		E327(327, "Cannot inflict debuffs"),
@@ -251,6 +250,7 @@ public class Ailment {
 		E336(336, "Deletes target next turn with abilities"),
 		E347(347, "{t}BRV Regen ({0}% Current HP)"),
 		E348(348, "Raises party BRV by {0}% of Total Chase HP Damage Dealt", null),
+		E355(355, "Raises BRV by {0}% of BRV Damage Dealt", null),
 		E359(359, "Unbreaks target before attack"),
 		;
 
@@ -283,7 +283,17 @@ public class Ailment {
 			if(this == EffectType.E69 || this == EffectType.E194) {
 				if(val_type == 1)
 					val_specify = Integer.parseInt(extra[1]);
-				r = r.replace("{vs}", val_specify > 0 ? u.getSpecificAbility(val_specify).getName() : "Unknown Abilty ID: " + val_specify);
+				r = r.replace("{vs}", val_specify > 0 ? u.getSpecificAbility(val_specify).getName() : "Unknown Ability ID: " + val_specify);
+			}
+			if(this == EffectType.E325) {
+				if(values.length == 0)
+					values = new String[1];
+				if(val_specify == 23)
+					values[0] = u.getSpecificAilment(1996).getName();
+				else if(val_specify == 24)
+					values[0] = u.getSpecificAilment(982).getName();
+				else
+					values[0] = "Unknown ID: " + extra[1];
 			}
 			values = fix(u, values, extra);
 			if(values.length > 0)

@@ -45,17 +45,17 @@ public class UpdateableSimpleCommand extends _BaseCommand{
 			if(msg.contains(" ")){
 				msg = msg.substring(msg.indexOf(" ") + 1).trim();
 				if(msg.equalsIgnoreCase("clear")){
-					SQLAccess.executeInsert("UPDATE Commands SET data = NULL WHERE name = ?", triggerWords.get(0));
+					SQLAccess.executeInsert("UPDATE Commands SET data = NULL WHERE name = ?", triggerWords.stream().reduce((o1, o2) -> o1 + ";;" + o2).get());
 					MessageUtils.sendMessage(message.getChannel(), "Cleared");
 				}else if(msg.length() > 0){
-					SQLAccess.executeInsert("UPDATE Commands SET data = ? WHERE name = ?", msg, triggerWords.get(0));
+					SQLAccess.executeInsert("UPDATE Commands SET data = ? WHERE name = ?", msg, triggerWords.stream().reduce((o1, o2) -> o1 + ";;" + o2).get());
 					MessageUtils.sendMessage(message.getChannel(), "Updated");
 				}else{
 					MessageUtils.sendMessage(message.getChannel(), "Error reading line. Let Quetz know!");
 				}
 			}
 			else{
-				ResultSet rs = SQLAccess.executeSelect("SELECT data FROM Commands WHERE name LIKE ?", "%" + triggerWords.get(0) + "%");
+				ResultSet rs = SQLAccess.executeSelect("SELECT data FROM Commands WHERE name LIKE ?", "%" + triggerWords.stream().reduce((o1, o2) -> o1 + ";;" + o2).get() + "%");
 				if(!rs.next())
 					MessageUtils.sendMessage(message.getChannel(), "Nothing has been set for this command yet!");
 				else
@@ -78,11 +78,12 @@ public class UpdateableSimpleCommand extends _BaseCommand{
 				embed.setFooter("Credits to " + ownerStr);
 			MessageUtils.sendEmbed(message.getChannel(), embed);
 		}else {
-			if(ownerStr != null && StringUtils.isNumeric(ownerStr)) {
-				User owner = message.getJDA().retrieveUserById(ownerStr).complete();
-				text += System.lineSeparator() + "Credits to " + owner.getName() + "#" + owner.getDiscriminator();
-			} else
-				text += System.lineSeparator() + "Credits to " + ownerStr;
+			if(ownerStr != null)
+				if(StringUtils.isNumeric(ownerStr)) {
+					User owner = message.getJDA().retrieveUserById(ownerStr).complete();
+					text += System.lineSeparator() + "Credits to " + owner.getName() + "#" + owner.getDiscriminator();
+				} else
+					text += System.lineSeparator() + "Credits to " + ownerStr;
 			MessageUtils.sendMessage(message.getChannel(), text);
 		}
 	}

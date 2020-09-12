@@ -20,17 +20,17 @@ import com.materiabot.IO.JSON.Unit.PassiveParser;
 import Shared.Methods;
 
 public class UnitParser {
-	public static interface OverrideManager{
-		public static class _Default extends Unit{
-			public _Default(String name, String... nicknames) {
-				super(name, nicknames);
-			}
-		}
-
-		public Unit getUnit(String name);
-		public List<Unit> getAllUnits();
-	}
-	public static List<OverrideManager> overrideManagerCollection = new LinkedList<OverrideManager>();
+//	public static interface OverrideManager{
+//		public static class _Default extends Unit{
+//			public _Default(String name, String... nicknames) {
+//				super(name, nicknames);
+//			}
+//		}
+//
+//		public Unit getUnit(String name);
+//		public List<Unit> getAllUnits();
+//	}
+//	public static List<OverrideManager> overrideManagerCollection = new LinkedList<OverrideManager>();
 	public static List<Unit> UNITS = new LinkedList<Unit>();
 		
 	public Unit parseUnit(String name) {

@@ -85,7 +85,7 @@ public class Methods {
 		return Arrays.stream(ret).filter(o -> o != null).toArray(String[]::new);
 	}
 
-	@Deprecated
+	//@Deprecated
 	/**
 	 * To be used only in names and descriptions to make it easier to find a valid text, following the order: GL > EN > JP
 	 */

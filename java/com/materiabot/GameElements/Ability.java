@@ -831,6 +831,7 @@ public class Ability {
 			removeHitDataById(hdd.getId());
 		removeAilmentById(ailmentId);
 		getDetails().getHits().stream()
+			.filter(hd -> hd != null && hd.getType() != null && hd.getEffect() != null)
 			.filter(hd -> hd.getType().equals(Ability.Details.Hit_Data.Type.BRV) || hd.getType().equals(Ability.Details.Hit_Data.Type.BRVIgnoreDEF))
 			.peek(hd -> hd.setArguments(new Integer[]{critDamagePercentage}))
 			.limit(1)

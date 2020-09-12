@@ -133,7 +133,7 @@ public class Ailment {
 		E56(56, "{0}% {t}BRV Damage when hitting elemental weakness"),
 		E57(57, "{0}% {t}HP Damage taken", true),
 		E58(58, "{0}% {t}BRV Damage taken", true),
-		E59(59, "{t}Attacks deal +3 [CU](https://www.reddit.com/r/DissidiaFFOO/comments/7x7ffp/chase_mechanic/)"), //Fake Ailment used by Layle EX Buff
+		E59(59, "Revive with {0}% Max HP if KO'd", null),
 		E60(60, "Aura (Separate Parsing)"),
 		E61(61, "{0}% BRV Damage per debuff on target"),
 		E62(62, "Shields BRV for {0}% of caster Int BRV", null),
@@ -149,7 +149,6 @@ public class Ailment {
 		E82(82, null), //Gabranth Main Buff Random Effect
 		E83(83, null), //Gladio EX Random Effect
 		E84(84, null), //Gladio S1/EX Random Effect
-		E85(85, "Revive with {0}% Max HP if KO'd", null),
 		//E85 - Selphie Aura - Unknown effect
 		E97(97, "{0}% {t}BRV Damage when hitting weakness"),
 		E98(98, "Dispels if broken"),
@@ -224,7 +223,7 @@ public class Ailment {
 		E252(252, "After HP attack, raises BRV by {0}% of HP Damage Dealt"),
 		E255(255, "When Current HP <= {0}% Max HP, recover HP back to {0}% Max HP", null),
 		E257(257, null), //BT Buff Effect
-		E265(265, "{0}% Critical BRV Taken", true),
+		E265(265, "{0}% Critical BRV Damage Taken", true),
 		E266(266, "All BRV hits are Critical Hits"),
 		E268(268, "Cannot be killed"),
 		E276(276, "Move your next turn to just before the target next turn"),
@@ -252,6 +251,8 @@ public class Ailment {
 		E348(348, "Raises party BRV by {0}% of Total Chase HP Damage Dealt", null),
 		E355(355, "Raises BRV by {0}% of BRV Damage Dealt", null),
 		E359(359, "Unbreaks target before attack"),
+		
+		E1001(1001, "{t}Attacks deal +3 [CU](https://www.reddit.com/r/DissidiaFFOO/comments/7x7ffp/chase_mechanic/)"), //Fake Ailment used by Layle EX Buff
 		;
 
 		private int id;

@@ -15,7 +15,7 @@ public class AdminCommand extends _BaseCommand{
 		try {
 			String[] msg = event.getContentDisplay().split(" ");
 			if(msg.length == 1) {
-				MessageUtils.sendMessage(event.getChannel(), "$admin [reload/ttpatreon]");
+				MessageUtils.sendMessage(event.getChannel(), "$admin [reload/ttpatreon/monsterupdate]");
 				return;
 			}
 			switch(msg[1].toLowerCase()) {

@@ -18,7 +18,7 @@ public class _Library {
 
 	private _Library() {
 		UNIT_CACHE = CacheBuilder.newBuilder()
-				.expireAfterAccess(15, TimeUnit.MINUTES).build(new CacheLoader<String, Unit>(){
+				.expireAfterAccess(30, TimeUnit.MINUTES).build(new CacheLoader<String, Unit>(){
 					@Override
 					public Unit load(String key) throws Exception {
 						return new UnitParser().parseUnit(key);

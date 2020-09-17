@@ -375,14 +375,14 @@ public class Passive{
 		
 		private String[] fix(Unit u, int cl, String[] v) {
 			switch(id) {
-				case 14:
-				case 82:{
+				case 14:{
 					Ability ab = u.getSpecificAbility(Integer.parseInt(v[0]));
 					v[0] = v[0].equals("-1") ? "any ability" : (ab != null ? ab.getName() : "Unknown Skill ID: " + v[0]);
 					break;}
 				case 32:
 				case 40:
-				case 78:{
+				case 78:
+				case 82:{
 					Ailment ail = u.getSpecificAilment(Integer.parseInt(v[0]));
 					v[0] = ail != null ? ail.getName() : "Unknown Ailment ID: " + v[0];
 					break;}

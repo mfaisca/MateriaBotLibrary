@@ -68,6 +68,7 @@ public class UnitParser {
 		u.setCrystal(Crystal.find(obj.getObject("profile").getInt("crystal")));
 		u.setEquipmentType(Equipment.Type.find(obj.getObject("profile").getInt("weaponType")));
 		u.setSeries(obj.getObject("profile").getInt("world"));
+		u.setId(obj.getObject("profile").getInt("world") * 40 + obj.getObject("profile").getInt("sort_num"));
 		for(int i = 0; i < 3; i++)
 			u.getSphereSlots()[i] = SphereType.get(obj.getObject("profile").getObject("traits").getStringArray("spheres")[i]);
 	}

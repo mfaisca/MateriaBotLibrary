@@ -264,7 +264,7 @@ public class Ability {
 				E1(1, null, true), //Basic Hits
 				E7(7, "Removes {0} debuffs from {t}"),//(#ofRemovedDebuffs[, ?]) First can be -1 for all
 				E8(8, "Removes {0} buffs from {t}"),//(#ofRemovedBuffs[, ?, ?])  First can be -1 for all
-				E25(25, "BRV Hits are guaranted hits", true, false),
+				E25(25, "BRV Hits are guaranteed hits", true, false),
 				E33(33, "Give turn to selected ally"),//(-1) Argument unknown
 				E34(34, "{0}"),//Angel Wing Unique Buff - ([1]) No value = remove, Value = give
 				E37(37, "Dispels 「**{0}**」", false, false),//(ID of buff)

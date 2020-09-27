@@ -148,7 +148,7 @@ public class PatreonCommand extends _BaseCommand{
 					}).findFirst().map(p -> (p.getReward() == null ? ImageUtils.getEmoteText(Emotes.UNKNOWN_EMOTE.get()) : ImageUtils.getEmoteText(p.getReward().getTitle())) + " " + p.getPatron().getFullName()).orElse(null);
 				List<String> patrons = pledges.stream()
 					.sorted((p1, p2) -> p2.getAmountCents() - p1.getAmountCents())
-					.map(p -> (p.getReward() == null ? ImageUtils.getEmoteText(Emotes.UNKNOWN_EMOTE.get()) : ImageUtils.getEmoteText(p.getReward().getTitle())) + " " + p.getPatron().getFullName() + " - " + (p.getReward() == null ? "No Tier" : p.getReward().getTitle())).collect(Collectors.toList());
+					.map(p -> (p.getReward() == null ? ImageUtils.getEmoteText(Emotes.UNKNOWN_EMOTE.get()) : ImageUtils.getEmoteText(p.getReward().getTitle())) + " " + p.getPatron().getFullName()).collect(Collectors.toList());
 				MessageUtils.sendEmbed(message.getChannel(), build(campaign.getImageUrl(), patrons, oldest, mostRecent, totalPatrons));
 			}
 		} catch (IOException | BotException e) {

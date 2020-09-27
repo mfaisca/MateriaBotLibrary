@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import com.materiabot.GameElements.Sphere.SphereType;
 
-public class Unit {	
+public class Unit {
+	private int id;
 	private String name;
 	private int series = -1;
 	private List<String> nicknames = new LinkedList<String>();
@@ -31,7 +32,9 @@ public class Unit {
 		if(nicknames != null)
 			this.nicknames.addAll(Arrays.asList(nicknames).stream().map(s -> s.toLowerCase()).collect(Collectors.toList()));
 	}
-	
+
+	public int getId() { return id; }
+	public void setId(int id) { this.id = id; }
 	public String getName() { return name; }
 	public int getSeries() { return series; }
 	public void setSeries(int series) { this.series = series; }

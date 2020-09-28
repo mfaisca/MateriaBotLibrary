@@ -251,6 +251,10 @@ public class Ailment {
 		E348(348, "Raises party BRV by {0}% of Total Chase HP Damage Dealt", null),
 		E355(355, "Raises BRV by {0}% of BRV Damage Dealt", null),
 		E359(359, "Unbreaks target before attack"),
+		E367(367, "+1 stack after every ally turn", null),
+		E368(368, "Resets to 1 stack after enemy turn", null),
+		E374(374, "Reduce BRV by {0}% at end of turn", null),
+		E390(390, "Apply 「**{0}**」 after attacking", null),
 		
 		E1001(1001, "{t}Attacks deal +3 [CU](https://www.reddit.com/r/DissidiaFFOO/comments/7x7ffp/chase_mechanic/)"), //Fake Ailment used by Layle EX Buff
 		;
@@ -336,6 +340,10 @@ public class Ailment {
 					break;
 				case 223:
 					v = new String[] {v[0], "35"};
+					break;
+				case 390:
+					v = new String[1];
+					v[0] = u.getSpecificAilment(Integer.parseInt(extra[1])).getName();
 					break;
 			}
 			return v;
@@ -427,7 +435,7 @@ public class Ailment {
 	public int[] getArgs() {
 		return args;
 	}
-	public void setArgs(int[] args) {
+	public void setArgs(int... args) {
 		this.args = args;
 	}
 	public Target getTarget() {

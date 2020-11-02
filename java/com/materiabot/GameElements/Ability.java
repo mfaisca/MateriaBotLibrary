@@ -281,7 +281,7 @@ public class Ability {
 				E50(50, null), //Yuri Only
 				E51(51, "Transfer own debuffs to all enemies" + System.lineSeparator() + 
 						"Extends transferred debuff duration by {0}"), //(Duration extended, ?, ?, ?) OR (Duration extended, ?, ?) - It always transfers to all, even though target is 1
-				E52(52, "Reduce {t} HP by {0}%"), //(%, ?) - Cecil, Rinoa, Yuri
+				E52(52, "Reduce {t} Current HP by {0}%"), //(%, ?) - Cecil, Rinoa, Yuri, Vivi
 				E54(54, "Revive {t} with {0}% of {evt}"), //(% of effectValueType, ?)
 				E55(55, null), //(100) - Balthier Great Aim and Yuffie I dont need this, but unknown what it refers to
 				E57(57, "{0}% chance to BREAK {t}", true), //(success%)
@@ -498,7 +498,7 @@ public class Ability {
 								v[0] = "**Unknown Effect Variant**";
 							break;
 						case 136: //Recover {0} of {2} - (#ofUses, 100, skillID)
-							Ability ab = u.getSpecificAbility(Integer.parseInt(v[2]));
+							Ability ab = u.getSpecificAbility(Integer.parseInt(v[2]));;
 							v[0] = v[0].equals("-1") ? "all uses" : (v[0].equals("1") ? "1 use" : (v[0] + " uses"));
 							v[2] = v[2].equals("-1") ? "both abilities" : (ab != null ? ab.getName() : ("Unknown Skill ID: " + v[2]));
 							break;
@@ -789,7 +789,7 @@ public class Ability {
 		if(useCount == -1) return 0;
 		return unit.getBaseAbility(type) == null ? 0 : unit.getBaseAbility(type).get(0).useCount + Streams.concat(
 								unit.getEquipment().stream().flatMap(e -> e.getPassives().stream()),
-								unit.getPassives().values().stream())
+								unit.getJPPassives().values().stream())
 							.filter(Methods.distinctByKey(p -> p.getId()))
 							.flatMap(e -> e.getEffects().stream())
 							.map(e -> e.getValue1())

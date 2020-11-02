@@ -82,6 +82,7 @@ public class Ailment {
 	}
 
 	public static enum EffectType{
+		E0(0, null),
 		E1(1, "{0}% {t}ATK"),
 		E2(2, "{0}% {t}DEF"),
 		E3(3, "{0}% {t}Speed"),
@@ -154,7 +155,7 @@ public class Ailment {
 		E98(98, "Dispels if broken"),
 		E101(101, null), //Unknown Poison second effect
 		E103(103, "Unable to act"),
-		E105(105, "{t} Unable to battery"),
+		E105(105, "{t} unable to battery"),
 		E106(106, "{t} EX Recast {0}%"),
 		E107(107, "Prevents from being broken"),
 		E110(110, "Free turn after breaking a target"),
@@ -178,14 +179,14 @@ public class Ailment {
 		E150(150, "{0}% {t} Gained BRV Overflow"),
 		E151(151, "Triggers 「**{0}**」 at end of turn", null),
 		E169(169, "{0}% {t}Ranged BRV Overflow"),
-		E164(164, "{t} Unable to gain buffs"),
-		E165(165, "{t} Unable to battery"),
+		E164(164, "{t} unable to gain buffs"),
+		E165(165, "{t} unable to battery"),
 		E180(180, "{0}% {t} HP damage taken", true),
 		E181(181, "{vs} joins you in battle"),
 		E183(183, null), //Both Eight Counterbuffs have this
 		E184(184, "{0}% {t} BRV damage taken", true), //Manually Made
 		E185(185, null), //Kurasame useless effect?
-		E186(186, "{t} Unable to gain BRV"),
+		E186(186, "{t} unable to gain BRV"),
 		E190(190, "Last stand on {t} when {0}% Max HP or higher", null),
 		E191(191, "Sets {t} HP Damage dealt to 0"),
 		E193(193, "HP Damage equal to {0}% of Attack", null),
@@ -220,19 +221,20 @@ public class Ailment {
 		E244(244, "{0}% {t}BRV Damage taken if broken", true),
 		E245(245, "+1 stack after attacking"),
 		E246(246, "{t}BRV will not drop below {0}% of Max BRV", null),
-		E252(252, "After HP attack, raises BRV by {0}% of HP Damage Dealt"),
+		E252(252, "After HP attack, raises BRV by {0}% of HP Damage Dealt", null),
 		E255(255, "When Current HP <= {0}% Max HP, recover HP back to {0}% Max HP", null),
 		E257(257, null), //BT Buff Effect
 		E265(265, "{0}% Critical BRV Damage Taken", true),
 		E266(266, "All BRV hits are Critical Hits"),
 		E268(268, "Cannot be killed"),
+		E274(274, "Triggers 「**{0}**」 after ally attack or enemy attacks", null),
 		E276(276, "Move your next turn to just before the target next turn"),
 		E279(279, "-100% HP Damage taken"),
 		E280(280, null), //Nine LD ???
 		E282(282, "Sets HP to 1 if at 0 HP when buff expires"),
 		E288(288, "{0} duration when hit"),
-		E284(284, "Raises BRV by {0}% of remaining 「**Shield**」", null),
-		E293(293, "{t} 「**Shield**」 protects HP damage as well"),
+		E284(284, "Raises party member BRV by {0}% of remaining 「**Shield**」 at the start of their turn", null),
+		E293(293, "Nulls {t} HP damage that is lower than each ally's 「**Shield**」 power"),
 		E294(294, "Triggers 「**{0}**」 after party member turn", null),
 		E295(295, "Caster takes the hit for ally"),
 		E300(300, "{0}% {t}BRV Damage when attacking a broken target"),
@@ -255,8 +257,11 @@ public class Ailment {
 		E368(368, "Resets to 1 stack after enemy turn", null),
 		E374(374, "Reduce BRV by {0}% at end of turn", null),
 		E390(390, "Apply 「**{0}**」 after attacking", null),
+		E403(403, "Raises allies BRV by {0}% of own Max BRV when dealing weakness damage", null),
+		E418(418, "Triggers 「**{vs}**」 after own turn when at 1+ stacks"),
 		
 		E1001(1001, "{t}Attacks deal +3 [CU](https://www.reddit.com/r/DissidiaFFOO/comments/7x7ffp/chase_mechanic/)"), //Fake Ailment used by Layle EX Buff
+		E1002(1002, "{t} cannot be broken by BRV damage"),
 		;
 
 		private int id;
@@ -285,7 +290,8 @@ public class Ailment {
 		}		
 		private String getDescription(Unit u, String[] values, int val_type, int val_specify, Target target, String... extra) {
 			String r = baseDescription;
-			if(this == EffectType.E69 || this == EffectType.E194) {
+			//if(this == EffectType.E69 || this == EffectType.E194) {
+			if(this.baseDescription.contains("{vs}")) {
 				if(val_type == 1)
 					val_specify = Integer.parseInt(extra[1]);
 				r = r.replace("{vs}", val_specify > 0 ? u.getSpecificAbility(val_specify).getName() : "Unknown Ability ID: " + val_specify);
@@ -334,6 +340,7 @@ public class Ailment {
 					break;
 				case 151:
 				case 230:
+				case 274:
 				case 294:
 					v = new String[1];
 					v[0] = u.getSpecificAbility(Integer.parseInt(extra[1])).getName();

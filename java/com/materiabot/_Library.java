@@ -106,7 +106,7 @@ public class _Library {
 					new SummonPassive("Alexander Target Power", "When attacking an enemy targeting self:\n- Increases BRV damage dealt by 10%", "BRV dmg dealt +10% if enemy targetting self", true), 
 					new SummonPassive("Alexander Receive Heal Up", "When BRV < 50% Max BRV- Increases HP recovered by 5%", "HP recovered +5% if MaxBRV<50%")));
 			SUMMON_LIST.add(new Summon(Arrays.asList("Diabolos", "Diablos", "Dia"), 30, Element.Dark, "Dark Messenger", "Raises Initial BRV by 30%" + System.lineSeparator()
-					+ "Permanently boosts Elemental Weakness Attacks by 30% when HP < 80%", "4000 Dark BRV Magical damage" + System.lineSeparator() + "Grants Dark attribute and faster Chase to the party", 
+					+ "Permanently boosts Elemental Weakness Attacks by 30% when HP < 80%", "4000 Dark BRV Magical damage" + System.lineSeparator() + "Grants Dark attribute to the party", 
 					"12|10|14|6|8", "Wakka|Aerith|Deuce|Kuja|Sabin|Vaan", 6, 6000, "Moderately Fast",  
 					new SummonPassive("Dark Resist Up", "Lowers Dark damage taken by 10%.", "Dark dmg taken -10%"),
 					new SummonPassive("Dark Resist All", "Lowers Party Dark damage taken by 3%.", "Dark party dmg taken -3%"), 
@@ -116,7 +116,7 @@ public class _Library {
 					new SummonPassive("Diabolos Receive BRV Heal Up", "Raises BRV gained by 5%", "BRV Gained +5%", true), 
 					new SummonPassive("Diabolos Protect Up", "Lowers HP damage taken by 5% when Max BRV < 50%", "HP dmg taken -5% if BRV<50%")));
 			SUMMON_LIST.add(new Summon(Arrays.asList("Odin"), 30, null, "Zantetsuken", "Decreases DEF of all enemies by 15%" + System.lineSeparator() + "After HP drops below 80%, permanently increases ATK by 30%.", 
-					"4000 Melee BRV Melee damage with a low BREAK chance" + System.lineSeparator() + "Raises Attack of Swords and Greatswords users by 25%", 
+					"4000 Melee BRV Melee damage with a low BREAK chance" + System.lineSeparator() + "Raises Attack by 30%", 
 					"8|6|10|12|14", "Noctis|Cecil Paladin|Fang|Irvine|Seven|Fran", 6, 6000, "Moderately Fast", 
 					new SummonPassive("Physical Resist Up", "Lowers Physical damage taken by 10%.", "Physical dmg taken -10%"),
 					new SummonPassive("Physical Resist All", "Lowers Party Physical damage taken by 3%.", "Physical party dmg taken -3%"), 

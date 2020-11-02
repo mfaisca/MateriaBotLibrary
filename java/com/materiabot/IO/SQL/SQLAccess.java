@@ -23,7 +23,7 @@ import net.dv8tion.jda.api.entities.Guild;
 
 public class SQLAccess {
 	private static MysqlConnectionPoolDataSource dataSource;
-	public static final String BOT_TOKEN_KEY = !Constants.isHeaven() ? "BOT_TOKEN_KEY" : "BOT_TOKEN_KEY_DEBUG";
+	public static final String BOT_TOKEN_KEY = Constants.isHeaven() ? "BOT_TOKEN_KEY" : "BOT_TOKEN_KEY_DEBUG";
 	public static final String PATREON_ACCESS_TOKEN = "PATREON_ACCESS_TOKEN";
 	public static final String PATREON_TT_ACCESS_TOKEN = "PATREON_TT_ACCESS_TOKEN";
 	public static final String CLEVERBOT_TOKEN_KEY = "CLEVERBOT_TOKEN_KEY"; 

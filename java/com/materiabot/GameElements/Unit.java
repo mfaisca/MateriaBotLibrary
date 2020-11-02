@@ -114,8 +114,8 @@ public class Unit {
 	public Ability getSpecificAbility(int id) {
 		return abilities.get(id);
 	}
-	public Passive getSpecificPassive(int id) {
-		return passives.get(id);
+	public Passive getSpecificPassive(Passive p) {
+		return p;
 	}
 	public Ailment getSpecificAilment(int id) {
 		return ailments.get(id);

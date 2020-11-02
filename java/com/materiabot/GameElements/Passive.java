@@ -226,13 +226,13 @@ public class Passive{
 					break;}
 				case 66: {
 					switch(v[1]) {
-						case "2": v[1] = "20% IBrv Poison";
-						case "10": v[1] = "10% Max Brv Down";
-						case "11": v[1] = "10% Atk Down";
-						case "13": v[1] = "10% Def Down";
-						case "15": v[1] = "10% Speed Down";
-						case "57": v[1] = "10% Max Brv Up";
-						case "403": v[1] = "Lock";
+						case "2": v[1] = "20% Poison"; break;
+						case "10": v[1] = "10% Max Brv Down"; break;
+						case "11": v[1] = "10% Atk Down"; break;
+						case "13": v[1] = "10% Def Down"; break;
+						case "15": v[1] = "10% Speed Down"; break;
+						case "57": v[1] = "10% Max Brv Up"; break;
+						case "403": v[1] = "Lock"; break;
 					}
 					break;
 				}
@@ -444,7 +444,7 @@ public class Passive{
 	private int id;
 	private String name;
 	private Unit unit;
-	private String desc, shortDesc;
+	private String desc, shortDesc, manualDesc;
 	private int cp, level;
 	private Target target;
 	private List<Dual<JSONParser.ValueGrouping<Effect>, JSONParser.ValueGrouping<Required>>> effects = new LinkedList<Dual<JSONParser.ValueGrouping<Effect>, JSONParser.ValueGrouping<Required>>>();
@@ -479,6 +479,12 @@ public class Passive{
 	public void setShortDescription(String shortDesc) {
 		this.shortDesc = shortDesc;
 	}
+	public String getManualDesc() {
+		return manualDesc;
+	}
+	public void setManualDescription(String manualDesc) {
+		this.manualDesc = manualDesc;
+	}
 	public int getCp() {
 		return cp;
 	}
@@ -502,6 +508,8 @@ public class Passive{
 	}
 	
 	public String generateDescription() {
+		if(getManualDesc() != null)
+			return getManualDesc();
 		try {
 			List<String> results = new LinkedList<String>();
 			JSONParser.ValueGrouping<Effect> previousEff = null;

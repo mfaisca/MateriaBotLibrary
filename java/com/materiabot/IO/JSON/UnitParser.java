@@ -113,10 +113,12 @@ public class UnitParser {
 			p.setUnit(u);
 			u.getJPPassives().put(p.getLevel(), p);
 			u.getPassives().put(p.getLevel(), p);
+			p = u.getSpecificPassive(p);
 		}
 		for(Passive p : new PassiveParser().parsePassives(obj, "glAwakeningPassives")) {
 			p.setUnit(u);
 			u.getPassives().put(p.getLevel(), p);
+			p = u.getSpecificPassive(p);
 		}
 	}
 	private void parseCharaBoards(Unit u, MyJSONObject obj) {
